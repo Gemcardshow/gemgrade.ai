@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GemGrade AI - Card Grader</title>
+</head>
+<body style="font-family: Arial; text-align: center; margin-top: 50px;">
+
+  <h1>GemGrade AI</h1>
+  <p>Upload your card (coming next)</p>
+
+  <button onclick="gradeCard()">Test Grade</button>
+
+  <pre id="result"></pre>
+
+  <script>
+    async function gradeCard() {
+      const res = await fetch('/api/grade');
+      const data = await res.json();
+      document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+    }
+  </script>
+
+</body>
+</html>
