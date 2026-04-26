@@ -1,24 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>GemGrade AI - Card Grader</title>
-</head>
-<body style="font-family: Arial; text-align: center; margin-top: 50px;">
+<h1>GemGrade AI</h1>
+<p>Upload your card</p>
 
-  <h1>GemGrade AI</h1>
-  <p>Upload your card (coming next)</p>
+<input type="file" id="cardImage" />
+<br><br>
 
-  <button onclick="gradeCard()">Test Grade</button>
+<button onclick="gradeCard()">Grade Card</button>
 
-  <pre id="result"></pre>
+<pre id="result"></pre>
 
-  <script>
-    async function gradeCard() {
-      const res = await fetch('/api/grade');
-      const data = await res.json();
-      document.getElementById('result').innerText = JSON.stringify(data, null, 2);
-    }
-  </script>
+<script>
+async function gradeCard() {
+  const fileInput = document.getElementById('cardImage');
+  const file = fileInput.files[0];
 
-</body>
-</html>
+  if (!file) {
+    alert("Upload a card first!");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch('/api/grade', {
+    method: 'POST',
+    body: formData
+  });
+
+  const data = await res.json();
+
+  document.getElementById('result').innerText =
+    JSON.stringify(data, null, 2);
+}
+</script>
