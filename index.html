@@ -67,10 +67,13 @@
 <script>
 function gradeCard() {
 
-  const edges = document.getElementById('edges').value;
-  const corners = document.getElementById('corners').value;
-  const surface = document.getElementById('surface').value;
-  const centering = document.getElementById('centering').value;
+  const edges = (parseFloat(document.getElementById('edgesFront').value) + parseFloat(document.getElementById('edgesBack').value)) / 2;
+
+  const corners = (parseFloat(document.getElementById('cornersFront').value) + parseFloat(document.getElementById('cornersBack').value)) / 2;
+
+  const surface = (parseFloat(document.getElementById('surfaceFront').value) + parseFloat(document.getElementById('surfaceBack').value)) / 2;
+
+  const centering = (parseFloat(document.getElementById('centeringFront').value) + parseFloat(document.getElementById('centeringBack').value)) / 2;
 
   fetch(`/api/grade?edges=${edges}&corners=${corners}&surface=${surface}&centering=${centering}`)
     .then(res => res.json())
