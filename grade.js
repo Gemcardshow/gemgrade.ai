@@ -14,7 +14,7 @@ export default function handler(req, res) {
       parseFloat(centering)) /
     4;
 
-  const finalGrade = Math.round(avg * 2) / 2;
+  const overall = Math.round(avg * 2) / 2;
 
   res.status(200).json({
     edges,
