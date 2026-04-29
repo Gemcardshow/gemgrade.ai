@@ -54,17 +54,20 @@
 </div>
 
 <script>
-async function gradeCard() {
+function gradeCard() {
+
   const edges = document.getElementById('edges').value;
   const corners = document.getElementById('corners').value;
   const surface = document.getElementById('surface').value;
   const centering = document.getElementById('centering').value;
 
-  const res = await fetch(`/api/grade?edges=${edges}&corners=${corners}&surface=${surface}&centering=${centering}`);
-  const data = await res.json();
+  fetch(`/api/grade?edges=${edges}&corners=${corners}&surface=${surface}&centering=${centering}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('result').innerHTML =
+        "Final Grade: " + data.finalGrade;
+    });
 
-  document.getElementById('result').innerHTML =
-    "Final Grade: " + data.finalGrade;
 }
 </script>
 
