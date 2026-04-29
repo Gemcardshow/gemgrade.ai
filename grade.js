@@ -6,7 +6,11 @@ export default async function handler(req, res) {
   });
 
   try {
-    const { image } = req.body;
+    const { frontImage, backImage } = req.body;
+
+    if (!frontImage || !backImage) {
+      return res.status(400).json({ error: "Front and back images are required" });
+    }
 
     const response = await client.responses.create({
       prompt: {
@@ -17,10 +21,17 @@ export default async function handler(req, res) {
         {
           role: "user",
           content: [
-            { type: "input_text", text: "Grade this sports card image." },
+            {
+              type: "input_text",
+              text: "FREE MODE: Grade this sports card using both the front and back images.",
+            },
             {
               type: "input_image",
-              image_url: image,
+              image_url: frontImage,
+            },
+            {
+              type: "input_image",
+              image_url: backImage,
             },
           ],
         },
