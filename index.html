@@ -91,7 +91,7 @@ function gradeCard() {
     .then(res => res.json())
     .then(data => {
       document.getElementById('result').innerHTML =
-        "Final Grade: " + data.finalGrade;
+        "Final Grade: " + data.overall;
     });
 
 }
