@@ -1,34 +1,72 @@
-<h1>GemGrade AI</h1>
-<p>Upload your card</p>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GemGrade AI</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #111;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
 
-<input type="file" id="cardImage" />
-<br><br>
+    .box {
+      background: #1c1c1c;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: auto;
+    }
 
-<button onclick="gradeCard()">Grade Card</button>
+    input, button {
+      margin: 10px;
+      padding: 10px;
+      width: 80%;
+    }
 
-<pre id="result"></pre>
+    button {
+      background: gold;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>💎 GemGrade AI</h1>
+
+<div class="box">
+  <input type="number" id="edges" placeholder="Edges (1-10)" step="0.5">
+  <input type="number" id="corners" placeholder="Corners (1-10)" step="0.5">
+  <input type="number" id="surface" placeholder="Surface (1-10)" step="0.5">
+  <input type="number" id="centering" placeholder="Centering (1-10)" step="0.5">
+
+  <button onclick="gradeCard()">Grade Card</button>
+
+  <div class="result" id="result"></div>
+</div>
 
 <script>
 async function gradeCard() {
-  const fileInput = document.getElementById('cardImage');
-  const file = fileInput.files[0];
+  const edges = document.getElementById('edges').value;
+  const corners = document.getElementById('corners').value;
+  const surface = document.getElementById('surface').value;
+  const centering = document.getElementById('centering').value;
 
-  if (!file) {
-    alert("Upload a card first!");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const res = await fetch('/api/grade', {
-    method: 'POST',
-    body: formData
-  });
-
+  const res = await fetch(`/api/grade?edges=${edges}&corners=${corners}&surface=${surface}&centering=${centering}`);
   const data = await res.json();
 
-  document.getElementById('result').innerText =
-    JSON.stringify(data, null, 2);
+  document.getElementById('result').innerHTML =
+    "Final Grade: " + data.finalGrade;
 }
 </script>
+
+</body>
+</html>
