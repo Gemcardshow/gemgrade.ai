@@ -28,8 +28,8 @@ export default async function handler(req, res) {
           role: "user",
           content: [
             { type: "input_text", text: "FREE MODE: Grade this card using both images." },
-            { type: "input_image", image_base64: frontImage }, // 👈 use base64 field
-            { type: "input_image", image_base64: backImage },
+            { type: "input_image", image_url: frontImage },
+{ type: "input_image", image_url: backImage },
           ],
         },
       ],
