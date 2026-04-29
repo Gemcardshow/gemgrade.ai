@@ -1,15 +1,19 @@
 import OpenAI from "openai";
 
 export default async function handler(req, res) {
-  const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-
   try {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    const client = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
     const { frontImage, backImage } = req.body;
 
     if (!frontImage || !backImage) {
-      return res.status(400).json({ error: "Front and back images are required" });
+      return res.status(400).json({ error: "Images missing" });
     }
 
     const response = await client.responses.create({
@@ -21,7 +25,7 @@ export default async function handler(req, res) {
         {
           role: "user",
           content: [
-            { type: "input_text", text: "FREE MODE: Grade this card using both images." },
+            { type: "input_text", text: "FREE MODE: Grade this card." },
             { type: "input_image", image_url: frontImage },
             { type: "input_image", image_url: backImage }
           ],
@@ -29,11 +33,15 @@ export default async function handler(req, res) {
       ],
     });
 
-    res.status(200).json({ result: response.output_text });
+    return res.status(200).json({
+      result: response.output_text,
+    });
 
   } catch (error) {
-    res.status(500).json({
-      error: error.message || "Error grading card"
+    console.error("FULL ERROR:", error);
+
+    return res.status(500).json({
+      error: error.message || "Server crashed",
     });
   }
 }
