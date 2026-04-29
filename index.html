@@ -3,39 +3,11 @@
 <head>
   <title>GemGrade AI</title>
   <style>
-    body {
-      font-family: Arial;
-      background: #111;
-      color: white;
-      text-align: center;
-      padding: 40px;
-    }
-
-    .box {
-      background: #1c1c1c;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: auto;
-    }
-
-    input, button {
-      margin: 10px;
-      padding: 10px;
-      width: 80%;
-    }
-
-    button {
-      background: gold;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .result {
-      margin-top: 20px;
-      font-size: 18px;
-    }
+    body { font-family: Arial; background:#111; color:white; text-align:center; padding:40px; }
+    .box { background:#1c1c1c; padding:20px; border-radius:10px; max-width:500px; margin:auto; }
+    input, button { margin:10px; padding:10px; width:80%; }
+    button { background:gold; border:none; font-weight:bold; cursor:pointer; }
+    .result { margin-top:20px; font-size:16px; text-align:left; white-space:pre-wrap; }
   </style>
 </head>
 <body>
@@ -43,21 +15,13 @@
 <h1>💎 GemGrade AI</h1>
 
 <div class="box">
+  <p>Upload front and back of your card.</p>
 
-  <input type="file" id="frontImage">
-  <input type="file" id="backImage">
+  <label>Front Image</label>
+  <input type="file" id="frontImage" accept="image/*">
 
-  <h3>Front</h3>
-<input type="number" id="edgesFront" placeholder="Edges Front" step="0.5">
-<input type="number" id="cornersFront" placeholder="Corners Front" step="0.5">
-<input type="number" id="surfaceFront" placeholder="Surface Front" step="0.5">
-<input type="number" id="centeringFront" placeholder="Centering Front" step="0.5">
-
-<h3>Back</h3>
-<input type="number" id="edgesBack" placeholder="Edges Back" step="0.5">
-<input type="number" id="cornersBack" placeholder="Corners Back" step="0.5">
-<input type="number" id="surfaceBack" placeholder="Surface Back" step="0.5">
-<input type="number" id="centeringBack" placeholder="Centering Back" step="0.5">
+  <label>Back Image</label>
+  <input type="file" id="backImage" accept="image/*">
 
   <button onclick="gradeCard()">Grade Card</button>
 
@@ -65,35 +29,46 @@
 </div>
 
 <script>
-function gradeCard() {
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
-  const edges = (
-    parseFloat(document.getElementById('edgesFront').value) +
-    parseFloat(document.getElementById('edgesBack').value)
-  ) / 2;
+async function gradeCard() {
+  const resultDiv = document.getElementById("result");
+  const front = document.getElementById("frontImage").files[0];
+  const back = document.getElementById("backImage").files[0];
 
-  const corners = (
-    parseFloat(document.getElementById('cornersFront').value) +
-    parseFloat(document.getElementById('cornersBack').value)
-  ) / 2;
+  if (!front || !back) {
+    resultDiv.innerText = "Please upload both front and back images.";
+    return;
+  }
 
-  const surface = (
-    parseFloat(document.getElementById('surfaceFront').value) +
-    parseFloat(document.getElementById('surfaceBack').value)
-  ) / 2;
+  resultDiv.innerText = "Analyzing card...";
 
-  const centering = (
-    parseFloat(document.getElementById('centeringFront').value) +
-    parseFloat(document.getElementById('centeringBack').value)
-  ) / 2;
+  const frontBase64 = await fileToBase64(front);
+  const backBase64 = await fileToBase64(back);
 
-  fetch(`/api/grade?edges=${edges}&corners=${corners}&surface=${surface}&centering=${centering}`)
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById('result').innerHTML =
-        "Final Grade: " + data.overall;
-    });
+  const res = await fetch("/api/grade", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      frontImage: frontBase64,
+      backImage: backBase64
+    })
+  });
 
+  const data = await res.json();
+
+  if (data.result) {
+    resultDiv.innerText = data.result;
+  } else {
+    resultDiv.innerText = "Error grading card. Check API setup.";
+  }
 }
 </script>
 
