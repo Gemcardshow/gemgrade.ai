@@ -41,6 +41,9 @@ const instruction =
     return res.status(200).json({ result: response.output_text });
 
   } catch (error) {
+    if (!req.body) {
+  return res.status(400).json({ error: "No request body" });
+}
     console.error("FULL ERROR:", error);
     return res.status(500).json({
       error: error?.message || "Server crashed",
