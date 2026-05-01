@@ -87,8 +87,11 @@ async function gradeCard() {
     const data = await res.json();
 
     if (data.result) {
-      resultDiv.innerText = data.result;
-    } else {
+  resultDiv.innerText = data.result;
+
+  // show pro button
+  document.getElementById("proBtn").style.display = "block";
+} else {
       resultDiv.innerText = data.error || "Error grading card.";
     }
   } catch (err) {
