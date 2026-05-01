@@ -8,11 +8,14 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: "Method not allowed" });
     }
 
-    const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+   { type: "input_text", text: instruction },
 
-    const { frontImage, backImage } = req.body || {};
+   const { frontImage, backImage, mode } = req.body;
+
+const instruction =
+  mode === "pro"
+    ? "PRO MODE: Give full detailed breakdown including exact flaws, grading reasoning, deduction logic, why it is not a 10, and PSA prediction."
+    : "FREE MODE: Give only overall grade and category scores. Do not explain details.";
 
     if (!frontImage || !backImage) {
       return res.status(400).json({ error: "Front and back images are required" });
@@ -27,7 +30,7 @@ export default async function handler(req, res) {
         {
           role: "user",
           content: [
-            { type: "input_text", text: "FREE MODE: Grade this card using both images." },
+           { type: "input_text", text: instruction },
             { type: "input_image", image_url: frontImage },
 { type: "input_image", image_url: backImage },
           ],
