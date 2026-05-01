@@ -68,7 +68,27 @@ async function gradeCard() {
     resultDiv.innerText = "Please upload both front and back images.";
     return;
   }
+async function unlockPro() {
+  const resultDiv = document.getElementById("result");
 
+  resultDiv.innerText = "Unlocking full breakdown...";
+
+  const res = await fetch("/api/pro-grade", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      pro: true
+    })
+  });
+
+  const data = await res.json();
+
+  if (data.result) {
+    resultDiv.innerText = data.result;
+  } else {
+    resultDiv.innerText = "Error unlocking Pro scan.";
+  }
+}
   resultDiv.innerText = "Analyzing card...";
 
   try {
