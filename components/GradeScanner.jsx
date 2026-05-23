@@ -1,17 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { compressImageForUpload } from "../lib/compressImage.js";
 import { gradeCard } from "../lib/gradeApi.js";
 import GradeResult from "./GradeResult.jsx";
-
-function readFileAsDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
 
 export default function GradeScanner({ mode = "free", email = "" }) {
   const [grade, setGrade] = useState(null);
@@ -36,8 +28,10 @@ export default function GradeScanner({ mode = "free", email = "" }) {
     setLoading(true);
 
     try {
-      const frontImage = await readFileAsDataUrl(frontFile);
-      const backImage = await readFileAsDataUrl(backFile);
+      const [frontImage, backImage] = await Promise.all([
+        compressImageForUpload(frontFile),
+        compressImageForUpload(backFile),
+      ]);
 
       const responseGrade = await gradeCard({
         frontImage,
