@@ -1,0 +1,13 @@
+{
+  "name": "gemgrade-api",
+  "version": "2.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "openai": "^4.86.1"
+  }
+}
