@@ -223,7 +223,12 @@ export function computeGrade(analysis, era) {
     capAudit
   );
 
-  rawOverall = applyIsolatedPillarFloor(rawOverall, categoryScores, capAudit);
+  rawOverall = applyIsolatedPillarFloor(
+    rawOverall,
+    categoryScores,
+    analysis.defects,
+    capAudit
+  );
 
   const internalGrade = finalizeInternalGrade(rawOverall);
   capAudit.push({ source: "overall_derivation", value: internalGrade });

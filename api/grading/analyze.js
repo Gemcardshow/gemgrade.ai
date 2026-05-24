@@ -75,10 +75,36 @@ const NM_RECONCILE_BLOCKERS = new Set([
 function canReconcileNmOverTags(defects, categoryScores) {
   const { corners, centering } = categoryScores;
   if (corners < 6 || centering < 7) return false;
-  return !defects.some((defect) => NM_RECONCILE_BLOCKERS.has(defect.tag));
+  if (defects.some((defect) => NM_RECONCILE_BLOCKERS.has(defect.tag))) {
+    return false;
+  }
+
+  const hasCornerModerate = defects.some(
+    (defect) => defect.tag === "corner_wear_moderate"
+  );
+  const hasEdgeFraying = defects.some(
+    (defect) => defect.tag === "edge_fraying_major"
+  );
+  const hasOverTagCompanion = defects.some((defect) =>
+    [
+      "heavy_staining",
+      "surface_scratch_moderate",
+      "surface_scratch_light",
+    ].includes(defect.tag)
+  );
+
+  if (hasCornerModerate && hasEdgeFraying && !hasOverTagCompanion) {
+    return false;
+  }
+
+  return true;
 }
 
 function reconcileFairCardOverTags(defects, categoryScores) {
+  if (defects.some((defect) => NM_RECONCILE_BLOCKERS.has(defect.tag))) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
   const fullFair = isFairCardPattern(categoryScores);
   const nmCandidate = canReconcileNmOverTags(defects, categoryScores);
 
@@ -310,6 +336,37 @@ function inferStructuralDefects(defects, categoryScores, era) {
   return inferred;
 }
 
+function inferHeavyWearCrease(defects, categoryScores, era) {
+  if (era !== "vintage") return defects;
+  if (hasWearTag(defects, new Set(["moderate_crease", "severe_crease"]))) {
+    return defects;
+  }
+  if (hasWearTag(defects, SURFACE_WEAR_TAGS)) {
+    return defects;
+  }
+
+  const { corners, edges, surface } = categoryScores;
+  if (
+    edges <= 4 &&
+    corners <= 6 &&
+    surface <= 6 &&
+    hasWearTag(defects, new Set(["corner_wear_moderate", "rounded_corners_all"])) &&
+    hasWearTag(defects, new Set(["edge_fraying_major"]))
+  ) {
+    return [
+      ...defects,
+      {
+        tag: edges <= 3.5 ? "severe_crease" : "moderate_crease",
+        severity: edges <= 3.5 ? "severe" : "moderate",
+        location: "front",
+        confidence: "medium",
+      },
+    ];
+  }
+
+  return defects;
+}
+
 const FRONT_MINOR_WEAR_TAGS = new Set([
   "corner_wear_light",
   "surface_scratch_light",
@@ -384,6 +441,7 @@ function normalizeAnalysis(raw, era) {
   let nmReconciled = false;
 
   if (era === "vintage") {
+    initialDefects = inferHeavyWearCrease(initialDefects, categoryScores, era);
     const reconciled = reconcileFairCardOverTags(initialDefects, categoryScores);
     initialDefects = reconciled.defects;
     categoryScores = reconciled.categoryScores;

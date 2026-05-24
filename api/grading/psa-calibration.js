@@ -227,8 +227,18 @@ export function applyVintageMultiPillarWearCap(
  * When only one pillar is weak but the other two stay fair, avoid collapsing
  * the overall grade as if all three pillars failed together.
  */
-export function applyIsolatedPillarFloor(overall, categoryScores, capAudit) {
+export function applyIsolatedPillarFloor(overall, categoryScores, defects, capAudit) {
   const { corners, edges, surface } = categoryScores;
+  const structuralCount = countStructuralDefects(defects);
+  const structuralTags = defects
+    .filter((defect) => isStructuralDefect(defect))
+    .map((defect) => resolveEffectiveDefectTag(defect.tag, defect.severity));
+  const onlyEdgeStructural =
+    structuralCount === 1 && structuralTags[0] === "edge_fraying_major";
+
+  if (structuralCount >= 2 || !onlyEdgeStructural) {
+    return overall;
+  }
 
   if (
     edges > 5 ||

@@ -460,6 +460,63 @@ test("1953 Topps Billy Martin back writing does not stack multi-pillar below wri
 });
 
 test("1972 Topps Tom Seaver PSA 8 harsh edge false-positive stays above PSA 3", () => {
+  const raw = {
+    categoryScores: { corners: 6, edges: 3.5, surface: 6, centering: 7.5 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    scanQuality: {
+      level: "good",
+      visibilityIssues: [],
+      inspectionLimits: [],
+    },
+    cardMeta: {
+      estimatedYear: 1972,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+    categoryNotes: {
+      corners: "Minor touch",
+      edges: "Light roughness",
+      surface: "Clean",
+      centering: "Good",
+    },
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    primaryLimiterLabel: "Major edge fraying",
+    bestAttribute: "Centering",
+    eyeAppealSummary: "Clean presentation",
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+  assert.ok(result.internalGrade >= 5);
+  assert.ok(result.psaGrade >= 5);
+  assert.ok(
+    !result.capAudit.some(
+      (entry) => entry.source === "vintage:distributed_vg_wear"
+    )
+  );
+});
+
+test("1972 Topps Tom Seaver harsh edge raw engine without normalize stays near PSA 3", () => {
   const analysis = baseAnalysis({
     categoryScores: { corners: 6, edges: 3.5, surface: 6, centering: 7.5 },
     defects: [
@@ -496,15 +553,10 @@ test("1972 Topps Tom Seaver PSA 8 harsh edge false-positive stays above PSA 3", 
   });
 
   const result = computeGrade(analysis, "vintage");
-  assert.ok(result.internalGrade >= 5);
-  assert.ok(result.psaGrade >= 5);
+  assert.ok(result.internalGrade <= 3.5);
+  assert.ok(result.psaGrade <= 3);
   assert.ok(
-    result.capAudit.some((entry) => entry.source === "isolated_pillar_outlier")
-  );
-  assert.ok(
-    !result.capAudit.some(
-      (entry) => entry.source === "vintage:distributed_vg_wear"
-    )
+    !result.capAudit.some((entry) => entry.source === "isolated_pillar_outlier")
   );
 });
 
@@ -700,4 +752,55 @@ test("1967 Topps Mickey Mantle PSA 1 back wear mis-tag normalizes to poor band",
   );
   assert.ok(result.internalGrade <= 2.5);
   assert.ok(result.psaGrade <= 2);
+});
+
+test("1969 Topps Pete Rose PSA 1 heavy wear with crease inference stays in poor band", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6, edges: 3.5, surface: 6, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    primaryLimiterLabel: "Major edge fraying or chipping",
+    bestAttribute: "Fair color retention",
+    eyeAppealSummary: "Vibrant colors with moderate wear for age",
+    cardMeta: {
+      estimatedYear: 1969,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+    categoryNotes: {
+      corners: "Rounded corners",
+      edges: "Heavy edge chipping",
+      surface: "Visible crease through image",
+      centering: "Off center",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(
+    analysis.defects.some(
+      (defect) =>
+        defect.tag === "severe_crease" || defect.tag === "moderate_crease"
+    )
+  );
+  assert.ok(result.internalGrade <= 2.5);
+  assert.ok(result.psaGrade <= 2);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "isolated_pillar_outlier")
+  );
 });
