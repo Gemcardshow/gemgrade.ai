@@ -2,6 +2,7 @@ import {
   getDefectDefinition,
   isStructuralDefect,
   resolveEffectiveDefectTag,
+  countWearDefects,
 } from "./defects.js";
 import { clampGrade, roundToHalf } from "./types.js";
 
@@ -149,7 +150,13 @@ export function applyPsa1Calibration(overall, defects, capAudit) {
  * Vintage cards with heavy wear across multiple pillars should not grade as mid-tier
  * when subgrades already show poor corners, edges, and surface together.
  */
-export function applyVintageMultiPillarWearCap(overall, categoryScores, era, capAudit) {
+export function applyVintageMultiPillarWearCap(
+  overall,
+  categoryScores,
+  era,
+  defects,
+  capAudit
+) {
   if (era !== "vintage") return overall;
 
   const { corners, edges, surface } = categoryScores;
@@ -163,6 +170,19 @@ export function applyVintageMultiPillarWearCap(overall, categoryScores, era, cap
   if (surface <= 5 && corners <= 6.5 && edges <= 6.5) {
     const capped = Math.min(overall, 2.5);
     capAudit.push({ source: "vintage:multi_pillar_wear", cap: 2.5 });
+    return capped;
+  }
+
+  const floor = Math.min(corners, edges, surface);
+  if (
+    floor <= 6 &&
+    corners <= 7.5 &&
+    edges <= 6.5 &&
+    surface <= 7.5 &&
+    countWearDefects(defects) >= 2
+  ) {
+    const capped = Math.min(overall, 3.5);
+    capAudit.push({ source: "vintage:distributed_vg_wear", cap: 3.5 });
     return capped;
   }
 

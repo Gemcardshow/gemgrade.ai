@@ -6,8 +6,9 @@ Penalize corner softening, edge wear, gloss loss, print softness, staining, crea
 Inspect all four corners, all edges, the full front surface, and the full back.
 Tag creases, stains, rounded corners, edge fraying, writing, and paper loss when visible.
 Heavily worn vintage cards often have multiple simultaneous issues. Tag each visible flaw separately instead of relying on one scratch or surface tag.
-Rounded or soft corners should use corner_wear_moderate or rounded_corners_all.
-Heavy scuffing, snowing, or marking across the surface should use surface_wear, not only surface_scratch_moderate.
+Rounded or soft corners should use corner_wear_moderate or rounded_corners_all, not corner_wear_light, when rounding is clearly visible.
+Visible edge chipping or border wear should use edge_wear_light or edge_fraying_major.
+Light scratches on cards with visible corner rounding and edge wear should use surface_scratch_moderate, not surface_scratch_light.
 Visible creases must use moderate_crease or severe_crease.
 Structural wear matters more than eye appeal.
 When uncertain, choose the lower subgrade.

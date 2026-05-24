@@ -5,6 +5,7 @@ import {
   getEffectiveDefectCap,
   normalizeDefectObservation,
   resolveEffectiveDefectTag,
+  escalateLightWearObservation,
 } from "./defects.js";
 import {
   ANALYSIS_JSON_SCHEMA,
@@ -63,12 +64,15 @@ function normalizeCategoryScores(categoryScores) {
   };
 }
 
-function dedupeDefects(defects) {
+function dedupeDefects(defects, categoryScores, era) {
   const seen = new Set();
   const deduped = [];
 
   for (const defect of defects) {
-    const normalized = normalizeDefectObservation(defect);
+    const normalized =
+      era === "vintage"
+        ? escalateLightWearObservation(defect, categoryScores)
+        : normalizeDefectObservation(defect);
     const key = `${normalized.tag}:${normalized.location}`;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -196,7 +200,7 @@ function inferStructuralDefects(defects, categoryScores, era) {
     );
   }
 
-  if (categoryScores.edges <= 6 && !hasWearTag(inferred, EDGE_WEAR_TAGS)) {
+  if (categoryScores.edges <= 6.5 && !hasWearTag(inferred, EDGE_WEAR_TAGS)) {
     addDefect(
       categoryScores.edges <= 5.5 ? "edge_fraying_major" : "edge_wear_light",
       categoryScores.edges <= 5.5 ? "severe" : "moderate"
@@ -211,10 +215,12 @@ function inferStructuralDefects(defects, categoryScores, era) {
 }
 
 function normalizeAnalysis(raw, era) {
-  const initialDefects = dedupeDefects(raw.defects || []);
   const categoryScores = normalizeCategoryScores(raw.categoryScores);
+  const initialDefects = dedupeDefects(raw.defects || [], categoryScores, era);
   const enrichedDefects = dedupeDefects(
-    inferStructuralDefects(initialDefects, categoryScores, era)
+    inferStructuralDefects(initialDefects, categoryScores, era),
+    categoryScores,
+    era
   );
   const limiter = resolvePrimaryLimiter(
     ensurePrimaryLimiterDefect(enrichedDefects, raw.primaryLimiterTag),
@@ -223,7 +229,9 @@ function normalizeAnalysis(raw, era) {
     raw.primaryLimiterLabel
   );
   const defects = dedupeDefects(
-    ensurePrimaryLimiterDefect(enrichedDefects, limiter.primaryLimiterTag)
+    ensurePrimaryLimiterDefect(enrichedDefects, limiter.primaryLimiterTag),
+    categoryScores,
+    era
   );
 
   return {

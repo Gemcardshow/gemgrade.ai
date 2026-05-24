@@ -185,6 +185,7 @@ export function computeGrade(analysis, era) {
     rawOverall,
     categoryScores,
     era,
+    analysis.defects,
     capAudit
   );
 

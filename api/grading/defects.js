@@ -288,6 +288,66 @@ export function isStructuralDefect(defect) {
   return STRUCTURAL_DEFECT_TAGS.has(effectiveTag);
 }
 
+export function countWearDefects(defects) {
+  const wearTags = new Set([
+    ...STRUCTURAL_DEFECT_TAGS,
+    "corner_wear_light",
+    "edge_wear_light",
+    "surface_scratch_light",
+    "staining_light",
+    "print_line",
+    "centering_off_minor",
+    "centering_off_major",
+  ]);
+
+  return defects.filter((defect) =>
+    wearTags.has(resolveEffectiveDefectTag(defect.tag, defect.severity))
+  ).length;
+}
+
+export function escalateLightWearObservation(defect, categoryScores) {
+  const normalized = normalizeDefectObservation(defect);
+  const { corners, edges, surface } = categoryScores;
+
+  if (
+    normalized.tag === "corner_wear_light" &&
+    corners <= 7.5 &&
+    edges <= 6.5
+  ) {
+    return normalizeDefectObservation({
+      ...normalized,
+      tag: "corner_wear_moderate",
+      severity: "moderate",
+    });
+  }
+
+  if (
+    normalized.tag === "surface_scratch_light" &&
+    surface <= 7.5 &&
+    edges <= 6.5
+  ) {
+    return normalizeDefectObservation({
+      ...normalized,
+      tag: "surface_scratch_moderate",
+      severity: "moderate",
+    });
+  }
+
+  if (
+    normalized.tag === "edge_wear_light" &&
+    edges <= 6.5 &&
+    corners <= 7.5
+  ) {
+    return normalizeDefectObservation({
+      ...normalized,
+      tag: edges <= 5.5 ? "edge_fraying_major" : "edge_wear_light",
+      severity: edges <= 5.5 ? "severe" : "moderate",
+    });
+  }
+
+  return normalized;
+}
+
 export function isSevereDefect(defect) {
   const definition = DEFECT_REGISTRY[defect.tag];
   if (!definition) return defect.severity === "severe";

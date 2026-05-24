@@ -310,3 +310,41 @@ test("1952 Topps Willie Mays PSA 1 anchor pattern does not overshoot above PSA 2
     )
   );
 });
+
+test("1980 Burger King Mike Schmidt PSA 3 anchor pattern caps at PSA 3", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 7.5, edges: 6, surface: 7, centering: 8 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    scanQuality: {
+      level: "good",
+      visibilityIssues: [],
+      inspectionLimits: [],
+    },
+    cardMeta: {
+      estimatedYear: 1980,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+  });
+
+  const result = computeGrade(analysis, "vintage");
+  assert.ok(result.internalGrade <= 3.5);
+  assert.ok(result.psaGrade <= 3);
+  assert.ok(
+    result.capAudit.some((entry) => entry.source === "vintage:distributed_vg_wear")
+  );
+});
