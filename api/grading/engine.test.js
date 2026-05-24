@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { computeGrade } from "../grading/engine.js";
+import { normalizeAnalysis } from "../grading/analyze.js";
 import {
   applyCompoundHarshness,
   applyPsa1Calibration,
@@ -545,4 +546,54 @@ test("1972 Topps Tom Seaver PSA 8 ideal vision reaches PSA 8", () => {
       (entry) => entry.source === "vintage:optimistic_light_wear"
     )
   );
+});
+
+test("1972 Topps Tom Seaver PSA 8 normalized scan reaches PSA 7-8", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6, edges: 3.5, surface: 6, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    primaryLimiterLabel: "Major edge fraying or chipping",
+    bestAttribute: "Well-centered",
+    eyeAppealSummary: "Good eye appeal with minor touch wear",
+    cardMeta: {
+      estimatedYear: 1972,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+    categoryNotes: {
+      corners: "Minor touch",
+      edges: "Light factory roughness",
+      surface: "Clean",
+      centering: "Well centered",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(analysis.categoryScores.edges >= 6.5);
+  assert.ok(result.internalGrade >= 7);
+  assert.ok(result.psaGrade >= 7);
 });

@@ -211,6 +211,7 @@ export function applyVintageMultiPillarWearCap(
   if (
     floor >= 6 &&
     floor <= 7 &&
+    Math.max(corners, edges, surface) - Math.min(corners, edges, surface) >= 1.5 &&
     countWearDefects(defects) >= 2 &&
     countModeratePlusDefects(defects) === 0
   ) {

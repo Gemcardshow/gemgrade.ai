@@ -113,6 +113,8 @@ DEFECT DETECTION REQUIREMENTS:
 - Set defect severity to match visible damage, not eye appeal.
 - Set primaryLimiterTag to the single most severe detected defect tag.
 - If a flaw limits the card, it must appear in the defects array.
+- For slab or holder photos, grade only the card inside the case. Do not treat holder seams, case edges, or scan glare as card edge fraying.
+- When centering is 7.5+ and corners/surface look clean aside from minor touch wear, category subgrades for corners/edges/surface should generally stay in the 7+ band.
 
 Return structured JSON only.
 Use 0.5 increments from 1.0 to 10.0 for categoryScores.

@@ -10,6 +10,7 @@ Rounded or soft corners should use corner_wear_moderate or rounded_corners_all, 
 Visible edge chipping or border wear should use edge_wear_light or edge_fraying_major.
 Use edge_fraying_major only for clear cardstock fiber loss, peeling, or heavy chipping. Factory rough-cut edges, minor border softness, and holder/slab artifacts are not major fraying.
 When corners and surface remain fair (roughly 6+), prefer edge_wear_light over edge_fraying_major unless edge damage is clearly severe on the card itself.
+Cards with strong centering (7.5+) and fair corners/surface should score edges/corners/surface in the 7+ range when only minor factory rough-cut or light touch wear is visible.
 Light scratches on cards with visible corner rounding and edge wear should use surface_scratch_moderate, not surface_scratch_light.
 Visible creases must use moderate_crease or severe_crease.
 Structural wear matters more than eye appeal.

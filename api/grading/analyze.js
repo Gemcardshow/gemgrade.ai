@@ -55,6 +55,60 @@ async function callStructuredVision(client, { schema, instruction, frontImage, b
   return parseJsonResponse(content);
 }
 
+function isFairCardPattern(categoryScores) {
+  const { corners, surface, centering } = categoryScores;
+  return corners >= 6 && surface >= 6 && centering >= 7;
+}
+
+function reconcileFairCardOverTags(defects, categoryScores) {
+  if (!isFairCardPattern(categoryScores)) {
+    return { defects, categoryScores, edgeDowngraded: false };
+  }
+
+  let edgeDowngraded = false;
+  const reconciled = defects.map((defect) => {
+    if (defect.tag === "edge_fraying_major") {
+      edgeDowngraded = true;
+      return { ...defect, tag: "edge_wear_light", severity: "minor" };
+    }
+    if (defect.tag === "corner_wear_moderate" && categoryScores.corners >= 6) {
+      return { ...defect, tag: "corner_wear_light", severity: "minor" };
+    }
+    if (defect.tag === "surface_scratch_moderate" && categoryScores.surface >= 6) {
+      return { ...defect, tag: "surface_scratch_light", severity: "minor" };
+    }
+    return defect;
+  });
+
+  if (!edgeDowngraded) {
+    return { defects: reconciled, categoryScores, edgeDowngraded: false };
+  }
+
+  const nmTargets =
+    categoryScores.centering >= 8
+      ? { corners: 7.5, edges: 7, surface: 7.5 }
+      : { corners: 7, edges: 7, surface: 7 };
+
+  const adjustedScores = {
+    ...categoryScores,
+    edges: roundToHalf(
+      clampGrade(Math.max(categoryScores.edges, nmTargets.edges))
+    ),
+    corners: roundToHalf(
+      clampGrade(Math.max(categoryScores.corners, nmTargets.corners))
+    ),
+    surface: roundToHalf(
+      clampGrade(Math.max(categoryScores.surface, nmTargets.surface))
+    ),
+  };
+
+  return {
+    defects: reconciled,
+    categoryScores: adjustedScores,
+    edgeDowngraded: true,
+  };
+}
+
 function normalizeCategoryScores(categoryScores) {
   return {
     corners: roundToHalf(clampGrade(categoryScores.corners)),
@@ -64,13 +118,13 @@ function normalizeCategoryScores(categoryScores) {
   };
 }
 
-function dedupeDefects(defects, categoryScores, era) {
+function dedupeDefects(defects, categoryScores, era, options = {}) {
   const seen = new Set();
   const deduped = [];
 
   for (const defect of defects) {
     const normalized =
-      era === "vintage"
+      era === "vintage" && !options.skipEscalation
         ? escalateLightWearObservation(defect, categoryScores)
         : normalizeDefectObservation(defect);
     const key = `${normalized.tag}:${normalized.location}`;
@@ -172,6 +226,7 @@ function inferStructuralDefects(defects, categoryScores, era) {
   if (era !== "vintage") return defects;
 
   const inferred = [...defects];
+  const fairCard = isFairCardPattern(categoryScores);
   const addDefect = (tag, severity, location = "both") => {
     inferred.push({
       tag,
@@ -193,14 +248,22 @@ function inferStructuralDefects(defects, categoryScores, era) {
     addDefect("surface_wear", "severe");
   }
 
-  if (categoryScores.corners <= 6 && !hasWearTag(inferred, CORNER_WEAR_TAGS)) {
+  if (
+    categoryScores.corners <= 6 &&
+    !(fairCard && categoryScores.corners >= 6) &&
+    !hasWearTag(inferred, CORNER_WEAR_TAGS)
+  ) {
     addDefect(
       categoryScores.corners <= 5.5 ? "rounded_corners_all" : "corner_wear_moderate",
       "moderate"
     );
   }
 
-  if (categoryScores.edges <= 6.5 && !hasWearTag(inferred, EDGE_WEAR_TAGS)) {
+  if (
+    categoryScores.edges <= 6.5 &&
+    !(fairCard && categoryScores.edges >= 5.5) &&
+    !hasWearTag(inferred, EDGE_WEAR_TAGS)
+  ) {
     addDefect(
       categoryScores.edges <= 5.5 ? "edge_fraying_major" : "edge_wear_light",
       categoryScores.edges <= 5.5 ? "severe" : "moderate"
@@ -215,23 +278,41 @@ function inferStructuralDefects(defects, categoryScores, era) {
 }
 
 function normalizeAnalysis(raw, era) {
-  const categoryScores = normalizeCategoryScores(raw.categoryScores);
-  const initialDefects = dedupeDefects(raw.defects || [], categoryScores, era);
+  let categoryScores = normalizeCategoryScores(raw.categoryScores);
+  let initialDefects = raw.defects || [];
+  let edgeDowngraded = false;
+
+  if (era === "vintage") {
+    const reconciled = reconcileFairCardOverTags(initialDefects, categoryScores);
+    initialDefects = reconciled.defects;
+    categoryScores = reconciled.categoryScores;
+    edgeDowngraded = reconciled.edgeDowngraded;
+  }
+
+  const dedupeOptions = edgeDowngraded ? { skipEscalation: true } : {};
+
+  const initialDeduped = dedupeDefects(initialDefects, categoryScores, era, dedupeOptions);
   const enrichedDefects = dedupeDefects(
-    inferStructuralDefects(initialDefects, categoryScores, era),
+    inferStructuralDefects(initialDeduped, categoryScores, era),
     categoryScores,
-    era
-  );
-  const limiter = resolvePrimaryLimiter(
-    ensurePrimaryLimiterDefect(enrichedDefects, raw.primaryLimiterTag),
     era,
-    raw.primaryLimiterTag,
+    dedupeOptions
+  );
+  const requestedPrimaryLimiterTag =
+    edgeDowngraded && raw.primaryLimiterTag === "edge_fraying_major"
+      ? null
+      : raw.primaryLimiterTag;
+  const limiter = resolvePrimaryLimiter(
+    ensurePrimaryLimiterDefect(enrichedDefects, requestedPrimaryLimiterTag),
+    era,
+    requestedPrimaryLimiterTag,
     raw.primaryLimiterLabel
   );
   const defects = dedupeDefects(
     ensurePrimaryLimiterDefect(enrichedDefects, limiter.primaryLimiterTag),
     categoryScores,
-    era
+    era,
+    dedupeOptions
   );
 
   return {
@@ -288,4 +369,4 @@ Return estimatedYear as a 4-digit year when possible, otherwise null.
   });
 }
 
-export { callStructuredVision, normalizeAnalysis, parseJsonResponse };
+export { callStructuredVision, normalizeAnalysis, parseJsonResponse, reconcileFairCardOverTags };
