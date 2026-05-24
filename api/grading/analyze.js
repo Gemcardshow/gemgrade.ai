@@ -310,6 +310,74 @@ function inferStructuralDefects(defects, categoryScores, era) {
   return inferred;
 }
 
+const FRONT_MINOR_WEAR_TAGS = new Set([
+  "corner_wear_light",
+  "surface_scratch_light",
+  "edge_wear_light",
+  "print_line",
+  "staining_light",
+  "gloss_loss",
+  "registration_issue",
+]);
+
+function frontDefectsAreMinorOnly(defects) {
+  const frontDefects = defects.filter(
+    (defect) => defect.location === "front" || defect.location === "both"
+  );
+  if (!frontDefects.length) return true;
+
+  return frontDefects.every((defect) => {
+    const definition = getDefectDefinition(defect.tag);
+    return (
+      FRONT_MINOR_WEAR_TAGS.has(defect.tag) || definition?.severityClass === "minor"
+    );
+  });
+}
+
+function inferBackWearAsWriting(defects, categoryScores, raw, era) {
+  if (era !== "vintage") return defects;
+
+  const text = [
+    raw.primaryLimiterLabel,
+    raw.eyeAppealSummary,
+    ...Object.values(raw.categoryNotes || {}),
+  ]
+    .join(" ")
+    .toLowerCase();
+  const inkSignals =
+    /\b(ink|written|writing|pen|pencil|scribble|marker|autograph|name written)\b/;
+
+  const { corners, centering, surface } = categoryScores;
+  const backWearLimiting =
+    raw.primaryLimiterTag === "back_wear" &&
+    corners >= 7 &&
+    centering >= 7.5 &&
+    surface <= 6 &&
+    frontDefectsAreMinorOnly(defects) &&
+    defects.some((defect) => defect.tag === "back_wear" && defect.location === "back");
+
+  if (!backWearLimiting && !inkSignals.test(text)) {
+    return defects;
+  }
+
+  return defects.map((defect) => {
+    if (defect.tag !== "back_wear" || defect.location !== "back") {
+      return defect;
+    }
+
+    const severe =
+      inkSignals.test(text) ||
+      defect.severity === "severe" ||
+      (backWearLimiting && defect.severity === "moderate");
+
+    return {
+      ...defect,
+      tag: severe ? "writing_mark_severe" : "writing_mark",
+      severity: severe ? "severe" : "moderate",
+    };
+  });
+}
+
 function normalizeAnalysis(raw, era) {
   let categoryScores = normalizeCategoryScores(raw.categoryScores);
   let initialDefects = raw.defects || [];
@@ -321,6 +389,8 @@ function normalizeAnalysis(raw, era) {
     categoryScores = reconciled.categoryScores;
     nmReconciled = reconciled.reconciled;
   }
+
+  initialDefects = inferBackWearAsWriting(initialDefects, categoryScores, raw, era);
 
   const dedupeOptions = nmReconciled ? { skipEscalation: true } : {};
 
@@ -336,7 +406,11 @@ function normalizeAnalysis(raw, era) {
     (raw.primaryLimiterTag === "edge_fraying_major" ||
       raw.primaryLimiterTag === "heavy_staining")
       ? null
-      : raw.primaryLimiterTag;
+      : initialDefects.some((defect) =>
+            defect.tag === "writing_mark_severe" || defect.tag === "writing_mark"
+          ) && raw.primaryLimiterTag === "back_wear"
+        ? null
+        : raw.primaryLimiterTag;
   const limiter = resolvePrimaryLimiter(
     ensurePrimaryLimiterDefect(enrichedDefects, requestedPrimaryLimiterTag),
     era,

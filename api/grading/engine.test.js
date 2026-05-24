@@ -647,3 +647,57 @@ test("1972 Topps Tom Seaver PSA 8 stain plus edge over-tags normalize to PSA 7+"
   assert.ok(result.internalGrade >= 7);
   assert.ok(result.psaGrade >= 7);
 });
+
+test("1967 Topps Mickey Mantle PSA 1 back wear mis-tag normalizes to poor band", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7.5, edges: 7, surface: 6, centering: 8 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "back_wear",
+        severity: "moderate",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "back_wear",
+    primaryLimiterLabel: "Back wear or discoloration",
+    bestAttribute: "Centering is strong",
+    eyeAppealSummary: "Solid eye appeal with vibrant colors",
+    cardMeta: {
+      estimatedYear: 1967,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+    categoryNotes: {
+      corners: "Light touch",
+      edges: "Minor wear",
+      surface: "Back discoloration limits grade",
+      centering: "Well centered",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(
+    analysis.defects.some(
+      (defect) =>
+        defect.tag === "writing_mark_severe" || defect.tag === "writing_mark"
+    )
+  );
+  assert.ok(result.internalGrade <= 2.5);
+  assert.ok(result.psaGrade <= 2);
+});
