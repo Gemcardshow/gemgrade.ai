@@ -197,6 +197,7 @@ export function applyVintageMultiPillarWearCap(
 
   if (
     floor <= 5 &&
+    [corners, edges, surface].filter((score) => score <= 5).length >= 2 &&
     corners <= 7.5 &&
     edges <= 6.5 &&
     surface <= 7.5 &&
@@ -209,6 +210,7 @@ export function applyVintageMultiPillarWearCap(
 
   if (
     floor >= 6 &&
+    floor <= 7 &&
     countWearDefects(defects) >= 2 &&
     countModeratePlusDefects(defects) === 0
   ) {
@@ -218,6 +220,32 @@ export function applyVintageMultiPillarWearCap(
   }
 
   return overall;
+}
+
+/**
+ * When only one pillar is weak but the other two stay fair, avoid collapsing
+ * the overall grade as if all three pillars failed together.
+ */
+export function applyIsolatedPillarFloor(overall, categoryScores, capAudit) {
+  const { corners, edges, surface } = categoryScores;
+
+  if (
+    edges > 5 ||
+    corners < 6 ||
+    surface < 6 ||
+    overall >= 5.5
+  ) {
+    return overall;
+  }
+
+  const avgStrong = (corners + surface) / 2;
+  const floor = Math.min(avgStrong - 0.5, 7);
+  if (overall >= floor) {
+    return overall;
+  }
+
+  capAudit.push({ source: "isolated_pillar_outlier", floor });
+  return floor;
 }
 
 export function applyCenteringGemCap(overall, centering, capAudit) {

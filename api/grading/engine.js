@@ -7,6 +7,7 @@ import {
 import {
   applyCenteringGemCap,
   applyCompoundHarshness,
+  applyIsolatedPillarFloor,
   applyPsa1Calibration,
   applyVintageMultiPillarWearCap,
   finalizeInternalGrade,
@@ -93,6 +94,18 @@ function getDefectCeiling(defects, era, categoryScores, capAudit) {
     let cap = getEffectiveDefectCap(defect, era);
 
     if (
+      defect.tag === "edge_fraying_major" &&
+      categoryScores.corners >= 6 &&
+      categoryScores.surface >= 6
+    ) {
+      const isolatedEdgeCap = era === "vintage" ? 5.5 : 6.0;
+      if (isolatedEdgeCap > cap) {
+        cap = isolatedEdgeCap;
+        capAudit.push({ source: `isolatedEdge:${defect.tag}`, cap });
+      }
+    }
+
+    if (
       categoryScores.surface <= 4 &&
       categoryScores.corners <= 5 &&
       categoryScores.edges <= 5 &&
@@ -114,13 +127,31 @@ function getDefectCeiling(defects, era, categoryScores, capAudit) {
   return ceiling;
 }
 
-function getPrimaryLimiterCap(primaryLimiterTag, defects, era, capAudit) {
+function getPrimaryLimiterCap(
+  primaryLimiterTag,
+  defects,
+  era,
+  categoryScores,
+  capAudit
+) {
   if (!primaryLimiterTag) return 10;
 
   const matchingDefect = defects.find((defect) => defect.tag === primaryLimiterTag);
-  const cap = matchingDefect
+  let cap = matchingDefect
     ? getEffectiveDefectCap(matchingDefect, era)
     : getDefectCap(primaryLimiterTag, era);
+
+  if (
+    primaryLimiterTag === "edge_fraying_major" &&
+    categoryScores.corners >= 6 &&
+    categoryScores.surface >= 6
+  ) {
+    const isolatedEdgeCap = era === "vintage" ? 5.5 : 6.0;
+    if (isolatedEdgeCap > cap) {
+      cap = isolatedEdgeCap;
+      capAudit.push({ source: `isolatedEdge:${primaryLimiterTag}`, cap });
+    }
+  }
 
   if (cap < 10) {
     capAudit.push({ source: `primaryLimiter:${primaryLimiterTag}`, cap });
@@ -172,6 +203,7 @@ export function computeGrade(analysis, era) {
         analysis.primaryLimiterTag,
         analysis.defects,
         era,
+        categoryScores,
         capAudit
       )
     : 10;
@@ -190,6 +222,8 @@ export function computeGrade(analysis, era) {
     analysis.defects,
     capAudit
   );
+
+  rawOverall = applyIsolatedPillarFloor(rawOverall, categoryScores, capAudit);
 
   const internalGrade = finalizeInternalGrade(rawOverall);
   capAudit.push({ source: "overall_derivation", value: internalGrade });

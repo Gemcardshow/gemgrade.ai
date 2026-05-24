@@ -457,3 +457,92 @@ test("1953 Topps Billy Martin back writing does not stack multi-pillar below wri
     result.capAudit.some((entry) => entry.source === "primaryLimiter:writing_mark_severe")
   );
 });
+
+test("1972 Topps Tom Seaver PSA 8 harsh edge false-positive stays above PSA 3", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 6, edges: 3.5, surface: 6, centering: 7.5 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    scanQuality: {
+      level: "good",
+      visibilityIssues: [],
+      inspectionLimits: [],
+    },
+    cardMeta: {
+      estimatedYear: 1972,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+  });
+
+  const result = computeGrade(analysis, "vintage");
+  assert.ok(result.internalGrade >= 5);
+  assert.ok(result.psaGrade >= 5);
+  assert.ok(
+    result.capAudit.some((entry) => entry.source === "isolated_pillar_outlier")
+  );
+  assert.ok(
+    !result.capAudit.some(
+      (entry) => entry.source === "vintage:distributed_vg_wear"
+    )
+  );
+});
+
+test("1972 Topps Tom Seaver PSA 8 ideal vision reaches PSA 8", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 8, edges: 8, surface: 8, centering: 7.5 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_wear_light",
+    scanQuality: {
+      level: "good",
+      visibilityIssues: [],
+      inspectionLimits: [],
+    },
+    cardMeta: {
+      estimatedYear: 1972,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+  });
+
+  const result = computeGrade(analysis, "vintage");
+  assert.equal(result.psaGrade, 8);
+  assert.equal(result.internalGrade, 8);
+  assert.ok(
+    !result.capAudit.some(
+      (entry) => entry.source === "vintage:optimistic_light_wear"
+    )
+  );
+});
