@@ -345,6 +345,115 @@ test("1980 Burger King Mike Schmidt PSA 3 anchor pattern caps at PSA 3", () => {
   assert.ok(result.internalGrade <= 3.5);
   assert.ok(result.psaGrade <= 3);
   assert.ok(
+    result.capAudit.some(
+      (entry) =>
+        entry.source === "vintage:distributed_vg_wear" ||
+        entry.source === "vintage:optimistic_light_wear"
+    )
+  );
+});
+
+test("1980 Burger King Mike Schmidt PSA 3 harsh vision stays at PSA 3 not PSA 1", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 6, edges: 3.5, surface: 3, centering: 8 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_wear",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    scanQuality: {
+      level: "good",
+      visibilityIssues: [],
+      inspectionLimits: [],
+    },
+    cardMeta: {
+      estimatedYear: 1980,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+  });
+
+  const result = computeGrade(analysis, "vintage");
+  assert.ok(result.internalGrade >= 3);
+  assert.ok(result.internalGrade <= 3.5);
+  assert.equal(result.psaGrade, 3);
+  assert.ok(
     result.capAudit.some((entry) => entry.source === "vintage:distributed_vg_wear")
+  );
+  assert.ok(
+    !result.capAudit.some(
+      (entry) => entry.source === "vintage:multi_pillar_heavy_wear"
+    )
+  );
+});
+
+test("1953 Topps Billy Martin back writing does not stack multi-pillar below writing cap", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 5, edges: 3.5, surface: 2.5, centering: 7 },
+    defects: [
+      {
+        tag: "writing_mark_severe",
+        severity: "severe",
+        location: "back",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "writing_mark_severe",
+    scanQuality: {
+      level: "good",
+      visibilityIssues: [],
+      inspectionLimits: [],
+    },
+    cardMeta: {
+      estimatedYear: 1953,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+  });
+
+  const result = computeGrade(analysis, "vintage");
+  assert.equal(result.psaGrade, 2);
+  assert.equal(result.internalGrade, 2);
+  assert.ok(
+    !result.capAudit.some(
+      (entry) => entry.source === "vintage:multi_pillar_heavy_wear"
+    )
+  );
+  assert.ok(
+    result.capAudit.some((entry) => entry.source === "primaryLimiter:writing_mark_severe")
   );
 });

@@ -13,6 +13,23 @@ const PSA1_TRIGGER_TAGS = new Set([
   "writing_mark_severe",
 ]);
 
+const BACK_DISQUALIFYING_TAGS = new Set([
+  "writing_mark_severe",
+  "writing_mark",
+  "paper_loss",
+  "hole_tear",
+  "trim_alteration_suspected",
+]);
+
+export function hasDominantBackDisqualifier(defects) {
+  return defects.some(
+    (defect) =>
+      BACK_DISQUALIFYING_TAGS.has(
+        resolveEffectiveDefectTag(defect.tag, defect.severity)
+      ) && defect.location === "back"
+  );
+}
+
 export function countSevereDefects(defects) {
   return defects.filter((defect) => {
     const effectiveTag = resolveEffectiveDefectTag(defect.tag, defect.severity);
@@ -159,23 +176,27 @@ export function applyVintageMultiPillarWearCap(
 ) {
   if (era !== "vintage") return overall;
 
-  const { corners, edges, surface } = categoryScores;
+  if (hasDominantBackDisqualifier(defects)) {
+    return overall;
+  }
 
-  if (surface <= 4.5 && corners <= 6 && edges <= 6) {
+  const { corners, edges, surface } = categoryScores;
+  const floor = Math.min(corners, edges, surface);
+
+  if (surface <= 4 && corners <= 5 && edges <= 5) {
     const capped = Math.min(overall, 1.5);
     capAudit.push({ source: "vintage:multi_pillar_heavy_wear", cap: 1.5 });
     return capped;
   }
 
-  if (surface <= 5 && corners <= 6.5 && edges <= 6.5) {
+  if (surface <= 4.5 && corners <= 5.5 && edges <= 5.5) {
     const capped = Math.min(overall, 2.5);
     capAudit.push({ source: "vintage:multi_pillar_wear", cap: 2.5 });
     return capped;
   }
 
-  const floor = Math.min(corners, edges, surface);
   if (
-    floor <= 6 &&
+    floor <= 5 &&
     corners <= 7.5 &&
     edges <= 6.5 &&
     surface <= 7.5 &&
@@ -183,6 +204,16 @@ export function applyVintageMultiPillarWearCap(
   ) {
     const capped = Math.min(overall, 3.5);
     capAudit.push({ source: "vintage:distributed_vg_wear", cap: 3.5 });
+    return capped;
+  }
+
+  if (
+    floor >= 6 &&
+    countWearDefects(defects) >= 2 &&
+    countModeratePlusDefects(defects) === 0
+  ) {
+    const capped = Math.min(overall, 3.5);
+    capAudit.push({ source: "vintage:optimistic_light_wear", cap: 3.5 });
     return capped;
   }
 

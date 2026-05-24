@@ -94,6 +94,8 @@ function getDefectCeiling(defects, era, categoryScores, capAudit) {
 
     if (
       categoryScores.surface <= 4 &&
+      categoryScores.corners <= 5 &&
+      categoryScores.edges <= 5 &&
       (defect.tag === "surface_wear" || defect.tag === "surface_scratch_moderate")
     ) {
       const surfaceBound = era === "vintage" ? 2.0 : 2.5;
