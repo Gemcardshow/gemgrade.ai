@@ -17,6 +17,7 @@ When corners and surface remain fair (roughly 6+), prefer edge_wear_light over e
 Cards with strong centering (7.5+) and fair corners/surface should score edges/corners/surface in the 7+ range when only minor factory rough-cut or light touch wear is visible.
 Light scratches on cards with visible corner rounding and edge wear should use surface_scratch_moderate, not surface_scratch_light.
 Visible creases must use moderate_crease or severe_crease.
+Use moderate_crease only for clear fold lines or wrinkles through the card stock. Roller marks, print lines, or light surface ripples without a clear fold should use print_line.
 Tag every visible fold line, wrinkle, or bend through the card surface. Vertical or horizontal creases through the image area must never be omitted.
 Use severe_crease when a crease breaks color, crosses the player image, or is clearly deep; use moderate_crease for lighter lines.
 Structural wear matters more than eye appeal.

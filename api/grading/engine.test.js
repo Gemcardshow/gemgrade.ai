@@ -869,3 +869,110 @@ test("1909 T205 Sam Leever PSA 5 back foxing mis-tag normalizes to EX band", () 
   assert.ok(result.psaGrade >= 4);
   assert.ok(result.psaGrade <= 6);
 });
+
+test("1963 Topps Mickey Mantle PSA 5 edge and crease over-tags normalize to EX band", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6, edges: 3.5, surface: 3.5, centering: 7.5 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "moderate_crease",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    primaryLimiterLabel: "Major edge fraying or chipping",
+    bestAttribute: "Eye appeal remains relatively strong",
+    eyeAppealSummary:
+      "Vibrant color and clear imagery but moderate corner rounding and light edge wear",
+    cardMeta: {
+      estimatedYear: 1963,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+    categoryNotes: {
+      corners: "Rounded corners",
+      edges: "Edge chipping on right",
+      surface: "Light surface line across middle",
+      centering: "Reasonably centered",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "moderate_crease"));
+  assert.ok(result.internalGrade >= 4.5);
+  assert.ok(result.psaGrade >= 4);
+  assert.ok(result.psaGrade <= 6);
+});
+
+test("1963 Topps Mickey Mantle PSA 5 fair surface edge over-tags normalize to EX band", () => {
+  const raw = {
+    scanQuality: {
+      level: "good",
+      visibilityIssues: ["slight glare on front and back"],
+      inspectionLimits: [],
+    },
+    categoryScores: { corners: 6, edges: 3.5, surface: 6, centering: 7.5 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    primaryLimiterLabel: "Major edge fraying or chipping",
+    bestAttribute: "Strong centering at 7.5, enhancing overall appeal",
+    eyeAppealSummary:
+      "Despite some minor surface and edge wear, the card's strong centering contributes positively to its overall eye appeal.",
+    cardMeta: {
+      estimatedYear: 1963,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+    categoryNotes: {
+      corners: "Rounded corners",
+      edges: "Border chipping",
+      surface: "Minor scratches",
+      centering: "Strong centering",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(result.internalGrade >= 4.5);
+  assert.ok(result.psaGrade >= 4);
+  assert.ok(result.psaGrade <= 6);
+});
