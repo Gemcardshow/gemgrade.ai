@@ -1,4 +1,8 @@
-import { getDefectDefinition } from "./defects.js";
+import {
+  getDefectDefinition,
+  isStructuralDefect,
+  resolveEffectiveDefectTag,
+} from "./defects.js";
 import { clampGrade, roundToHalf } from "./types.js";
 
 const PSA1_TRIGGER_TAGS = new Set([
@@ -10,7 +14,8 @@ const PSA1_TRIGGER_TAGS = new Set([
 
 export function countSevereDefects(defects) {
   return defects.filter((defect) => {
-    const definition = getDefectDefinition(defect.tag);
+    const effectiveTag = resolveEffectiveDefectTag(defect.tag, defect.severity);
+    const definition = getDefectDefinition(effectiveTag);
     if (!definition) return defect.severity === "severe";
     return (
       definition.severityClass === "severe" ||
@@ -20,12 +25,31 @@ export function countSevereDefects(defects) {
   }).length;
 }
 
+export function countStructuralDefects(defects) {
+  return defects.filter((defect) => isStructuralDefect(defect)).length;
+}
+
+export function countModeratePlusDefects(defects) {
+  return defects.filter((defect) => {
+    const effectiveTag = resolveEffectiveDefectTag(defect.tag, defect.severity);
+    const definition = getDefectDefinition(effectiveTag);
+    if (!definition) {
+      return defect.severity === "moderate" || defect.severity === "severe";
+    }
+    return (
+      definition.severityClass === "moderate" ||
+      definition.severityClass === "severe" ||
+      definition.severityClass === "disqualifying" ||
+      defect.severity === "moderate" ||
+      defect.severity === "severe"
+    );
+  }).length;
+}
+
 export function hasSevereBackDamage(defects) {
   return defects.some(
     (defect) =>
-      defect.tag === "back_damage_severe" &&
-      (defect.severity === "severe" ||
-        getDefectDefinition(defect.tag)?.severityClass === "severe")
+      resolveEffectiveDefectTag(defect.tag, defect.severity) === "back_damage_severe"
   );
 }
 
@@ -34,13 +58,14 @@ export function hasModerateFrontWear(defects) {
     "corner_wear_moderate",
     "edge_fraying_major",
     "moderate_crease",
+    "severe_crease",
     "surface_wear",
     "surface_scratch_moderate",
   ]);
 
   return defects.some(
     (defect) =>
-      frontWearTags.has(defect.tag) &&
+      frontWearTags.has(resolveEffectiveDefectTag(defect.tag, defect.severity)) &&
       (defect.location === "front" || defect.location === "both") &&
       (defect.severity === "moderate" || defect.severity === "severe")
   );
@@ -48,6 +73,7 @@ export function hasModerateFrontWear(defects) {
 
 export function triggersPsa1Calibration(defects) {
   const severeCount = countSevereDefects(defects);
+  const structuralCount = countStructuralDefects(defects);
 
   if (severeCount >= 3) return true;
 
@@ -55,8 +81,22 @@ export function triggersPsa1Calibration(defects) {
     return true;
   }
 
-  const hasSevereCrease = defects.some((defect) => defect.tag === "severe_crease");
+  const hasSevereCrease = defects.some(
+    (defect) => resolveEffectiveDefectTag(defect.tag, defect.severity) === "severe_crease"
+  );
   if (hasSevereCrease && severeCount >= 2) return true;
+
+  if (hasSevereCrease && structuralCount >= 3) return true;
+
+  if (
+    defects.some(
+      (defect) =>
+        resolveEffectiveDefectTag(defect.tag, defect.severity) === "back_damage_severe"
+    ) &&
+    countModeratePlusDefects(defects) >= 2
+  ) {
+    return true;
+  }
 
   return false;
 }
@@ -64,6 +104,8 @@ export function triggersPsa1Calibration(defects) {
 export function applyCompoundHarshness(overall, defects, era, capAudit) {
   let adjusted = overall;
   const severeCount = countSevereDefects(defects);
+  const structuralCount = countStructuralDefects(defects);
+  const moderatePlusCount = countModeratePlusDefects(defects);
 
   if (severeCount >= 2) {
     adjusted = Math.min(adjusted, 2.5);
@@ -73,6 +115,16 @@ export function applyCompoundHarshness(overall, defects, era, capAudit) {
   if (severeCount >= 3) {
     adjusted = Math.min(adjusted, 1.5);
     capAudit.push({ source: "compound:3plus_severe_defects", cap: 1.5 });
+  }
+
+  if (structuralCount >= 3) {
+    const structuralCap = era === "vintage" ? 3.5 : 4.0;
+    adjusted = Math.min(adjusted, structuralCap);
+    capAudit.push({ source: "compound:3plus_structural_defects", cap: structuralCap });
+  } else if (moderatePlusCount >= 2) {
+    const moderateCap = era === "vintage" ? 4.0 : 4.5;
+    adjusted = Math.min(adjusted, moderateCap);
+    capAudit.push({ source: "compound:2plus_moderate_defects", cap: moderateCap });
   }
 
   if (era === "vintage" && hasSevereBackDamage(defects) && hasModerateFrontWear(defects)) {
@@ -91,6 +143,30 @@ export function applyPsa1Calibration(overall, defects, capAudit) {
   const capped = Math.min(overall, 2.0);
   capAudit.push({ source: "psa1_calibration", cap: 2.0 });
   return capped;
+}
+
+/**
+ * Vintage cards with heavy wear across multiple pillars should not grade as mid-tier
+ * when subgrades already show poor corners, edges, and surface together.
+ */
+export function applyVintageMultiPillarWearCap(overall, categoryScores, era, capAudit) {
+  if (era !== "vintage") return overall;
+
+  const { corners, edges, surface } = categoryScores;
+
+  if (surface <= 4.5 && corners <= 6 && edges <= 6) {
+    const capped = Math.min(overall, 1.5);
+    capAudit.push({ source: "vintage:multi_pillar_heavy_wear", cap: 1.5 });
+    return capped;
+  }
+
+  if (surface <= 5 && corners <= 6.5 && edges <= 6.5) {
+    const capped = Math.min(overall, 2.5);
+    capAudit.push({ source: "vintage:multi_pillar_wear", cap: 2.5 });
+    return capped;
+  }
+
+  return overall;
 }
 
 export function applyCenteringGemCap(overall, centering, capAudit) {

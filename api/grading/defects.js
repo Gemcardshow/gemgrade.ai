@@ -1,6 +1,7 @@
 /**
  * Central defect registry. Caps are enforced in code, not prompt suggestions.
  */
+import { roundToHalf } from "./types.js";
 export const DEFECT_REGISTRY = {
   corner_wear_light: {
     label: "Light corner wear",
@@ -65,9 +66,9 @@ export const DEFECT_REGISTRY = {
   surface_wear: {
     label: "General surface wear",
     severityClass: "moderate",
-    capVintage: 5.0,
+    capVintage: 3.0,
     capModern: 5.5,
-    categoryImpact: { surface: 5.5 },
+    categoryImpact: { surface: 3.0 },
   },
   print_line: {
     label: "Print line or roller mark",
@@ -181,6 +182,37 @@ export const DEFECT_REGISTRY = {
 
 export const DEFECT_TAGS = Object.keys(DEFECT_REGISTRY);
 
+/** Escalate softer tags when the model reports higher observed severity. */
+export const SEVERITY_ESCALATION = {
+  moderate_crease: { severe: "severe_crease" },
+  writing_mark: { severe: "writing_mark_severe" },
+  surface_scratch_light: { moderate: "surface_scratch_moderate", severe: "surface_scratch_moderate" },
+  staining_light: { moderate: "heavy_staining", severe: "heavy_staining" },
+  corner_wear_light: { moderate: "corner_wear_moderate", severe: "corner_wear_moderate" },
+  edge_wear_light: { moderate: "edge_fraying_major", severe: "edge_fraying_major" },
+  print_line: { moderate: "print_line_severe", severe: "print_line_severe" },
+  back_wear: { severe: "back_damage_severe" },
+};
+
+export const STRUCTURAL_DEFECT_TAGS = new Set([
+  "corner_wear_moderate",
+  "rounded_corners_all",
+  "edge_fraying_major",
+  "moderate_crease",
+  "severe_crease",
+  "surface_scratch_moderate",
+  "surface_wear",
+  "print_line_severe",
+  "heavy_staining",
+  "wax_stain",
+  "paper_loss",
+  "hole_tear",
+  "writing_mark",
+  "writing_mark_severe",
+  "back_wear",
+  "back_damage_severe",
+]);
+
 export function getDefectDefinition(tag) {
   return DEFECT_REGISTRY[tag] || null;
 }
@@ -193,6 +225,67 @@ export function getDefectCap(tag, era) {
   const defect = DEFECT_REGISTRY[tag];
   if (!defect) return 10;
   return era === "vintage" ? defect.capVintage : defect.capModern;
+}
+
+export function resolveEffectiveDefectTag(tag, observedSeverity) {
+  const escalation = SEVERITY_ESCALATION[tag];
+  if (escalation?.[observedSeverity]) {
+    return escalation[observedSeverity];
+  }
+  return tag;
+}
+
+function alignObservedSeverity(tag, observedSeverity) {
+  const definition = getDefectDefinition(tag);
+  if (!definition) return observedSeverity;
+
+  if (definition.severityClass === "severe" || definition.severityClass === "disqualifying") {
+    return "severe";
+  }
+  if (definition.severityClass === "moderate" && observedSeverity === "minor") {
+    return "moderate";
+  }
+  return observedSeverity;
+}
+
+/**
+ * Effective cap for one observed defect, including severity escalation and confidence.
+ */
+export function getEffectiveDefectCap(defect, era) {
+  const effectiveTag = resolveEffectiveDefectTag(defect.tag, defect.severity);
+  let cap = getDefectCap(effectiveTag, era);
+  const definition = getDefectDefinition(effectiveTag);
+
+  if (
+    definition?.severityClass === "moderate" &&
+    defect.severity === "severe"
+  ) {
+    cap = roundToHalf(Math.min(cap, cap - 0.5));
+  }
+
+  if (defect.confidence === "low") {
+    if (definition?.severityClass === "severe" || definition?.severityClass === "disqualifying") {
+      cap = roundToHalf(Math.min(cap, cap - 0.5));
+    } else if (definition?.severityClass === "moderate") {
+      cap = roundToHalf(Math.min(cap, cap - 0.5));
+    }
+  }
+
+  return cap;
+}
+
+export function normalizeDefectObservation(defect) {
+  const effectiveTag = resolveEffectiveDefectTag(defect.tag, defect.severity);
+  return {
+    ...defect,
+    tag: effectiveTag,
+    severity: alignObservedSeverity(effectiveTag, defect.severity),
+  };
+}
+
+export function isStructuralDefect(defect) {
+  const effectiveTag = resolveEffectiveDefectTag(defect.tag, defect.severity);
+  return STRUCTURAL_DEFECT_TAGS.has(effectiveTag);
 }
 
 export function isSevereDefect(defect) {

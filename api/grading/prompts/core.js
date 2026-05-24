@@ -103,10 +103,20 @@ ${philosophy}
 
 ${pathRubric}
 
+DEFECT DETECTION REQUIREMENTS:
+- Inspect front and back independently.
+- Tag every visible flaw using the allowed defect enum.
+- Use severe_crease for heavy visible creasing; moderate_crease for lighter creases.
+- Use paper_loss, hole_tear, writing_mark, or writing_mark_severe when visible.
+- Use back_damage_severe or back_wear for back-specific issues.
+- Tag corner, edge, surface, staining, and print issues separately when present.
+- Set defect severity to match visible damage, not eye appeal.
+- Set primaryLimiterTag to the single most severe detected defect tag.
+- If a flaw limits the card, it must appear in the defects array.
+
 Return structured JSON only.
 Use 0.5 increments from 1.0 to 10.0 for categoryScores.
 Use only defect tags from the allowed enum.
 Do not output an overall grade.
-Identify the single most severe visible issue as primaryLimiterTag.
 `.trim();
 }

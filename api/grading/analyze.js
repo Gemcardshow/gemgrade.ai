@@ -1,5 +1,12 @@
 import { GRADING_PHILOSOPHY } from "./philosophy.js";
 import {
+  getDefectDefinition,
+  getDefectLabel,
+  getEffectiveDefectCap,
+  normalizeDefectObservation,
+  resolveEffectiveDefectTag,
+} from "./defects.js";
+import {
   ANALYSIS_JSON_SCHEMA,
   buildAnalysisInstruction,
   ERA_JSON_SCHEMA,
@@ -56,17 +63,179 @@ function normalizeCategoryScores(categoryScores) {
   };
 }
 
-function normalizeAnalysis(raw) {
+function dedupeDefects(defects) {
+  const seen = new Set();
+  const deduped = [];
+
+  for (const defect of defects) {
+    const normalized = normalizeDefectObservation(defect);
+    const key = `${normalized.tag}:${normalized.location}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(normalized);
+  }
+
+  return deduped;
+}
+
+function ensurePrimaryLimiterDefect(defects, primaryLimiterTag) {
+  if (!primaryLimiterTag) return defects;
+  if (defects.some((defect) => defect.tag === primaryLimiterTag)) {
+    return defects;
+  }
+
+  const definition = getDefectDefinition(primaryLimiterTag);
+  if (!definition) return defects;
+
+  const severity =
+    definition.severityClass === "severe" || definition.severityClass === "disqualifying"
+      ? "severe"
+      : definition.severityClass === "moderate"
+        ? "moderate"
+        : "minor";
+
+  return [
+    ...defects,
+    {
+      tag: primaryLimiterTag,
+      severity,
+      location: "both",
+      confidence: "medium",
+    },
+  ];
+}
+
+function resolvePrimaryLimiter(defects, era, primaryLimiterTag, primaryLimiterLabel) {
+  if (!defects.length) {
+    return {
+      primaryLimiterTag: primaryLimiterTag || "corner_wear_light",
+      primaryLimiterLabel: primaryLimiterLabel || "Visible wear",
+    };
+  }
+
+  let worstDefect = defects[0];
+  let worstCap = getEffectiveDefectCap(worstDefect, era);
+
+  for (const defect of defects.slice(1)) {
+    const cap = getEffectiveDefectCap(defect, era);
+    if (cap < worstCap) {
+      worstDefect = defect;
+      worstCap = cap;
+    }
+  }
+
+  return {
+    primaryLimiterTag: worstDefect.tag,
+    primaryLimiterLabel:
+      primaryLimiterLabel && worstDefect.tag === primaryLimiterTag
+        ? primaryLimiterLabel
+        : getDefectLabel(worstDefect.tag),
+  };
+}
+
+const SURFACE_WEAR_TAGS = new Set([
+  "surface_scratch_light",
+  "surface_scratch_moderate",
+  "surface_wear",
+  "heavy_staining",
+  "moderate_crease",
+  "severe_crease",
+  "paper_loss",
+  "hole_tear",
+  "wax_stain",
+  "back_wear",
+  "back_damage_severe",
+]);
+
+const CORNER_WEAR_TAGS = new Set([
+  "corner_wear_light",
+  "corner_wear_moderate",
+  "rounded_corners_all",
+]);
+
+const EDGE_WEAR_TAGS = new Set([
+  "edge_wear_light",
+  "edge_fraying_major",
+]);
+
+function hasWearTag(defects, tagSet) {
+  return defects.some((defect) =>
+    tagSet.has(resolveEffectiveDefectTag(defect.tag, defect.severity))
+  );
+}
+
+function inferStructuralDefects(defects, categoryScores, era) {
+  if (era !== "vintage") return defects;
+
+  const inferred = [...defects];
+  const addDefect = (tag, severity, location = "both") => {
+    inferred.push({
+      tag,
+      severity,
+      location,
+      confidence: "medium",
+    });
+  };
+
+  if (
+    categoryScores.surface <= 4.5 &&
+    !hasWearTag(inferred, SURFACE_WEAR_TAGS)
+  ) {
+    addDefect("surface_wear", "severe");
+  } else if (
+    categoryScores.surface <= 4.5 &&
+    hasWearTag(inferred, new Set(["surface_scratch_moderate", "surface_scratch_light"]))
+  ) {
+    addDefect("surface_wear", "severe");
+  }
+
+  if (categoryScores.corners <= 6 && !hasWearTag(inferred, CORNER_WEAR_TAGS)) {
+    addDefect(
+      categoryScores.corners <= 5.5 ? "rounded_corners_all" : "corner_wear_moderate",
+      "moderate"
+    );
+  }
+
+  if (categoryScores.edges <= 6 && !hasWearTag(inferred, EDGE_WEAR_TAGS)) {
+    addDefect(
+      categoryScores.edges <= 5.5 ? "edge_fraying_major" : "edge_wear_light",
+      categoryScores.edges <= 5.5 ? "severe" : "moderate"
+    );
+  }
+
+  if (categoryScores.surface <= 5 && hasWearTag(inferred, new Set(["back_wear"]))) {
+    addDefect("back_damage_severe", "severe", "back");
+  }
+
+  return inferred;
+}
+
+function normalizeAnalysis(raw, era) {
+  const initialDefects = dedupeDefects(raw.defects || []);
+  const categoryScores = normalizeCategoryScores(raw.categoryScores);
+  const enrichedDefects = dedupeDefects(
+    inferStructuralDefects(initialDefects, categoryScores, era)
+  );
+  const limiter = resolvePrimaryLimiter(
+    ensurePrimaryLimiterDefect(enrichedDefects, raw.primaryLimiterTag),
+    era,
+    raw.primaryLimiterTag,
+    raw.primaryLimiterLabel
+  );
+  const defects = dedupeDefects(
+    ensurePrimaryLimiterDefect(enrichedDefects, limiter.primaryLimiterTag)
+  );
+
   return {
     scanQuality: {
       level: raw.scanQuality.level,
       visibilityIssues: raw.scanQuality.visibilityIssues || [],
       inspectionLimits: raw.scanQuality.inspectionLimits || [],
     },
-    categoryScores: normalizeCategoryScores(raw.categoryScores),
-    defects: raw.defects || [],
-    primaryLimiterTag: raw.primaryLimiterTag,
-    primaryLimiterLabel: raw.primaryLimiterLabel,
+    categoryScores,
+    defects,
+    primaryLimiterTag: limiter.primaryLimiterTag,
+    primaryLimiterLabel: limiter.primaryLimiterLabel,
     bestAttribute: raw.bestAttribute,
     eyeAppealSummary: raw.eyeAppealSummary,
     cardMeta: raw.cardMeta,
@@ -92,7 +261,7 @@ export async function analyzeCard(client, { frontImage, backImage, era }) {
     backImage,
   });
 
-  return normalizeAnalysis(raw);
+  return normalizeAnalysis(raw, era);
 }
 
 export async function detectEraFromImages(client, { frontImage, backImage }) {

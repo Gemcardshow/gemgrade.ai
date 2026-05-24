@@ -230,3 +230,83 @@ test("cap audit records defect and overall derivation", () => {
   assert.ok(result.capAudit.some((entry) => entry.source === "defect:severe_crease"));
   assert.ok(result.capAudit.some((entry) => entry.source === "overall_derivation"));
 });
+
+test("escalates moderate crease with severe observation to severe crease cap", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 4, edges: 4, surface: 2.5, centering: 6 },
+    defects: [
+      {
+        tag: "moderate_crease",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "moderate_crease",
+  });
+
+  const result = computeGrade(analysis, "vintage");
+  assert.ok(result.internalGrade <= 2.0);
+});
+
+test("multiple moderate structural defects apply compound cap", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 5, edges: 5, surface: 5, centering: 7 },
+    defects: [
+      {
+        tag: "moderate_crease",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "rounded_corners_all",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "moderate_crease",
+  });
+
+  const result = computeGrade(analysis, "vintage");
+  assert.ok(result.internalGrade <= 4.0);
+  assert.ok(
+    result.capAudit.some((entry) => entry.source === "compound:2plus_moderate_defects")
+  );
+});
+
+test("1952 Topps Willie Mays PSA 1 anchor pattern does not overshoot above PSA 2", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 4, edges: 5, surface: 4, centering: 6 },
+    defects: [
+      {
+        tag: "surface_wear",
+        severity: "moderate",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_wear",
+    primaryLimiterLabel: "Surface Wear is Moderate, Affecting Eye Appeal",
+    scanQuality: {
+      level: "fair",
+      visibilityIssues: ["glare", "scratches", "limited detail"],
+      inspectionLimits: [],
+    },
+    cardMeta: {
+      estimatedYear: 1952,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+  });
+
+  const result = computeGrade(analysis, "vintage");
+  assert.ok(result.internalGrade <= 2.0);
+  assert.ok(result.psaGrade <= 2);
+  assert.ok(
+    result.capAudit.some(
+      (entry) => entry.source === "vintage:multi_pillar_heavy_wear"
+    )
+  );
+});

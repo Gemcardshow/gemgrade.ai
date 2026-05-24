@@ -1,8 +1,14 @@
-import { getDefectCap, getDefectDefinition, getDefectLabel } from "./defects.js";
+import {
+  getDefectCap,
+  getDefectDefinition,
+  getDefectLabel,
+  getEffectiveDefectCap,
+} from "./defects.js";
 import {
   applyCenteringGemCap,
   applyCompoundHarshness,
   applyPsa1Calibration,
+  applyVintageMultiPillarWearCap,
   finalizeInternalGrade,
 } from "./psa-calibration.js";
 import {
@@ -78,13 +84,25 @@ function getScanCeiling(scanQuality) {
   return ceiling;
 }
 
-function getDefectCeiling(defects, era, capAudit) {
+function getDefectCeiling(defects, era, categoryScores, capAudit) {
   if (!defects.length) return 10;
 
   let ceiling = 10;
 
   for (const defect of defects) {
-    const cap = getDefectCap(defect.tag, era);
+    let cap = getEffectiveDefectCap(defect, era);
+
+    if (
+      categoryScores.surface <= 4 &&
+      (defect.tag === "surface_wear" || defect.tag === "surface_scratch_moderate")
+    ) {
+      const surfaceBound = era === "vintage" ? 2.0 : 2.5;
+      if (surfaceBound < cap) {
+        cap = surfaceBound;
+        capAudit.push({ source: `categoryBound:${defect.tag}`, cap });
+      }
+    }
+
     if (cap < ceiling) {
       ceiling = cap;
       capAudit.push({ source: `defect:${defect.tag}`, cap });
@@ -94,10 +112,14 @@ function getDefectCeiling(defects, era, capAudit) {
   return ceiling;
 }
 
-function getPrimaryLimiterCap(primaryLimiterTag, era, capAudit) {
+function getPrimaryLimiterCap(primaryLimiterTag, defects, era, capAudit) {
   if (!primaryLimiterTag) return 10;
 
-  const cap = getDefectCap(primaryLimiterTag, era);
+  const matchingDefect = defects.find((defect) => defect.tag === primaryLimiterTag);
+  const cap = matchingDefect
+    ? getEffectiveDefectCap(matchingDefect, era)
+    : getDefectCap(primaryLimiterTag, era);
+
   if (cap < 10) {
     capAudit.push({ source: `primaryLimiter:${primaryLimiterTag}`, cap });
   }
@@ -132,7 +154,7 @@ export function computeGrade(analysis, era) {
   );
   capAudit.push({ source: "categoryFloor", value: categoryFloor });
 
-  const defectCeiling = getDefectCeiling(analysis.defects, era, capAudit);
+  const defectCeiling = getDefectCeiling(analysis.defects, era, categoryScores, capAudit);
   const scanCeiling = getScanCeiling(analysis.scanQuality);
   capAudit.push({ source: "scanQuality", cap: scanCeiling });
 
@@ -144,13 +166,25 @@ export function computeGrade(analysis, era) {
   const primaryLimiterCap = analysis.defects.some(
     (defect) => defect.tag === analysis.primaryLimiterTag
   )
-    ? getPrimaryLimiterCap(analysis.primaryLimiterTag, era, capAudit)
+    ? getPrimaryLimiterCap(
+        analysis.primaryLimiterTag,
+        analysis.defects,
+        era,
+        capAudit
+      )
     : 10;
   rawOverall = Math.min(rawOverall, primaryLimiterCap);
 
   rawOverall = applyCenteringGemCap(
     rawOverall,
     categoryScores.centering,
+    capAudit
+  );
+
+  rawOverall = applyVintageMultiPillarWearCap(
+    rawOverall,
+    categoryScores,
+    era,
     capAudit
   );
 
