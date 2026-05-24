@@ -60,28 +60,61 @@ function isFairCardPattern(categoryScores) {
   return corners >= 6 && surface >= 6 && centering >= 7;
 }
 
+const NM_RECONCILE_BLOCKERS = new Set([
+  "severe_crease",
+  "moderate_crease",
+  "surface_wear",
+  "paper_loss",
+  "hole_tear",
+  "writing_mark_severe",
+  "writing_mark",
+  "back_damage_severe",
+  "rounded_corners_all",
+]);
+
+function canReconcileNmOverTags(defects, categoryScores) {
+  const { corners, centering } = categoryScores;
+  if (corners < 6 || centering < 7) return false;
+  return !defects.some((defect) => NM_RECONCILE_BLOCKERS.has(defect.tag));
+}
+
 function reconcileFairCardOverTags(defects, categoryScores) {
-  if (!isFairCardPattern(categoryScores)) {
-    return { defects, categoryScores, edgeDowngraded: false };
+  const fullFair = isFairCardPattern(categoryScores);
+  const nmCandidate = canReconcileNmOverTags(defects, categoryScores);
+
+  if (!fullFair && !nmCandidate) {
+    return { defects, categoryScores, reconciled: false };
   }
 
   let edgeDowngraded = false;
+  let stainDowngraded = false;
   const reconciled = defects.map((defect) => {
     if (defect.tag === "edge_fraying_major") {
       edgeDowngraded = true;
       return { ...defect, tag: "edge_wear_light", severity: "minor" };
     }
+    if (defect.tag === "heavy_staining" && nmCandidate) {
+      stainDowngraded = true;
+      return { ...defect, tag: "staining_light", severity: "minor" };
+    }
     if (defect.tag === "corner_wear_moderate" && categoryScores.corners >= 6) {
       return { ...defect, tag: "corner_wear_light", severity: "minor" };
     }
-    if (defect.tag === "surface_scratch_moderate" && categoryScores.surface >= 6) {
+    if (
+      defect.tag === "surface_scratch_moderate" &&
+      (categoryScores.surface >= 6 || stainDowngraded)
+    ) {
       return { ...defect, tag: "surface_scratch_light", severity: "minor" };
     }
     return defect;
   });
 
-  if (!edgeDowngraded) {
-    return { defects: reconciled, categoryScores, edgeDowngraded: false };
+  const shouldApplyNmBump =
+    (nmCandidate && (edgeDowngraded || stainDowngraded)) ||
+    (fullFair && edgeDowngraded);
+
+  if (!shouldApplyNmBump) {
+    return { defects: reconciled, categoryScores, reconciled: false };
   }
 
   const nmTargets =
@@ -105,7 +138,7 @@ function reconcileFairCardOverTags(defects, categoryScores) {
   return {
     defects: reconciled,
     categoryScores: adjustedScores,
-    edgeDowngraded: true,
+    reconciled: true,
   };
 }
 
@@ -280,16 +313,16 @@ function inferStructuralDefects(defects, categoryScores, era) {
 function normalizeAnalysis(raw, era) {
   let categoryScores = normalizeCategoryScores(raw.categoryScores);
   let initialDefects = raw.defects || [];
-  let edgeDowngraded = false;
+  let nmReconciled = false;
 
   if (era === "vintage") {
     const reconciled = reconcileFairCardOverTags(initialDefects, categoryScores);
     initialDefects = reconciled.defects;
     categoryScores = reconciled.categoryScores;
-    edgeDowngraded = reconciled.edgeDowngraded;
+    nmReconciled = reconciled.reconciled;
   }
 
-  const dedupeOptions = edgeDowngraded ? { skipEscalation: true } : {};
+  const dedupeOptions = nmReconciled ? { skipEscalation: true } : {};
 
   const initialDeduped = dedupeDefects(initialDefects, categoryScores, era, dedupeOptions);
   const enrichedDefects = dedupeDefects(
@@ -299,7 +332,9 @@ function normalizeAnalysis(raw, era) {
     dedupeOptions
   );
   const requestedPrimaryLimiterTag =
-    edgeDowngraded && raw.primaryLimiterTag === "edge_fraying_major"
+    nmReconciled &&
+    (raw.primaryLimiterTag === "edge_fraying_major" ||
+      raw.primaryLimiterTag === "heavy_staining")
       ? null
       : raw.primaryLimiterTag;
   const limiter = resolvePrimaryLimiter(

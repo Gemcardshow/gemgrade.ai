@@ -108,6 +108,7 @@ DEFECT DETECTION REQUIREMENTS:
 - Tag every visible flaw using the allowed defect enum.
 - Use severe_crease for heavy visible creasing; moderate_crease for lighter creases.
 - Use paper_loss, hole_tear, writing_mark, or writing_mark_severe when visible.
+- Use staining_light for small print specks or minor discoloration. Reserve heavy_staining for large, clearly damaging stains across a meaningful surface area.
 - Use back_damage_severe or back_wear for back-specific issues.
 - Tag corner, edge, surface, staining, and print issues separately when present.
 - Set defect severity to match visible damage, not eye appeal.

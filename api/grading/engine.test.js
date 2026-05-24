@@ -597,3 +597,53 @@ test("1972 Topps Tom Seaver PSA 8 normalized scan reaches PSA 7-8", () => {
   assert.ok(result.internalGrade >= 7);
   assert.ok(result.psaGrade >= 7);
 });
+
+test("1972 Topps Tom Seaver PSA 8 stain plus edge over-tags normalize to PSA 7+", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6, edges: 3.5, surface: 3.5, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "heavy_staining",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    primaryLimiterLabel: "Major edge fraying or chipping",
+    bestAttribute: "Fair centering",
+    eyeAppealSummary: "Moderate wear with acceptable eye appeal",
+    cardMeta: {
+      estimatedYear: 1972,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+    categoryNotes: {
+      corners: "Minor touch",
+      edges: "Light roughness",
+      surface: "Small speck",
+      centering: "Fair",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "heavy_staining"));
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(result.internalGrade >= 7);
+  assert.ok(result.psaGrade >= 7);
+});
