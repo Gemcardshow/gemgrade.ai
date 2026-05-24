@@ -804,3 +804,68 @@ test("1969 Topps Pete Rose PSA 1 heavy wear with crease inference stays in poor 
     !result.capAudit.some((entry) => entry.source === "isolated_pillar_outlier")
   );
 });
+
+test("1909 T205 Sam Leever PSA 5 back foxing mis-tag normalizes to EX band", () => {
+  const raw = {
+    scanQuality: {
+      level: "fair",
+      visibilityIssues: ["some discoloration on the surface", "minor scuff marks"],
+      inspectionLimits: ["back has minor staining"],
+    },
+    categoryScores: { corners: 6, edges: 3.5, surface: 3.5, centering: 6.5 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "medium",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "heavy_staining",
+        severity: "severe",
+        location: "back",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "heavy_staining",
+    primaryLimiterLabel: "heavy staining on the back",
+    bestAttribute: "centering is reasonably strong",
+    eyeAppealSummary: "Moderate imperfections but decent appeal for age",
+    cardMeta: {
+      estimatedYear: 1909,
+      isReflective: false,
+      isDarkBorder: true,
+    },
+    categoryNotes: {
+      corners: "Rounded corners",
+      edges: "Gold border chipping",
+      surface: "Back foxing limits surface subgrade",
+      centering: "Reasonably centered",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(
+    analysis.defects.some(
+      (defect) => defect.tag === "staining_light" && defect.location === "back"
+    )
+  );
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "surface_wear"));
+  assert.ok(result.internalGrade >= 4.5);
+  assert.ok(result.psaGrade >= 4);
+  assert.ok(result.psaGrade <= 6);
+});

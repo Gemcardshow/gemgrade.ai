@@ -297,12 +297,14 @@ function inferStructuralDefects(defects, categoryScores, era) {
 
   if (
     categoryScores.surface <= 4.5 &&
-    !hasWearTag(inferred, SURFACE_WEAR_TAGS)
+    !hasWearTag(inferred, SURFACE_WEAR_TAGS) &&
+    !hasBackOnlyStaining(inferred)
   ) {
     addDefect("surface_wear", "severe");
   } else if (
     categoryScores.surface <= 4.5 &&
-    hasWearTag(inferred, new Set(["surface_scratch_moderate", "surface_scratch_light"]))
+    hasWearTag(inferred, new Set(["surface_scratch_moderate", "surface_scratch_light"])) &&
+    !hasBackOnlyStaining(inferred)
   ) {
     addDefect("surface_wear", "severe");
   }
@@ -336,8 +338,109 @@ function inferStructuralDefects(defects, categoryScores, era) {
   return inferred;
 }
 
+function hasBackOnlyStaining(defects) {
+  const hasBackStain = defects.some(
+    (defect) =>
+      (defect.tag === "heavy_staining" ||
+        defect.tag === "staining_light" ||
+        defect.tag === "wax_stain") &&
+      defect.location === "back"
+  );
+  const hasFrontStain = defects.some(
+    (defect) =>
+      (defect.tag === "heavy_staining" ||
+        defect.tag === "staining_light" ||
+        defect.tag === "wax_stain") &&
+      (defect.location === "front" || defect.location === "both")
+  );
+
+  return hasBackStain && !hasFrontStain;
+}
+
+function reconcileBackFoxingStaining(defects, categoryScores) {
+  const hasBackHeavy = defects.some(
+    (defect) => defect.tag === "heavy_staining" && defect.location === "back"
+  );
+  if (!hasBackHeavy || !hasBackOnlyStaining(defects)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const reconciled = defects.map((defect) => {
+    if (defect.tag === "heavy_staining" && defect.location === "back") {
+      return { ...defect, tag: "staining_light", severity: "minor" };
+    }
+    return defect;
+  });
+
+  return {
+    defects: reconciled,
+    categoryScores: {
+      ...categoryScores,
+      surface: roundToHalf(
+        clampGrade(Math.max(categoryScores.surface, 6))
+      ),
+      edges: roundToHalf(clampGrade(Math.max(categoryScores.edges, 5))),
+    },
+    reconciled: true,
+  };
+}
+
+const EX_FOXING_RECONCILE_BLOCKERS = new Set([
+  "severe_crease",
+  "moderate_crease",
+  "surface_wear",
+  "paper_loss",
+  "hole_tear",
+  "writing_mark_severe",
+  "writing_mark",
+  "back_damage_severe",
+  "rounded_corners_all",
+]);
+
+function reconcileVintageExFoxingWear(defects, categoryScores) {
+  if (defects.some((defect) => EX_FOXING_RECONCILE_BLOCKERS.has(defect.tag))) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const { corners, centering } = categoryScores;
+  if (corners < 6 || centering < 6) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const hasOverTag = defects.some((defect) =>
+    ["edge_fraying_major", "surface_scratch_moderate"].includes(defect.tag)
+  );
+  if (!hasOverTag) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const reconciled = defects.map((defect) => {
+    if (defect.tag === "edge_fraying_major") {
+      return { ...defect, tag: "edge_wear_light", severity: "minor" };
+    }
+    if (defect.tag === "surface_scratch_moderate") {
+      return { ...defect, tag: "surface_scratch_light", severity: "minor" };
+    }
+    if (defect.tag === "corner_wear_moderate" && corners >= 6) {
+      return { ...defect, tag: "corner_wear_light", severity: "minor" };
+    }
+    return defect;
+  });
+
+  return {
+    defects: reconciled,
+    categoryScores: {
+      ...categoryScores,
+      edges: roundToHalf(clampGrade(Math.max(categoryScores.edges, 5))),
+      surface: roundToHalf(clampGrade(Math.max(categoryScores.surface, 6))),
+    },
+    reconciled: true,
+  };
+}
+
 function inferHeavyWearCrease(defects, categoryScores, era) {
   if (era !== "vintage") return defects;
+  if (hasBackOnlyStaining(defects)) return defects;
   if (hasWearTag(defects, new Set(["moderate_crease", "severe_crease"]))) {
     return defects;
   }
@@ -439,9 +542,21 @@ function normalizeAnalysis(raw, era) {
   let categoryScores = normalizeCategoryScores(raw.categoryScores);
   let initialDefects = raw.defects || [];
   let nmReconciled = false;
+  let backFoxingReconciled = false;
+  let exFoxingWearReconciled = false;
 
   if (era === "vintage") {
     initialDefects = inferHeavyWearCrease(initialDefects, categoryScores, era);
+    const foxing = reconcileBackFoxingStaining(initialDefects, categoryScores);
+    initialDefects = foxing.defects;
+    categoryScores = foxing.categoryScores;
+    backFoxingReconciled = foxing.reconciled;
+    if (backFoxingReconciled) {
+      const exWear = reconcileVintageExFoxingWear(initialDefects, categoryScores);
+      initialDefects = exWear.defects;
+      categoryScores = exWear.categoryScores;
+      exFoxingWearReconciled = exWear.reconciled;
+    }
     const reconciled = reconcileFairCardOverTags(initialDefects, categoryScores);
     initialDefects = reconciled.defects;
     categoryScores = reconciled.categoryScores;
@@ -450,7 +565,8 @@ function normalizeAnalysis(raw, era) {
 
   initialDefects = inferBackWearAsWriting(initialDefects, categoryScores, raw, era);
 
-  const dedupeOptions = nmReconciled ? { skipEscalation: true } : {};
+  const dedupeOptions =
+    nmReconciled || exFoxingWearReconciled ? { skipEscalation: true } : {};
 
   const initialDeduped = dedupeDefects(initialDefects, categoryScores, era, dedupeOptions);
   const enrichedDefects = dedupeDefects(
@@ -464,7 +580,11 @@ function normalizeAnalysis(raw, era) {
     (raw.primaryLimiterTag === "edge_fraying_major" ||
       raw.primaryLimiterTag === "heavy_staining")
       ? null
-      : initialDefects.some((defect) =>
+      : (backFoxingReconciled || exFoxingWearReconciled) &&
+          (raw.primaryLimiterTag === "heavy_staining" ||
+            raw.primaryLimiterTag === "edge_fraying_major")
+        ? null
+        : initialDefects.some((defect) =>
             defect.tag === "writing_mark_severe" || defect.tag === "writing_mark"
           ) && raw.primaryLimiterTag === "back_wear"
         ? null
