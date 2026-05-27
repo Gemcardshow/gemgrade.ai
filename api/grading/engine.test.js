@@ -1094,3 +1094,65 @@ test("1962 Topps Roger Maris PSA 1 back writing mis-tag with poor surface stays 
   assert.ok(result.internalGrade <= 2.5);
   assert.ok(result.psaGrade <= 2);
 });
+
+test("1980 Topps Rickey Henderson PSA 3 distributed light wear stays in VG band", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6.5, edges: 6.5, surface: 6.5, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "staining_light",
+    primaryLimiterLabel: "Light staining or discoloration",
+    bestAttribute: "centering",
+    eyeAppealSummary:
+      "Card displays decent centering with visible surface, corner, and edge wear.",
+    cardMeta: {
+      estimatedYear: 1980,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+    categoryNotes: {
+      corners: "",
+      edges: "",
+      surface: "",
+      centering: "",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(
+    analysis.defects.some((defect) => defect.tag === "edge_fraying_major")
+  );
+  assert.ok(
+    analysis.defects.some((defect) => defect.tag === "corner_wear_moderate")
+  );
+  assert.ok(result.internalGrade <= 4);
+  assert.ok(result.psaGrade <= 4);
+  assert.ok(result.psaGrade >= 2);
+});

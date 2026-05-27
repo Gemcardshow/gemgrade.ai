@@ -55,9 +55,97 @@ async function callStructuredVision(client, { schema, instruction, frontImage, b
   return parseJsonResponse(content);
 }
 
-function isFairCardPattern(categoryScores) {
+function isFairCardPattern(categoryScores, raw) {
   const { corners, surface, centering, edges } = categoryScores;
+  if (raw && admitsDistributedWearAppeal(raw)) return false;
   return corners >= 6 && surface >= 6 && centering >= 7 && edges >= 5;
+}
+
+function admitsDistributedWearAppeal(raw) {
+  const text = collectAppealText(raw);
+  const mentionsWear = /\b(wear|chipping|rounding|scratch|stain)\b/.test(text);
+  const mentionsCorners = /\bcorner/.test(text);
+  const mentionsEdges = /\bedge/.test(text);
+  const mentionsSurface = /\bsurface/.test(text);
+  const visibleModerate =
+    /\b(visible|moderate|noticeable|significant)\b/.test(text) && mentionsWear;
+
+  return visibleModerate && mentionsCorners && mentionsEdges && mentionsSurface;
+}
+
+const LIGHT_WEAR_ONLY_TAGS = new Set([
+  "corner_wear_light",
+  "edge_wear_light",
+  "surface_scratch_light",
+  "staining_light",
+  "print_line",
+  "gloss_loss",
+  "registration_issue",
+]);
+
+function reconcileVintageVgLightWearUndertag(defects, categoryScores, raw) {
+  if (!admitsDistributedWearAppeal(raw)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const { corners, edges, surface } = categoryScores;
+  const floor = Math.min(corners, edges, surface);
+  if (floor < 6 || floor > 7.5) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const wearDefects = defects.filter((defect) =>
+    LIGHT_WEAR_ONLY_TAGS.has(defect.tag) ||
+    [
+      "corner_wear_moderate",
+      "edge_fraying_major",
+      "surface_scratch_moderate",
+    ].includes(defect.tag)
+  );
+  if (!wearDefects.length) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  if (
+    defects.some((defect) =>
+      [
+        "severe_crease",
+        "moderate_crease",
+        "surface_wear",
+        "paper_loss",
+        "writing_mark_severe",
+      ].includes(defect.tag)
+    )
+  ) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  let adjusted = false;
+  const reconciled = defects.map((defect) => {
+    if (defect.tag === "corner_wear_light") {
+      adjusted = true;
+      return { ...defect, tag: "corner_wear_moderate", severity: "moderate" };
+    }
+    if (defect.tag === "edge_wear_light" && edges <= 7) {
+      adjusted = true;
+      return {
+        ...defect,
+        tag: edges <= 6.5 ? "edge_fraying_major" : "edge_wear_light",
+        severity: edges <= 6.5 ? "severe" : "moderate",
+      };
+    }
+    if (defect.tag === "surface_scratch_light" && surface <= 7.5) {
+      adjusted = true;
+      return { ...defect, tag: "surface_scratch_moderate", severity: "moderate" };
+    }
+    return defect;
+  });
+
+  if (!adjusted) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  return { defects: reconciled, categoryScores, reconciled: true };
 }
 
 const NM_RECONCILE_BLOCKERS = new Set([
@@ -101,12 +189,16 @@ function canReconcileNmOverTags(defects, categoryScores) {
   return true;
 }
 
-function reconcileFairCardOverTags(defects, categoryScores) {
+function reconcileFairCardOverTags(defects, categoryScores, raw) {
+  if (raw && admitsDistributedWearAppeal(raw)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
   if (defects.some((defect) => NM_RECONCILE_BLOCKERS.has(defect.tag))) {
     return { defects, categoryScores, reconciled: false };
   }
 
-  const fullFair = isFairCardPattern(categoryScores);
+  const fullFair = isFairCardPattern(categoryScores, raw);
   const nmCandidate = canReconcileNmOverTags(defects, categoryScores);
 
   if (!fullFair && !nmCandidate) {
@@ -300,11 +392,11 @@ function hasWearTag(defects, tagSet) {
   );
 }
 
-function inferStructuralDefects(defects, categoryScores, era) {
+function inferStructuralDefects(defects, categoryScores, era, raw) {
   if (era !== "vintage") return defects;
 
   const inferred = [...defects];
-  const fairCard = isFairCardPattern(categoryScores);
+  const fairCard = isFairCardPattern(categoryScores, raw);
   const addDefect = (tag, severity, location = "both") => {
     inferred.push({
       tag,
@@ -858,7 +950,18 @@ function normalizeAnalysis(raw, era) {
     initialDefects = exCrease.defects;
     categoryScores = exCrease.categoryScores;
     exCreaseOverTagReconciled = exCrease.reconciled;
-    const reconciled = reconcileFairCardOverTags(initialDefects, categoryScores);
+    const vgWear = reconcileVintageVgLightWearUndertag(
+      initialDefects,
+      categoryScores,
+      raw
+    );
+    initialDefects = vgWear.defects;
+    categoryScores = vgWear.categoryScores;
+    const reconciled = reconcileFairCardOverTags(
+      initialDefects,
+      categoryScores,
+      raw
+    );
     initialDefects = reconciled.defects;
     categoryScores = reconciled.categoryScores;
     nmReconciled = reconciled.reconciled;
@@ -876,7 +979,7 @@ function normalizeAnalysis(raw, era) {
 
   const initialDeduped = dedupeDefects(initialDefects, categoryScores, era, dedupeOptions);
   const enrichedDefects = dedupeDefects(
-    inferStructuralDefects(initialDeduped, categoryScores, era),
+    inferStructuralDefects(initialDeduped, categoryScores, era, raw),
     categoryScores,
     era,
     dedupeOptions
