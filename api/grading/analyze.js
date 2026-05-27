@@ -92,7 +92,7 @@ const LIGHT_WEAR_ONLY_TAGS = new Set([
 ]);
 
 function reconcileVintageVgLightWearUndertag(defects, categoryScores, raw) {
-  if (hasLightEdgeAppealLanguage(raw)) {
+  if (hasSoftEdgeWearAppeal(raw)) {
     return { defects, categoryScores, reconciled: false };
   }
 
@@ -132,6 +132,10 @@ function reconcileVintageVgLightWearUndertag(defects, categoryScores, raw) {
     return { defects, categoryScores, reconciled: false };
   }
 
+  const inputAllLightWear = defects.every((defect) =>
+    LIGHT_WEAR_ONLY_TAGS.has(defect.tag)
+  );
+
   let adjusted = false;
   const reconciled = defects.map((defect) => {
     if (defect.tag === "corner_wear_light") {
@@ -141,9 +145,10 @@ function reconcileVintageVgLightWearUndertag(defects, categoryScores, raw) {
     if (defect.tag === "edge_wear_light" && edges <= 7) {
       adjusted = true;
       const escalateToFraying =
-        edges <= 6.5 &&
+        !inputAllLightWear &&
+        edges <= 5.5 &&
         !(hasExAppealSignals(raw) && edges > 5.5) &&
-        !hasLightEdgeAppealLanguage(raw);
+        !hasSoftEdgeWearAppeal(raw);
       return {
         ...defect,
         tag: escalateToFraying ? "edge_fraying_major" : "edge_wear_light",
@@ -304,6 +309,23 @@ function normalizeCategoryScores(categoryScores) {
   };
 }
 
+function escalateVintageLightWear(defect, categoryScores, raw) {
+  const normalized = escalateLightWearObservation(defect, categoryScores);
+  if (
+    normalized.tag === "edge_fraying_major" &&
+    hasSoftEdgeWearAppeal(raw) &&
+    categoryScores.edges > 5.5
+  ) {
+    return normalizeDefectObservation({
+      ...defect,
+      tag: "edge_wear_light",
+      severity: "minor",
+    });
+  }
+
+  return normalized;
+}
+
 function dedupeDefects(defects, categoryScores, era, options = {}) {
   const seen = new Set();
   const deduped = [];
@@ -311,7 +333,9 @@ function dedupeDefects(defects, categoryScores, era, options = {}) {
   for (const defect of defects) {
     const normalized =
       era === "vintage" && !options.skipEscalation
-        ? escalateLightWearObservation(defect, categoryScores)
+        ? options.raw
+          ? escalateVintageLightWear(defect, categoryScores, options.raw)
+          : escalateLightWearObservation(defect, categoryScores)
         : normalizeDefectObservation(defect);
     const key = `${normalized.tag}:${normalized.location}`;
     if (seen.has(key)) continue;
@@ -450,7 +474,8 @@ function inferStructuralDefects(defects, categoryScores, era, raw) {
   if (
     categoryScores.edges <= 6.5 &&
     !(fairCard && categoryScores.edges >= 5.5) &&
-    !hasWearTag(inferred, EDGE_WEAR_TAGS)
+    !hasWearTag(inferred, EDGE_WEAR_TAGS) &&
+    !(hasSoftEdgeWearAppeal(raw) && categoryScores.edges > 5.5)
   ) {
     addDefect(
       categoryScores.edges <= 5.5 ? "edge_fraying_major" : "edge_wear_light",
@@ -779,9 +804,89 @@ function hasLightEdgeAppealLanguage(raw) {
     .join(" ")
     .toLowerCase();
 
-  return /\b(light edge|minor edge|slight edge|light edge wear|light wear on edges?|minor edge wear)\b/.test(
+  return /\b(light edge|minor edge|slight edge|light edge wear|light wear on edges?|minor edge wear|light factory roughness|light roughness)\b/.test(
     text
   );
+}
+
+function hasSoftEdgeWearAppeal(raw) {
+  const text = [
+    collectAppealText(raw),
+    ...Object.values(raw.categoryNotes || {}),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  if (
+    /\b(major edge|heavy edge|edge fraying|severe edge|heavy chipping|major chipping|heavy edge wear)\b/.test(
+      text
+    )
+  ) {
+    return false;
+  }
+
+  if (hasLightEdgeAppealLanguage(raw)) {
+    return true;
+  }
+
+  if (
+    /\b(light roughness|light factory roughness|minor edge|slight edge|light edge)\b/.test(
+      text
+    )
+  ) {
+    return true;
+  }
+
+  if (
+    /\b(light|minor|slight|minimal)\b/.test(text) &&
+    /\b(edge wear|edges?)\b/.test(text)
+  ) {
+    return true;
+  }
+
+  if (admitsDistributedWearAppeal(raw)) {
+    return false;
+  }
+
+  return /\bedge wear\b/.test(text);
+}
+
+function reconcileVintageLightWearOnlyNoFraying(defects, categoryScores) {
+  if (!defects.length) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const onlyLightWear = defects.every((defect) =>
+    LIGHT_WEAR_ONLY_TAGS.has(defect.tag)
+  );
+  if (!onlyLightWear || categoryScores.edges <= 5.5) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const floor = Math.min(
+    categoryScores.corners,
+    categoryScores.edges,
+    categoryScores.surface
+  );
+  if (floor < 6) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  let adjusted = false;
+  const reconciled = defects.map((defect) => {
+    if (defect.tag !== "edge_fraying_major") {
+      return defect;
+    }
+
+    adjusted = true;
+    return { ...defect, tag: "edge_wear_light", severity: "minor" };
+  });
+
+  if (!adjusted) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  return { defects: reconciled, categoryScores, reconciled: true };
 }
 
 function reconcileVintageAppealEdgeOverTag(
@@ -793,7 +898,7 @@ function reconcileVintageAppealEdgeOverTag(
   if (!defects.some((defect) => defect.tag === "edge_fraying_major")) {
     return { defects, categoryScores, reconciled: false };
   }
-  if (!hasLightEdgeAppealLanguage(raw)) {
+  if (!hasSoftEdgeWearAppeal(raw)) {
     return { defects, categoryScores, reconciled: false };
   }
   if (hasHarshConditionSignals(raw)) {
@@ -801,7 +906,7 @@ function reconcileVintageAppealEdgeOverTag(
   }
 
   const { corners, centering, surface } = categoryScores;
-  if (corners < 6 || centering < 7 || surface < 5.5) {
+  if (corners < 6 || centering < 7 || surface < 5) {
     return { defects, categoryScores, reconciled: false };
   }
   if (scanQuality.level !== "good" && scanQuality.level !== "excellent") {
@@ -815,15 +920,32 @@ function reconcileVintageAppealEdgeOverTag(
       appealText
     );
 
+  const nmEdgeRecovery =
+    (hasExAppealSignals(raw) &&
+      categoryScores.centering >= 7 &&
+      categoryScores.surface >= 6) ||
+    (hasSoftEdgeWearAppeal(raw) &&
+      !admitsDistributedWearAppeal(raw) &&
+      categoryScores.centering >= 7.5 &&
+      categoryScores.corners >= 6 &&
+      categoryScores.surface >= 6);
+
   let adjusted = false;
   const reconciled = defects.map((defect) => {
     if (defect.tag === "edge_fraying_major") {
       adjusted = true;
       return { ...defect, tag: "edge_wear_light", severity: "minor" };
     }
-    if (defect.tag === "surface_scratch_moderate" && lightScratchAppeal) {
+    if (
+      defect.tag === "surface_scratch_moderate" &&
+      (lightScratchAppeal || nmEdgeRecovery)
+    ) {
       adjusted = true;
       return { ...defect, tag: "surface_scratch_light", severity: "minor" };
+    }
+    if (defect.tag === "corner_wear_moderate" && nmEdgeRecovery) {
+      adjusted = true;
+      return { ...defect, tag: "corner_wear_light", severity: "minor" };
     }
     return defect;
   });
@@ -832,15 +954,24 @@ function reconcileVintageAppealEdgeOverTag(
     return { defects, categoryScores, reconciled: false };
   }
 
+  const adjustedScores = nmEdgeRecovery
+    ? {
+        ...categoryScores,
+        edges: roundToHalf(clampGrade(Math.max(categoryScores.edges, 7))),
+        corners: roundToHalf(clampGrade(Math.max(categoryScores.corners, 7))),
+        surface: roundToHalf(clampGrade(Math.max(categoryScores.surface, 7))),
+      }
+    : {
+        ...categoryScores,
+        edges: roundToHalf(clampGrade(Math.max(categoryScores.edges, 6))),
+        surface: roundToHalf(
+          clampGrade(Math.max(categoryScores.surface, surface >= 6 ? surface : 6))
+        ),
+      };
+
   return {
     defects: reconciled,
-    categoryScores: {
-      ...categoryScores,
-      edges: roundToHalf(clampGrade(Math.max(categoryScores.edges, 6))),
-      surface: roundToHalf(
-        clampGrade(Math.max(categoryScores.surface, surface >= 6 ? surface : 6))
-      ),
-    },
+    categoryScores: adjustedScores,
     reconciled: true,
   };
 }
@@ -1055,7 +1186,48 @@ function inferBackWearAsWriting(defects, categoryScores, raw, era) {
   });
 }
 
+function reconcileVintageSourceLightWearEscalation(
+  defects,
+  categoryScores,
+  visionAllLightWear,
+  raw
+) {
+  if (!visionAllLightWear || admitsDistributedWearAppeal(raw)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  let adjusted = false;
+  const reconciled = defects.map((defect) => {
+    if (defect.tag !== "edge_fraying_major") {
+      return defect;
+    }
+
+    adjusted = true;
+    return { ...defect, tag: "edge_wear_light", severity: "minor" };
+  });
+
+  if (!adjusted) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  return {
+    defects: reconciled,
+    categoryScores: {
+      ...categoryScores,
+      edges: roundToHalf(clampGrade(Math.max(categoryScores.edges, 6))),
+    },
+    reconciled: true,
+  };
+}
+
 function normalizeAnalysis(raw, era) {
+  const visionAllLightWear =
+    era === "vintage" &&
+    (raw.defects || []).length > 0 &&
+    (raw.defects || []).every((defect) =>
+      LIGHT_WEAR_ONLY_TAGS.has(defect.tag)
+    );
+
   let categoryScores = normalizeCategoryScores(raw.categoryScores);
   let initialDefects = raw.defects || [];
   let nmReconciled = false;
@@ -1136,12 +1308,15 @@ function normalizeAnalysis(raw, era) {
       ? { skipEscalation: true }
       : {};
 
-  const initialDeduped = dedupeDefects(initialDefects, categoryScores, era, dedupeOptions);
+  const initialDeduped = dedupeDefects(initialDefects, categoryScores, era, {
+    ...dedupeOptions,
+    raw,
+  });
   const structuralDeduped = dedupeDefects(
     inferStructuralDefects(initialDeduped, categoryScores, era, raw),
     categoryScores,
     era,
-    dedupeOptions
+    { ...dedupeOptions, raw }
   );
   const exLightWear = reconcileVintageExLightWearEscalation(
     structuralDeduped,
@@ -1149,9 +1324,31 @@ function normalizeAnalysis(raw, era) {
     raw.scanQuality,
     raw
   );
-  const enrichedDefects = exLightWear.defects;
+  let enrichedDefects = exLightWear.defects;
   categoryScores = exLightWear.categoryScores;
   exLightWearReconciled = exLightWear.reconciled;
+
+  const appealEdgeFinal = reconcileVintageAppealEdgeOverTag(
+    enrichedDefects,
+    categoryScores,
+    raw.scanQuality,
+    raw
+  );
+  enrichedDefects = appealEdgeFinal.defects;
+  categoryScores = appealEdgeFinal.categoryScores;
+  if (appealEdgeFinal.reconciled) {
+    appealEdgeReconciled = true;
+  }
+
+  const lightWearOnly = reconcileVintageLightWearOnlyNoFraying(
+    enrichedDefects,
+    categoryScores
+  );
+  enrichedDefects = lightWearOnly.defects;
+  categoryScores = lightWearOnly.categoryScores;
+  if (lightWearOnly.reconciled) {
+    appealEdgeReconciled = true;
+  }
 
   const finalDedupeOptions =
     nmReconciled ||
@@ -1187,12 +1384,37 @@ function normalizeAnalysis(raw, era) {
     requestedPrimaryLimiterTag,
     raw.primaryLimiterLabel
   );
-  const defects = dedupeDefects(
+  let defects = dedupeDefects(
     ensurePrimaryLimiterDefect(enrichedDefects, limiter.primaryLimiterTag),
     categoryScores,
     era,
-    finalDedupeOptions
+    { ...finalDedupeOptions, raw }
   );
+
+  const sourceLightWear = reconcileVintageSourceLightWearEscalation(
+    defects,
+    categoryScores,
+    visionAllLightWear,
+    raw
+  );
+  defects = sourceLightWear.defects;
+  categoryScores = sourceLightWear.categoryScores;
+  let finalLimiter = limiter;
+  if (sourceLightWear.reconciled) {
+    appealEdgeReconciled = true;
+    finalLimiter = resolvePrimaryLimiter(
+      defects,
+      era,
+      requestedPrimaryLimiterTag,
+      raw.primaryLimiterLabel
+    );
+    defects = dedupeDefects(
+      ensurePrimaryLimiterDefect(defects, finalLimiter.primaryLimiterTag),
+      categoryScores,
+      era,
+      { ...finalDedupeOptions, raw, skipEscalation: true }
+    );
+  }
 
   return {
     scanQuality: {
@@ -1202,8 +1424,8 @@ function normalizeAnalysis(raw, era) {
     },
     categoryScores,
     defects,
-    primaryLimiterTag: limiter.primaryLimiterTag,
-    primaryLimiterLabel: limiter.primaryLimiterLabel,
+    primaryLimiterTag: finalLimiter.primaryLimiterTag,
+    primaryLimiterLabel: finalLimiter.primaryLimiterLabel,
     bestAttribute: raw.bestAttribute,
     eyeAppealSummary: raw.eyeAppealSummary,
     cardMeta: raw.cardMeta,
