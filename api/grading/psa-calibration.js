@@ -6,7 +6,7 @@ import {
 } from "./defects.js";
 import {
   hasVintageExAppealSignals,
-  isNmVintageStainPresentation,
+  isNmVintagePresentationCandidate,
   isStrongCenteringWearOverTagPattern,
 } from "./analyze.js";
 import { clampGrade, roundToHalf } from "./types.js";
@@ -328,17 +328,16 @@ export function applyVintageMultiPillarWearCap(
     return overall;
   }
 
+  const uniformCap = resolveUniformOptimisticWearCap(analysis, defects);
   if (
+    uniformCap === 3.5 &&
     analysis &&
-    isNmVintageStainPresentation(categoryScores, analysis) &&
+    isNmVintagePresentationCandidate(categoryScores, analysis) &&
     countModeratePlusDefects(defects) === 0 &&
-    floor >= 7 &&
-    categoryScores.centering >= 8
+    floor >= 6.5
   ) {
     return overall;
   }
-
-  const uniformCap = resolveUniformOptimisticWearCap(analysis, defects);
   if (
     floor >= 7 &&
     floor <= 8 &&

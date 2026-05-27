@@ -98,7 +98,7 @@ function reconcileVintageVgLightWearUndertag(defects, categoryScores, raw) {
 
   if (
     isStrongCenteringWearOverTagPattern(categoryScores, raw) ||
-    isNmVintageStainPresentation(categoryScores, raw)
+    isNmVintagePresentationCandidate(categoryScores, raw)
   ) {
     return { defects, categoryScores, reconciled: false };
   }
@@ -456,13 +456,17 @@ function inferStructuralDefects(defects, categoryScores, era, raw) {
   if (
     categoryScores.surface <= 4.5 &&
     !hasWearTag(inferred, SURFACE_WEAR_TAGS) &&
-    !hasBackOnlyStaining(inferred)
+    !hasBackOnlyStaining(inferred) &&
+    !isNmVintageCleanPresentation(categoryScores, raw) &&
+    !hasMislabeledBackMarkNotes(raw)
   ) {
     addDefect("surface_wear", "severe");
   } else if (
     categoryScores.surface <= 4.5 &&
     hasWearTag(inferred, new Set(["surface_scratch_moderate", "surface_scratch_light"])) &&
-    !hasBackOnlyStaining(inferred)
+    !hasBackOnlyStaining(inferred) &&
+    !isNmVintageCleanPresentation(categoryScores, raw) &&
+    !hasMislabeledBackMarkNotes(raw)
   ) {
     addDefect("surface_wear", "severe");
   }
@@ -484,7 +488,7 @@ function inferStructuralDefects(defects, categoryScores, era, raw) {
     !hasWearTag(inferred, EDGE_WEAR_TAGS) &&
     !(hasSoftEdgeWearAppeal(raw) && categoryScores.edges > 5.5) &&
     !isStrongCenteringWearOverTagPattern(categoryScores, raw) &&
-    !isNmVintageStainPresentation(categoryScores, raw)
+    !isNmVintagePresentationCandidate(categoryScores, raw)
   ) {
     addDefect(
       categoryScores.edges <= 5.5 ? "edge_fraying_major" : "edge_wear_light",
@@ -622,9 +626,21 @@ function collectHarshConditionText(raw) {
 }
 
 function hasCleanFrontAppealSignals(raw) {
+  return hasCleanPresentationAppeal(raw);
+}
+
+function hasCleanPresentationAppeal(raw) {
   const appealText = collectAppealText(raw);
-  return /\b(clean front|clean surface|visually appealing surface|appealing surface|aside from minor wear)\b/.test(
+  return /\b(clean appearance|clean overall|clean presentation|clean front|clean surface|visually appealing|appealing surface|aside from minor wear)\b/.test(
     appealText
+  );
+}
+
+function hasMislabeledBackMarkNotes(raw) {
+  return (
+    /\b(dark mark|smudge|blemish|spotting|print transfer)\b/.test(
+      collectHarshConditionText(raw)
+    ) && !hasInkOrWritingInspectionSignals(raw)
   );
 }
 
@@ -642,7 +658,7 @@ function hasStainAppealSignals(raw) {
 
 export function isNmVintageStainPresentation(categoryScores, raw) {
   const { corners, edges, centering } = categoryScores;
-  if (centering < 7.5 || corners < 6 || edges < 6) {
+  if (centering < 7 || corners < 6 || edges < 6) {
     return false;
   }
   if (hasInkOrWritingInspectionSignals(raw)) {
@@ -650,6 +666,31 @@ export function isNmVintageStainPresentation(categoryScores, raw) {
   }
 
   return hasStainAppealSignals(raw);
+}
+
+export function isNmVintageCleanPresentation(categoryScores, raw) {
+  const { corners, edges, centering } = categoryScores;
+  if (centering < 7 || corners < 6 || edges < 6) {
+    return false;
+  }
+  if (hasInkOrWritingInspectionSignals(raw)) {
+    return false;
+  }
+
+  const appeal = collectAppealText(raw);
+  return (
+    hasCleanPresentationAppeal(raw) &&
+    /\b(strong centering|solid centering|well centered|centering helps)\b/.test(
+      appeal
+    )
+  );
+}
+
+export function isNmVintagePresentationCandidate(categoryScores, raw) {
+  return (
+    isNmVintageStainPresentation(categoryScores, raw) ||
+    isNmVintageCleanPresentation(categoryScores, raw)
+  );
 }
 
 function reconcileFalseBackWriting(defects, categoryScores, raw) {
@@ -664,31 +705,59 @@ function reconcileFalseBackWriting(defects, categoryScores, raw) {
     return { defects, categoryScores, reconciled: false };
   }
 
-  const nmStainPresentation = isNmVintageStainPresentation(categoryScores, raw);
-  if (!nmStainPresentation && !hasCleanFrontAppealSignals(raw)) {
+  const nmPresentation =
+    isNmVintagePresentationCandidate(categoryScores, raw) ||
+    hasMislabeledBackMarkNotes(raw);
+  if (!nmPresentation && !hasCleanPresentationAppeal(raw)) {
     return { defects, categoryScores, reconciled: false };
   }
 
+  const softenCompanionWear =
+    isNmVintageCleanPresentation(categoryScores, raw) ||
+    hasMislabeledBackMarkNotes(raw);
+  const appealText = collectAppealText(raw);
+  const lightScratchAppeal =
+    /\b(scratch|scratches|scuff|scuffs)\b/.test(appealText) &&
+    /\b(light|minor|slight)\b/.test(appealText);
+  const lightCornerAppeal =
+    /\b(corner|corners)\b/.test(appealText) &&
+    /\b(light|minor|slight|touch)\b/.test(appealText);
+
   let adjusted = false;
   const reconciled = defects.map((defect) => {
-    if (!["writing_mark", "writing_mark_severe"].includes(defect.tag)) {
-      return defect;
+    if (["writing_mark", "writing_mark_severe"].includes(defect.tag)) {
+      adjusted = true;
+      return {
+        ...defect,
+        tag: "staining_light",
+        severity: "minor",
+        location: defect.location === "front" ? "back" : defect.location,
+      };
     }
-
-    adjusted = true;
-    return {
-      ...defect,
-      tag: "staining_light",
-      severity: "minor",
-      location: defect.location === "front" ? "back" : defect.location,
-    };
+    if (
+      softenCompanionWear &&
+      defect.tag === "surface_scratch_moderate" &&
+      lightScratchAppeal
+    ) {
+      adjusted = true;
+      return { ...defect, tag: "surface_scratch_light", severity: "minor" };
+    }
+    if (
+      softenCompanionWear &&
+      defect.tag === "corner_wear_moderate" &&
+      (lightCornerAppeal || categoryScores.corners >= 6)
+    ) {
+      adjusted = true;
+      return { ...defect, tag: "corner_wear_light", severity: "minor" };
+    }
+    return defect;
   });
 
   if (!adjusted) {
     return { defects, categoryScores, reconciled: false };
   }
 
-  const surfaceTarget = categoryScores.centering >= 8 ? 7 : 6;
+  const surfaceTarget = categoryScores.centering >= 8 ? 7 : 6.5;
 
   return {
     defects: reconciled,
@@ -1064,7 +1133,7 @@ function reconcileVintageNmCenteredSlabProfile(
     return { defects, categoryScores, reconciled: false };
   }
 
-  if (!isNmVintageStainPresentation(categoryScores, raw)) {
+  if (!isNmVintagePresentationCandidate(categoryScores, raw)) {
     return { defects, categoryScores, reconciled: false };
   }
 

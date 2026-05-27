@@ -6,6 +6,8 @@ Penalize corner softening, edge wear, gloss loss, print softness, staining, crea
 Inspect all four corners, all edges, the full front surface, and the full back.
 Tag creases, stains, rounded corners, edge fraying, writing, and paper loss when visible.
 Pen, ink, pencil, marker, scribbles, or names written on the back must use writing_mark or writing_mark_severe. Do not use back_wear for ink or writing.
+Dark smudges, print transfer, or marks on the back near text blocks without visible pen or ink strokes should use staining_light on the back, not writing_mark.
+Holder glare, slab reflections, and scanner artifacts are not writing_mark or surface wear.
 Use back_wear only for general back toning, foxing, or paper wear without ink or writing.
 Back-only foxing or light toning should use staining_light, not heavy_staining, unless the stain clearly covers a large area or crosses onto the front.
 Wood-grain borders (1962 Topps and similar) often show edge chipping; use edge_wear_light unless fiber loss is clearly through the stock.

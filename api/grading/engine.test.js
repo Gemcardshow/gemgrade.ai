@@ -1423,6 +1423,58 @@ test("1957 Topps Whitey Ford vision variants stabilize in EX band", () => {
   }
 });
 
+test("1979 Burger King Jim Hunter clean appeal back mark not writing stays above PSA 3", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6, edges: 6.5, surface: 3.5, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "writing_mark",
+        severity: "moderate",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "writing_mark",
+    primaryLimiterLabel: "Writing, mark, or ink",
+    bestAttribute: "Good centering with minor edge wear.",
+    eyeAppealSummary:
+      "The card has a clean appearance overall with strong centering, but there are moderate corner wear and light surface scratches.",
+    cardMeta: {
+      estimatedYear: 1979,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+    categoryNotes: {
+      surface: "Dark mark on back near text",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(
+    !analysis.defects.some((defect) => defect.tag === "writing_mark")
+  );
+  assert.ok(
+    !analysis.defects.some((defect) => defect.tag === "surface_wear")
+  );
+  assert.ok(result.psaGrade >= 5);
+  assert.ok(result.internalGrade >= 5.5);
+});
+
 test("1957 Topps Whitey Ford PSA 8 stain mislabeled as writing stays in NM band", () => {
   const raw = {
     scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
