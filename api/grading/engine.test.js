@@ -1157,6 +1157,45 @@ test("1980 Topps Rickey Henderson PSA 3 distributed light wear stays in VG band"
   assert.ok(result.psaGrade >= 2);
 });
 
+test("EX band moderate crease over-tag with decent appeal normalizes above PSA 3", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6, edges: 6.5, surface: 3.5, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "moderate_crease",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "moderate_crease",
+    primaryLimiterLabel: "Moderate crease on face",
+    bestAttribute: "Decent centering and overall presentation",
+    eyeAppealSummary:
+      "Card shows visible wear and creasing, but centering helps its aesthetic.",
+    cardMeta: { estimatedYear: 1965 },
+    categoryNotes: {
+      surface: "Crease through top border",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(
+    !analysis.defects.some((defect) => defect.tag === "moderate_crease")
+  );
+  assert.ok(result.psaGrade >= 5);
+  assert.ok(result.internalGrade >= 5.5);
+});
+
 test("EX band distributed wear without surface pillar does not default to PSA 3", () => {
   const raw = {
     scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },

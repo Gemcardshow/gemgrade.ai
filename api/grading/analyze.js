@@ -666,6 +666,35 @@ function hasHarshConditionSignals(raw) {
   );
 }
 
+function hasDefinitiveHarshCreaseSignals(raw) {
+  const text = [collectHarshConditionText(raw), collectAppealText(raw)].join(" ");
+  return /\b(severe crease|heavy crease|deep crease|visible crease|diagonal crease|horizontal crease|vertical crease|crease through (the )?(image|face|center|player)|crease across|breaks color)\b/.test(
+    text
+  );
+}
+
+function hasSoftExWearAppeal(raw) {
+  const text = collectAppealText(raw);
+  if (/\b(severe|heavy|deep)\s+(crease|creasing|wear)\b/.test(text)) {
+    return false;
+  }
+  if (/\b(poor condition|paper loss|writing| ink |pencil|marker|scribble)\b/.test(
+    text
+  )) {
+    return false;
+  }
+
+  const decentPresentation =
+    /\b(decent|good|overall presentation|centering helps|aesthetic|presentation)\b/.test(
+      text
+    );
+  const mentionsWear = /\b(wear|creasing|crease|touch|rounding|chipping)\b/.test(
+    text
+  );
+
+  return decentPresentation && mentionsWear;
+}
+
 function collectAppealText(raw) {
   return [raw.eyeAppealSummary, raw.bestAttribute].join(" ").toLowerCase();
 }
@@ -712,20 +741,44 @@ function isVintageExOverTagCandidate(categoryScores, scanQuality, raw) {
   return hasExAppealSignals(raw);
 }
 
+function isVintageExCreaseOnlyCandidate(categoryScores, scanQuality, raw) {
+  const { corners, edges, centering } = categoryScores;
+  if (corners < 6 || edges < 5.5 || centering < 7) {
+    return false;
+  }
+  if (hasDefinitiveHarshCreaseSignals(raw)) {
+    return false;
+  }
+  if (scanQuality.level !== "good" && scanQuality.level !== "excellent") {
+    return false;
+  }
+
+  return hasExAppealSignals(raw) || hasSoftExWearAppeal(raw);
+}
+
 function reconcileVintageExCreaseOverTag(defects, categoryScores, scanQuality, raw) {
   if (!defects.some((defect) => defect.tag === "moderate_crease")) {
     return { defects, categoryScores, reconciled: false };
   }
-  if (hasHarshConditionSignals(raw)) {
+  if (defects.some((defect) => defect.tag === "severe_crease")) {
     return { defects, categoryScores, reconciled: false };
   }
   if (scanQuality.level !== "good" && scanQuality.level !== "excellent") {
     return { defects, categoryScores, reconciled: false };
   }
-  if (!hasExAppealSignals(raw)) {
-    return { defects, categoryScores, reconciled: false };
-  }
-  if (!defects.some((defect) => defect.tag === "edge_fraying_major")) {
+
+  const creaseCompanionPath =
+    !hasDefinitiveHarshCreaseSignals(raw) &&
+    hasExAppealSignals(raw) &&
+    defects.some((defect) => defect.tag === "edge_fraying_major");
+
+  const creaseOnlyPath = isVintageExCreaseOnlyCandidate(
+    categoryScores,
+    scanQuality,
+    raw
+  );
+
+  if (!creaseCompanionPath && !creaseOnlyPath) {
     return { defects, categoryScores, reconciled: false };
   }
 
@@ -735,7 +788,7 @@ function reconcileVintageExCreaseOverTag(defects, categoryScores, scanQuality, r
       adjusted = true;
       return { ...defect, tag: "print_line", severity: "minor" };
     }
-    if (defect.tag === "edge_fraying_major") {
+    if (creaseCompanionPath && defect.tag === "edge_fraying_major") {
       adjusted = true;
       return { ...defect, tag: "edge_wear_light", severity: "minor" };
     }
@@ -754,7 +807,9 @@ function reconcileVintageExCreaseOverTag(defects, categoryScores, scanQuality, r
     defects: reconciled,
     categoryScores: {
       ...categoryScores,
-      edges: roundToHalf(clampGrade(Math.max(categoryScores.edges, 5))),
+      edges: roundToHalf(
+        clampGrade(Math.max(categoryScores.edges, creaseCompanionPath ? 5 : 5.5))
+      ),
       surface: roundToHalf(clampGrade(Math.max(categoryScores.surface, 6))),
     },
     reconciled: true,
