@@ -193,7 +193,13 @@ export function computeGrade(analysis, era) {
 
   let rawOverall = Math.min(categoryFloor, defectCeiling, scanCeiling);
 
-  rawOverall = applyCompoundHarshness(rawOverall, analysis.defects, era, capAudit);
+  rawOverall = applyCompoundHarshness(
+    rawOverall,
+    analysis.defects,
+    era,
+    capAudit,
+    categoryScores
+  );
   rawOverall = applyPsa1Calibration(rawOverall, analysis.defects, capAudit);
 
   const primaryLimiterCap = analysis.defects.some(

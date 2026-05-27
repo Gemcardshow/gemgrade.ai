@@ -122,11 +122,29 @@ export function triggersPsa1Calibration(defects) {
   return false;
 }
 
-export function applyCompoundHarshness(overall, defects, era, capAudit) {
+export function applyCompoundHarshness(
+  overall,
+  defects,
+  era,
+  capAudit,
+  categoryScores = null
+) {
   let adjusted = overall;
   const severeCount = countSevereDefects(defects);
   const structuralCount = countStructuralDefects(defects);
   const moderatePlusCount = countModeratePlusDefects(defects);
+  const wearFloor = categoryScores
+    ? Math.min(
+        categoryScores.corners,
+        categoryScores.edges,
+        categoryScores.surface
+      )
+    : overall;
+  const hasWeakPillar =
+    categoryScores &&
+    [categoryScores.corners, categoryScores.edges, categoryScores.surface].some(
+      (score) => score <= 5.5
+    );
 
   if (severeCount >= 2) {
     adjusted = Math.min(adjusted, 2.5);
@@ -139,9 +157,22 @@ export function applyCompoundHarshness(overall, defects, era, capAudit) {
   }
 
   if (structuralCount >= 3) {
-    const structuralCap = era === "vintage" ? 3.5 : 4.0;
+    const applyHarshStructuralCap =
+      !categoryScores || wearFloor <= 5.5 || hasWeakPillar;
+    const structuralCap = applyHarshStructuralCap
+      ? era === "vintage"
+        ? 3.5
+        : 4.0
+      : era === "vintage"
+        ? 5.0
+        : 5.5;
     adjusted = Math.min(adjusted, structuralCap);
-    capAudit.push({ source: "compound:3plus_structural_defects", cap: structuralCap });
+    capAudit.push({
+      source: applyHarshStructuralCap
+        ? "compound:3plus_structural_defects"
+        : "compound:3plus_structural_ex_band",
+      cap: structuralCap,
+    });
   } else if (moderatePlusCount >= 2) {
     const moderateCap = era === "vintage" ? 4.0 : 4.5;
     adjusted = Math.min(adjusted, moderateCap);

@@ -152,7 +152,7 @@ function reconcileVintageVgLightWearUndertag(defects, categoryScores, raw) {
       return {
         ...defect,
         tag: escalateToFraying ? "edge_fraying_major" : "edge_wear_light",
-        severity: escalateToFraying ? "severe" : "moderate",
+        severity: escalateToFraying ? "severe" : "minor",
       };
     }
     if (defect.tag === "surface_scratch_light" && surface <= 7.5) {
@@ -851,6 +851,55 @@ function hasSoftEdgeWearAppeal(raw) {
   return /\bedge wear\b/.test(text);
 }
 
+function hasSurfacePillarWear(defects) {
+  return defects.some((defect) =>
+    [
+      "surface_scratch_light",
+      "surface_scratch_moderate",
+      "surface_wear",
+      "heavy_staining",
+      "wax_stain",
+    ].includes(defect.tag)
+  );
+}
+
+/**
+ * Distributed VG/EX appeal with corner escalation but no surface pillar wear should not
+ * invent major edge fraying from moderate edge_wear_light severity escalation in dedupe.
+ */
+function reconcileVintageDistributedEdgeOverFraying(defects, categoryScores, raw) {
+  if (!admitsDistributedWearAppeal(raw)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const floor = Math.min(
+    categoryScores.corners,
+    categoryScores.edges,
+    categoryScores.surface
+  );
+  if (floor < 6 || floor > 7.5 || categoryScores.edges <= 5.5) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  if (hasSurfacePillarWear(defects)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  if (!defects.some((defect) => defect.tag === "edge_fraying_major")) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const reconciled = defects.map((defect) => {
+    if (defect.tag !== "edge_fraying_major") {
+      return defect;
+    }
+
+    return { ...defect, tag: "edge_wear_light", severity: "minor" };
+  });
+
+  return { defects: reconciled, categoryScores, reconciled: true };
+}
+
 function reconcileVintageLightWearOnlyNoFraying(defects, categoryScores) {
   if (!defects.length) {
     return { defects, categoryScores, reconciled: false };
@@ -1337,6 +1386,17 @@ function normalizeAnalysis(raw, era) {
   enrichedDefects = appealEdgeFinal.defects;
   categoryScores = appealEdgeFinal.categoryScores;
   if (appealEdgeFinal.reconciled) {
+    appealEdgeReconciled = true;
+  }
+
+  const distributedEdge = reconcileVintageDistributedEdgeOverFraying(
+    enrichedDefects,
+    categoryScores,
+    raw
+  );
+  enrichedDefects = distributedEdge.defects;
+  categoryScores = distributedEdge.categoryScores;
+  if (distributedEdge.reconciled) {
     appealEdgeReconciled = true;
   }
 

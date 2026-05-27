@@ -1157,6 +1157,48 @@ test("1980 Topps Rickey Henderson PSA 3 distributed light wear stays in VG band"
   assert.ok(result.psaGrade >= 2);
 });
 
+test("EX band distributed wear without surface pillar does not default to PSA 3", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6.5, edges: 6, surface: 6.5, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "staining_light",
+    bestAttribute: "centering",
+    eyeAppealSummary:
+      "Good eye appeal with visible corner, edge, and surface wear.",
+    cardMeta: { estimatedYear: 1960 },
+    categoryNotes: {},
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(
+    !analysis.defects.some((defect) => defect.tag === "edge_fraying_major")
+  );
+  assert.ok(result.psaGrade >= 5);
+  assert.ok(result.internalGrade >= 5.5);
+});
+
 test("1965 Topps Mickey Mantle PSA 5 optimistic NM vision stays in EX band", () => {
   const raw = {
     scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
