@@ -92,6 +92,10 @@ const LIGHT_WEAR_ONLY_TAGS = new Set([
 ]);
 
 function reconcileVintageVgLightWearUndertag(defects, categoryScores, raw) {
+  if (hasLightEdgeAppealLanguage(raw)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
   if (!admitsDistributedWearAppeal(raw)) {
     return { defects, categoryScores, reconciled: false };
   }
@@ -137,7 +141,9 @@ function reconcileVintageVgLightWearUndertag(defects, categoryScores, raw) {
     if (defect.tag === "edge_wear_light" && edges <= 7) {
       adjusted = true;
       const escalateToFraying =
-        edges <= 6.5 && !(hasExAppealSignals(raw) && edges > 5.5);
+        edges <= 6.5 &&
+        !(hasExAppealSignals(raw) && edges > 5.5) &&
+        !hasLightEdgeAppealLanguage(raw);
       return {
         ...defect,
         tag: escalateToFraying ? "edge_fraying_major" : "edge_wear_light",
@@ -765,6 +771,80 @@ function shouldSkipCreaseInference(defects, categoryScores, scanQuality, raw) {
   );
 }
 
+function hasLightEdgeAppealLanguage(raw) {
+  const text = [
+    collectAppealText(raw),
+    ...Object.values(raw.categoryNotes || {}),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return /\b(light edge|minor edge|slight edge|light edge wear|light wear on edges?|minor edge wear)\b/.test(
+    text
+  );
+}
+
+function reconcileVintageAppealEdgeOverTag(
+  defects,
+  categoryScores,
+  scanQuality,
+  raw
+) {
+  if (!defects.some((defect) => defect.tag === "edge_fraying_major")) {
+    return { defects, categoryScores, reconciled: false };
+  }
+  if (!hasLightEdgeAppealLanguage(raw)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+  if (hasHarshConditionSignals(raw)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const { corners, centering, surface } = categoryScores;
+  if (corners < 6 || centering < 7 || surface < 5.5) {
+    return { defects, categoryScores, reconciled: false };
+  }
+  if (scanQuality.level !== "good" && scanQuality.level !== "excellent") {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const appealText = collectAppealText(raw);
+  const lightScratchAppeal =
+    /\b(scratch|scratches|scuff|scuffs)\b/.test(appealText) &&
+    !/\b(heavy|severe|deep|major)\s+(surface\s+)?(scratch|scratches|scuff|scuffs)\b/.test(
+      appealText
+    );
+
+  let adjusted = false;
+  const reconciled = defects.map((defect) => {
+    if (defect.tag === "edge_fraying_major") {
+      adjusted = true;
+      return { ...defect, tag: "edge_wear_light", severity: "minor" };
+    }
+    if (defect.tag === "surface_scratch_moderate" && lightScratchAppeal) {
+      adjusted = true;
+      return { ...defect, tag: "surface_scratch_light", severity: "minor" };
+    }
+    return defect;
+  });
+
+  if (!adjusted) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  return {
+    defects: reconciled,
+    categoryScores: {
+      ...categoryScores,
+      edges: roundToHalf(clampGrade(Math.max(categoryScores.edges, 6))),
+      surface: roundToHalf(
+        clampGrade(Math.max(categoryScores.surface, surface >= 6 ? surface : 6))
+      ),
+    },
+    reconciled: true,
+  };
+}
+
 function reconcileVintageExLightWearEscalation(
   defects,
   categoryScores,
@@ -984,6 +1064,7 @@ function normalizeAnalysis(raw, era) {
   let exOverTagReconciled = false;
   let exCreaseOverTagReconciled = false;
   let exLightWearReconciled = false;
+  let appealEdgeReconciled = false;
 
   if (era === "vintage") {
     initialDefects = inferHeavyWearCrease(initialDefects, categoryScores, era, raw);
@@ -1015,6 +1096,15 @@ function normalizeAnalysis(raw, era) {
     initialDefects = exCrease.defects;
     categoryScores = exCrease.categoryScores;
     exCreaseOverTagReconciled = exCrease.reconciled;
+    const appealEdge = reconcileVintageAppealEdgeOverTag(
+      initialDefects,
+      categoryScores,
+      raw.scanQuality,
+      raw
+    );
+    initialDefects = appealEdge.defects;
+    categoryScores = appealEdge.categoryScores;
+    appealEdgeReconciled = appealEdge.reconciled;
     const vgWear = reconcileVintageVgLightWearUndertag(
       initialDefects,
       categoryScores,
@@ -1041,7 +1131,8 @@ function normalizeAnalysis(raw, era) {
     nmReconciled ||
     exFoxingWearReconciled ||
     exOverTagReconciled ||
-    exCreaseOverTagReconciled
+    exCreaseOverTagReconciled ||
+    appealEdgeReconciled
       ? { skipEscalation: true }
       : {};
 
@@ -1067,18 +1158,20 @@ function normalizeAnalysis(raw, era) {
     exFoxingWearReconciled ||
     exOverTagReconciled ||
     exCreaseOverTagReconciled ||
+    appealEdgeReconciled ||
     exLightWearReconciled
       ? { skipEscalation: true }
       : {};
   const requestedPrimaryLimiterTag =
-    nmReconciled &&
+    (nmReconciled || appealEdgeReconciled) &&
     (raw.primaryLimiterTag === "edge_fraying_major" ||
       raw.primaryLimiterTag === "heavy_staining")
       ? null
       : (backFoxingReconciled ||
           exFoxingWearReconciled ||
           exOverTagReconciled ||
-          exCreaseOverTagReconciled) &&
+          exCreaseOverTagReconciled ||
+          appealEdgeReconciled) &&
           (raw.primaryLimiterTag === "heavy_staining" ||
             raw.primaryLimiterTag === "edge_fraying_major" ||
             raw.primaryLimiterTag === "moderate_crease")

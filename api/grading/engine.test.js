@@ -1263,3 +1263,60 @@ test("1965 Topps Mickey Mantle PSA 5 EX light wear with back toning stays in EX 
   assert.ok(result.psaGrade >= 4);
   assert.ok(result.psaGrade <= 6);
 });
+
+test("1957 Topps Whitey Ford PSA 8 light edge appeal contradicts edge fraying over-tag", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6, edges: 3.5, surface: 6, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    primaryLimiterLabel: "Major edge fraying or chipping",
+    bestAttribute: "strong centering",
+    eyeAppealSummary:
+      "The card exhibits moderate corner wear, light edge wear, and some surface scratches, impacting its overall appeal but maintains strong centering.",
+    cardMeta: {
+      estimatedYear: 1957,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+    categoryNotes: {
+      corners: "",
+      edges: "",
+      surface: "",
+      centering: "",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(
+    analysis.defects.some((defect) => defect.tag === "edge_wear_light")
+  );
+  assert.ok(
+    analysis.defects.some((defect) => defect.tag === "surface_scratch_light")
+  );
+  assert.ok(result.internalGrade >= 4);
+  assert.ok(result.psaGrade >= 4);
+  assert.ok(result.psaGrade <= 6);
+});
