@@ -220,7 +220,8 @@ export function computeGrade(analysis, era) {
     categoryScores,
     era,
     analysis.defects,
-    capAudit
+    capAudit,
+    analysis
   );
 
   rawOverall = applyIsolatedPillarFloor(

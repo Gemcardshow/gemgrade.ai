@@ -1156,3 +1156,110 @@ test("1980 Topps Rickey Henderson PSA 3 distributed light wear stays in VG band"
   assert.ok(result.psaGrade <= 4);
   assert.ok(result.psaGrade >= 2);
 });
+
+test("1965 Topps Mickey Mantle PSA 5 optimistic NM vision stays in EX band", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7.5, edges: 7, surface: 7.5, centering: 7.5 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "staining_light",
+    primaryLimiterLabel: "Light staining or discoloration",
+    bestAttribute: "Strong centering and color",
+    eyeAppealSummary:
+      "Vibrant colors and solid centering; minor corner wear and light stain on jersey.",
+    cardMeta: {
+      estimatedYear: 1965,
+      isReflective: false,
+      isDarkBorder: true,
+    },
+    categoryNotes: {
+      corners: "",
+      edges: "",
+      surface: "",
+      centering: "",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(result.internalGrade >= 4.5);
+  assert.ok(result.psaGrade >= 4);
+  assert.ok(result.psaGrade <= 6);
+  assert.ok(
+    result.capAudit.some(
+      (entry) =>
+        entry.source === "vintage:uniform_optimistic_light_wear" && entry.cap === 5.5
+    )
+  );
+});
+
+test("1965 Topps Mickey Mantle PSA 5 EX light wear with back toning stays in EX band", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6.5, edges: 6, surface: 6.5, centering: 7.5 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "staining_light",
+    primaryLimiterLabel: "Light staining or discoloration",
+    bestAttribute: "centering and color",
+    eyeAppealSummary:
+      "Attractive EX card with light corner touch and back toning.",
+    cardMeta: {
+      estimatedYear: 1965,
+      isReflective: false,
+      isDarkBorder: true,
+    },
+    categoryNotes: {
+      corners: "light rounding",
+      edges: "minor chipping",
+      surface: "back foxing",
+      centering: "",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(result.internalGrade >= 4.5);
+  assert.ok(result.psaGrade >= 4);
+  assert.ok(result.psaGrade <= 6);
+});

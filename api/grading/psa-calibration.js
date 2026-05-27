@@ -4,7 +4,10 @@ import {
   resolveEffectiveDefectTag,
   countWearDefects,
 } from "./defects.js";
+import { hasVintageExAppealSignals } from "./analyze.js";
 import { clampGrade, roundToHalf } from "./types.js";
+
+const STAIN_TAGS = new Set(["staining_light", "heavy_staining", "wax_stain"]);
 
 const PSA1_TRIGGER_TAGS = new Set([
   "paper_loss",
@@ -167,12 +170,70 @@ export function applyPsa1Calibration(overall, defects, capAudit) {
  * Vintage cards with heavy wear across multiple pillars should not grade as mid-tier
  * when subgrades already show poor corners, edges, and surface together.
  */
+function hasUniformOptimisticWearAppeal(analysis) {
+  if (!analysis) return false;
+
+  const text = [analysis.eyeAppealSummary, analysis.bestAttribute]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (
+    /\b(clean presentation|pristine|near.?mint|nm condition|sharp corners|clean edges)\b/.test(
+      text
+    )
+  ) {
+    return false;
+  }
+
+  const mentionsCorners = /\bcorner/.test(text);
+  const mentionsSurfaceWear = /\b(scratch|scuff|surface|stain)\b/.test(text);
+  const mentionsWear = /\b(wear|chipping|rounding)\b/.test(text);
+  const appealMultiPillar =
+    mentionsCorners &&
+    mentionsSurfaceWear &&
+    (/\b(minor|light|visible|moderate)\b/.test(text) || mentionsWear);
+
+  const defectList = analysis.defects || [];
+  const defectTags = new Set(defectList.map((defect) => defect.tag));
+  const stainWearCombo =
+    analysis.primaryLimiterTag === "staining_light" &&
+    hasBackStainDefects(defectList) &&
+    defectTags.has("corner_wear_light") &&
+    (defectTags.has("surface_scratch_light") || defectTags.has("edge_wear_light"));
+
+  return appealMultiPillar || stainWearCombo;
+}
+
+function hasBackStainDefects(defects) {
+  return defects.some(
+    (defect) => STAIN_TAGS.has(defect.tag) && defect.location === "back"
+  );
+}
+
+function resolveUniformOptimisticWearCap(analysis, defects) {
+  if (!hasUniformOptimisticWearAppeal(analysis)) {
+    return null;
+  }
+
+  if (hasBackStainDefects(defects)) {
+    return 3.5;
+  }
+
+  if (hasVintageExAppealSignals(analysis)) {
+    return 5.5;
+  }
+
+  return 3.5;
+}
+
 export function applyVintageMultiPillarWearCap(
   overall,
   categoryScores,
   era,
   defects,
-  capAudit
+  capAudit,
+  analysis = null
 ) {
   if (era !== "vintage") return overall;
 
@@ -217,6 +278,23 @@ export function applyVintageMultiPillarWearCap(
   ) {
     const capped = Math.min(overall, 3.5);
     capAudit.push({ source: "vintage:optimistic_light_wear", cap: 3.5 });
+    return capped;
+  }
+
+  const uniformCap = resolveUniformOptimisticWearCap(analysis, defects);
+  if (
+    floor >= 7 &&
+    floor <= 8 &&
+    Math.max(corners, edges, surface) - Math.min(corners, edges, surface) < 1.5 &&
+    countWearDefects(defects) >= 2 &&
+    countModeratePlusDefects(defects) === 0 &&
+    uniformCap !== null
+  ) {
+    const capped = Math.min(overall, uniformCap);
+    capAudit.push({
+      source: "vintage:uniform_optimistic_light_wear",
+      cap: uniformCap,
+    });
     return capped;
   }
 
