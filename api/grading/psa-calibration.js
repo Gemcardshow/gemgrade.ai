@@ -6,6 +6,7 @@ import {
 } from "./defects.js";
 import {
   hasVintageExAppealSignals,
+  isNmVintageStainPresentation,
   isStrongCenteringWearOverTagPattern,
 } from "./analyze.js";
 import { clampGrade, roundToHalf } from "./types.js";
@@ -323,6 +324,16 @@ export function applyVintageMultiPillarWearCap(
       ["edge_wear_light", "edge_fraying_major"].includes(defect.tag)
     ) &&
     edges <= 7
+  ) {
+    return overall;
+  }
+
+  if (
+    analysis &&
+    isNmVintageStainPresentation(categoryScores, analysis) &&
+    countModeratePlusDefects(defects) === 0 &&
+    floor >= 7 &&
+    categoryScores.centering >= 8
   ) {
     return overall;
   }

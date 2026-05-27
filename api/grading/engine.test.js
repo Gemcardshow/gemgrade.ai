@@ -1423,6 +1423,64 @@ test("1957 Topps Whitey Ford vision variants stabilize in EX band", () => {
   }
 });
 
+test("1957 Topps Whitey Ford PSA 8 stain mislabeled as writing stays in NM band", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6.5, edges: 6.5, surface: 3.5, centering: 8 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "back",
+        confidence: "high",
+      },
+      {
+        tag: "writing_mark",
+        severity: "moderate",
+        location: "back",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "writing_mark",
+    primaryLimiterLabel: "Writing, mark, or ink",
+    bestAttribute: "Good centering with minor surface scratches",
+    eyeAppealSummary:
+      "Good overall eye appeal but affected by heavy staining and some corner wear.",
+    cardMeta: {
+      estimatedYear: 1957,
+      isReflective: false,
+      isDarkBorder: false,
+    },
+    categoryNotes: {},
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(
+    !analysis.defects.some((defect) => defect.tag === "writing_mark")
+  );
+  assert.ok(
+    analysis.defects.some(
+      (defect) => defect.tag === "staining_light" && defect.location === "back"
+    )
+  );
+  assert.ok(result.psaGrade >= 7);
+  assert.ok(result.internalGrade >= 7);
+});
+
 test("1957 Topps Whitey Ford PSA 8 light edge appeal contradicts edge fraying over-tag", () => {
   const raw = {
     scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },

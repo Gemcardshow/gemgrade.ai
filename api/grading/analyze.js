@@ -96,7 +96,10 @@ function reconcileVintageVgLightWearUndertag(defects, categoryScores, raw) {
     return { defects, categoryScores, reconciled: false };
   }
 
-  if (isStrongCenteringWearOverTagPattern(categoryScores, raw)) {
+  if (
+    isStrongCenteringWearOverTagPattern(categoryScores, raw) ||
+    isNmVintageStainPresentation(categoryScores, raw)
+  ) {
     return { defects, categoryScores, reconciled: false };
   }
 
@@ -479,7 +482,9 @@ function inferStructuralDefects(defects, categoryScores, era, raw) {
     categoryScores.edges <= 6.5 &&
     !(fairCard && categoryScores.edges >= 5.5) &&
     !hasWearTag(inferred, EDGE_WEAR_TAGS) &&
-    !(hasSoftEdgeWearAppeal(raw) && categoryScores.edges > 5.5)
+    !(hasSoftEdgeWearAppeal(raw) && categoryScores.edges > 5.5) &&
+    !isStrongCenteringWearOverTagPattern(categoryScores, raw) &&
+    !isNmVintageStainPresentation(categoryScores, raw)
   ) {
     addDefect(
       categoryScores.edges <= 5.5 ? "edge_fraying_major" : "edge_wear_light",
@@ -623,41 +628,75 @@ function hasCleanFrontAppealSignals(raw) {
   );
 }
 
-function reconcileFalseBackWriting(defects, categoryScores, raw) {
-  const hasBackWriting = defects.some(
-    (defect) =>
-      (defect.tag === "writing_mark" || defect.tag === "writing_mark_severe") &&
-      defect.location === "back"
+function hasInkOrWritingInspectionSignals(raw) {
+  return /\b(ink|written|writing|pen|pencil|scribble|marker|autograph|name written)\b/.test(
+    collectHarshConditionText(raw)
   );
-  if (!hasBackWriting) {
+}
+
+function hasStainAppealSignals(raw) {
+  return /\b(stain|staining|foxing|toning|discoloration|yellowing|spotting)\b/.test(
+    collectAppealText(raw)
+  );
+}
+
+export function isNmVintageStainPresentation(categoryScores, raw) {
+  const { corners, edges, centering } = categoryScores;
+  if (centering < 7.5 || corners < 6 || edges < 6) {
+    return false;
+  }
+  if (hasInkOrWritingInspectionSignals(raw)) {
+    return false;
+  }
+
+  return hasStainAppealSignals(raw);
+}
+
+function reconcileFalseBackWriting(defects, categoryScores, raw) {
+  const hasWriting = defects.some((defect) =>
+    ["writing_mark", "writing_mark_severe"].includes(defect.tag)
+  );
+  if (!hasWriting) {
     return { defects, categoryScores, reconciled: false };
   }
 
-  const inkSignals =
-    /\b(ink|written|writing|pen|pencil|scribble|marker|autograph|name written)\b/;
-  if (inkSignals.test(collectHarshConditionText(raw))) {
+  if (hasInkOrWritingInspectionSignals(raw)) {
     return { defects, categoryScores, reconciled: false };
   }
 
-  if (!hasCleanFrontAppealSignals(raw)) {
+  const nmStainPresentation = isNmVintageStainPresentation(categoryScores, raw);
+  if (!nmStainPresentation && !hasCleanFrontAppealSignals(raw)) {
     return { defects, categoryScores, reconciled: false };
   }
 
+  let adjusted = false;
   const reconciled = defects.map((defect) => {
-    if (
-      (defect.tag === "writing_mark" || defect.tag === "writing_mark_severe") &&
-      defect.location === "back"
-    ) {
-      return { ...defect, tag: "staining_light", severity: "minor" };
+    if (!["writing_mark", "writing_mark_severe"].includes(defect.tag)) {
+      return defect;
     }
-    return defect;
+
+    adjusted = true;
+    return {
+      ...defect,
+      tag: "staining_light",
+      severity: "minor",
+      location: defect.location === "front" ? "back" : defect.location,
+    };
   });
+
+  if (!adjusted) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const surfaceTarget = categoryScores.centering >= 8 ? 7 : 6;
 
   return {
     defects: reconciled,
     categoryScores: {
       ...categoryScores,
-      surface: roundToHalf(clampGrade(Math.max(categoryScores.surface, 6))),
+      surface: roundToHalf(
+        clampGrade(Math.max(categoryScores.surface, surfaceTarget))
+      ),
     },
     reconciled: true,
   };
@@ -1008,6 +1047,73 @@ function reconcileVintageDistributedEdgeOverFraying(defects, categoryScores, raw
   });
 
   return { defects: reconciled, categoryScores, reconciled: true };
+}
+
+function reconcileVintageNmCenteredSlabProfile(
+  defects,
+  categoryScores,
+  raw,
+  scanQuality
+) {
+  if (scanQuality.level !== "good" && scanQuality.level !== "excellent") {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const { corners, edges, surface, centering } = categoryScores;
+  if (centering < 8 || corners < 6.5 || edges < 6.5 || surface < 6) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  if (!isNmVintageStainPresentation(categoryScores, raw)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  if (
+    defects.some((defect) =>
+      [
+        "edge_fraying_major",
+        "moderate_crease",
+        "severe_crease",
+        "writing_mark",
+        "writing_mark_severe",
+        "surface_wear",
+        "paper_loss",
+      ].includes(defect.tag)
+    )
+  ) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const appeal = collectAppealText(raw);
+  if (
+    /\b(heavy wear|severe wear|poor condition|heavy crease|severe crease|paper loss)\b/.test(
+      appeal
+    )
+  ) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const allMinorWear = defects.every((defect) => {
+    const definition = getDefectDefinition(defect.tag);
+    return (
+      LIGHT_WEAR_ONLY_TAGS.has(defect.tag) ||
+      definition?.severityClass === "minor"
+    );
+  });
+  if (!allMinorWear || !defects.length) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  return {
+    defects,
+    categoryScores: {
+      ...categoryScores,
+      corners: roundToHalf(clampGrade(Math.max(corners, 7.5))),
+      edges: roundToHalf(clampGrade(Math.max(edges, 7.5))),
+      surface: roundToHalf(clampGrade(Math.max(surface, 7.5))),
+    },
+    reconciled: true,
+  };
 }
 
 function reconcileVintageLightWearOnlyNoFraying(defects, categoryScores) {
@@ -1424,6 +1530,7 @@ function normalizeAnalysis(raw, era) {
   let exCreaseOverTagReconciled = false;
   let exLightWearReconciled = false;
   let appealEdgeReconciled = false;
+  let stainWritingReconciled = false;
 
   if (era === "vintage") {
     initialDefects = inferHeavyWearCrease(initialDefects, categoryScores, era, raw);
@@ -1485,13 +1592,15 @@ function normalizeAnalysis(raw, era) {
   const backWriting = reconcileFalseBackWriting(initialDefects, categoryScores, raw);
   initialDefects = backWriting.defects;
   categoryScores = backWriting.categoryScores;
+  stainWritingReconciled = backWriting.reconciled;
 
   const dedupeOptions =
     nmReconciled ||
     exFoxingWearReconciled ||
     exOverTagReconciled ||
     exCreaseOverTagReconciled ||
-    appealEdgeReconciled
+    appealEdgeReconciled ||
+    stainWritingReconciled
       ? { skipEscalation: true }
       : {};
 
@@ -1538,6 +1647,18 @@ function normalizeAnalysis(raw, era) {
     appealEdgeReconciled = true;
   }
 
+  const nmSlab = reconcileVintageNmCenteredSlabProfile(
+    enrichedDefects,
+    categoryScores,
+    raw,
+    raw.scanQuality
+  );
+  enrichedDefects = nmSlab.defects;
+  categoryScores = nmSlab.categoryScores;
+  if (nmSlab.reconciled) {
+    appealEdgeReconciled = true;
+  }
+
   const lightWearOnly = reconcileVintageLightWearOnlyNoFraying(
     enrichedDefects,
     categoryScores
@@ -1554,28 +1675,33 @@ function normalizeAnalysis(raw, era) {
     exOverTagReconciled ||
     exCreaseOverTagReconciled ||
     appealEdgeReconciled ||
-    exLightWearReconciled
+    exLightWearReconciled ||
+    stainWritingReconciled
       ? { skipEscalation: true }
       : {};
   const requestedPrimaryLimiterTag =
-    (nmReconciled || appealEdgeReconciled) &&
-    (raw.primaryLimiterTag === "edge_fraying_major" ||
-      raw.primaryLimiterTag === "heavy_staining")
+    stainWritingReconciled &&
+    (raw.primaryLimiterTag === "writing_mark" ||
+      raw.primaryLimiterTag === "writing_mark_severe")
       ? null
-      : (backFoxingReconciled ||
-          exFoxingWearReconciled ||
-          exOverTagReconciled ||
-          exCreaseOverTagReconciled ||
-          appealEdgeReconciled) &&
-          (raw.primaryLimiterTag === "heavy_staining" ||
-            raw.primaryLimiterTag === "edge_fraying_major" ||
-            raw.primaryLimiterTag === "moderate_crease")
+      : (nmReconciled || appealEdgeReconciled) &&
+          (raw.primaryLimiterTag === "edge_fraying_major" ||
+            raw.primaryLimiterTag === "heavy_staining")
         ? null
-        : initialDefects.some((defect) =>
-            defect.tag === "writing_mark_severe" || defect.tag === "writing_mark"
-          ) && raw.primaryLimiterTag === "back_wear"
-        ? null
-        : raw.primaryLimiterTag;
+        : (backFoxingReconciled ||
+            exFoxingWearReconciled ||
+            exOverTagReconciled ||
+            exCreaseOverTagReconciled ||
+            appealEdgeReconciled) &&
+            (raw.primaryLimiterTag === "heavy_staining" ||
+              raw.primaryLimiterTag === "edge_fraying_major" ||
+              raw.primaryLimiterTag === "moderate_crease")
+          ? null
+          : initialDefects.some((defect) =>
+              defect.tag === "writing_mark_severe" || defect.tag === "writing_mark"
+            ) && raw.primaryLimiterTag === "back_wear"
+          ? null
+          : raw.primaryLimiterTag;
   const limiter = resolvePrimaryLimiter(
     ensurePrimaryLimiterDefect(enrichedDefects, requestedPrimaryLimiterTag),
     era,
