@@ -1034,3 +1034,63 @@ test("1962 Topps Roger Maris PSA 1 heavy edge wear infers crease and stays in po
   assert.ok(result.internalGrade <= 2.5);
   assert.ok(result.psaGrade <= 2);
 });
+
+test("1962 Topps Roger Maris PSA 1 back writing mis-tag with poor surface stays in poor band", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6, edges: 3.5, surface: 3.5, centering: 7.5 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "writing_mark",
+        severity: "moderate",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    primaryLimiterLabel: "Major edge fraying or chipping",
+    bestAttribute: "strong centering with clean front surface aside from minor wear",
+    eyeAppealSummary:
+      "The card displays strong centering and a visually appealing surface despite some moderate defects.",
+    cardMeta: {
+      estimatedYear: 1962,
+      isReflective: false,
+      isDarkBorder: true,
+    },
+    categoryNotes: {
+      corners: "Heavy rounding",
+      edges: "Major edge chipping",
+      surface: "Crease through top border",
+      centering: "Strong centering",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(
+    analysis.defects.some(
+      (defect) =>
+        defect.tag === "staining_light" && defect.location === "back"
+    )
+  );
+  assert.ok(
+    analysis.defects.some(
+      (defect) => defect.tag === "severe_crease" || defect.tag === "moderate_crease"
+    )
+  );
+  assert.ok(result.internalGrade <= 2.5);
+  assert.ok(result.psaGrade <= 2);
+});

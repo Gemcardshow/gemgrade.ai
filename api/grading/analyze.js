@@ -469,14 +469,65 @@ const EX_OVER_TAG_BLOCKERS = new Set([
   "heavy_staining",
 ]);
 
-function hasHarshConditionSignals(raw) {
-  const text = [
+function collectHarshConditionText(raw) {
+  return [
     ...(raw.scanQuality?.visibilityIssues || []),
     ...(raw.scanQuality?.inspectionLimits || []),
     ...Object.values(raw.categoryNotes || {}),
   ]
     .join(" ")
     .toLowerCase();
+}
+
+function hasCleanFrontAppealSignals(raw) {
+  const appealText = collectAppealText(raw);
+  return /\b(clean front|clean surface|visually appealing surface|appealing surface|aside from minor wear)\b/.test(
+    appealText
+  );
+}
+
+function reconcileFalseBackWriting(defects, categoryScores, raw) {
+  const hasBackWriting = defects.some(
+    (defect) =>
+      (defect.tag === "writing_mark" || defect.tag === "writing_mark_severe") &&
+      defect.location === "back"
+  );
+  if (!hasBackWriting) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const inkSignals =
+    /\b(ink|written|writing|pen|pencil|scribble|marker|autograph|name written)\b/;
+  if (inkSignals.test(collectHarshConditionText(raw))) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  if (!hasCleanFrontAppealSignals(raw)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  const reconciled = defects.map((defect) => {
+    if (
+      (defect.tag === "writing_mark" || defect.tag === "writing_mark_severe") &&
+      defect.location === "back"
+    ) {
+      return { ...defect, tag: "staining_light", severity: "minor" };
+    }
+    return defect;
+  });
+
+  return {
+    defects: reconciled,
+    categoryScores: {
+      ...categoryScores,
+      surface: roundToHalf(clampGrade(Math.max(categoryScores.surface, 6))),
+    },
+    reconciled: true,
+  };
+}
+
+function hasHarshConditionSignals(raw) {
+  const text = collectHarshConditionText(raw);
   return /\b(visible crease|heavy crease|severe crease|deep crease|diagonal crease|horizontal crease|vertical crease|\bcrease\b|heavy round|major edge|heavy edge|paper loss|writing|poor condition|heavy wear|severe wear)\b/.test(
     text
   );
@@ -486,14 +537,7 @@ function collectAppealText(raw) {
   return [raw.eyeAppealSummary, raw.bestAttribute].join(" ").toLowerCase();
 }
 
-function isVintageExOverTagCandidate(categoryScores, scanQuality, raw) {
-  const { corners, centering } = categoryScores;
-  if (corners < 6 || centering < 7.5) return false;
-  if (hasHarshConditionSignals(raw)) return false;
-  if (scanQuality.level !== "good" && scanQuality.level !== "excellent") {
-    return false;
-  }
-
+function hasExAppealSignals(raw) {
   const appealText = collectAppealText(raw);
   if (
     /\b(visible crease|heavy crease|severe crease|deep crease|paper loss|writing| ink |pencil|marker|scribble|poor condition)\b/.test(
@@ -517,10 +561,79 @@ function isVintageExOverTagCandidate(categoryScores, scanQuality, raw) {
   return strongAppeal && lightWear;
 }
 
+function isVintageExOverTagCandidate(categoryScores, scanQuality, raw) {
+  const { corners, centering, surface } = categoryScores;
+  if (corners < 6 || centering < 7.5 || surface < 6) return false;
+  if (hasHarshConditionSignals(raw)) return false;
+  if (scanQuality.level !== "good" && scanQuality.level !== "excellent") {
+    return false;
+  }
+
+  return hasExAppealSignals(raw);
+}
+
+function reconcileVintageExCreaseOverTag(defects, categoryScores, scanQuality, raw) {
+  if (!defects.some((defect) => defect.tag === "moderate_crease")) {
+    return { defects, categoryScores, reconciled: false };
+  }
+  if (hasHarshConditionSignals(raw)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+  if (scanQuality.level !== "good" && scanQuality.level !== "excellent") {
+    return { defects, categoryScores, reconciled: false };
+  }
+  if (!hasExAppealSignals(raw)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+  if (!defects.some((defect) => defect.tag === "edge_fraying_major")) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  let adjusted = false;
+  const reconciled = defects.map((defect) => {
+    if (defect.tag === "moderate_crease") {
+      adjusted = true;
+      return { ...defect, tag: "print_line", severity: "minor" };
+    }
+    if (defect.tag === "edge_fraying_major") {
+      adjusted = true;
+      return { ...defect, tag: "edge_wear_light", severity: "minor" };
+    }
+    if (defect.tag === "corner_wear_moderate" && categoryScores.corners >= 6) {
+      adjusted = true;
+      return { ...defect, tag: "corner_wear_light", severity: "minor" };
+    }
+    return defect;
+  });
+
+  if (!adjusted) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  return {
+    defects: reconciled,
+    categoryScores: {
+      ...categoryScores,
+      edges: roundToHalf(clampGrade(Math.max(categoryScores.edges, 5))),
+      surface: roundToHalf(clampGrade(Math.max(categoryScores.surface, 6))),
+    },
+    reconciled: true,
+  };
+}
+
 function shouldSkipCreaseInference(defects, categoryScores, scanQuality, raw) {
   if (hasHarshConditionSignals(raw)) return false;
 
   if (isVintageExOverTagCandidate(categoryScores, scanQuality, raw)) {
+    return true;
+  }
+
+  if (
+    defects.some((defect) => defect.tag === "moderate_crease") &&
+    defects.some((defect) => defect.tag === "edge_fraying_major") &&
+    hasExAppealSignals(raw) &&
+    (scanQuality.level === "good" || scanQuality.level === "excellent")
+  ) {
     return true;
   }
 
@@ -713,6 +826,7 @@ function normalizeAnalysis(raw, era) {
   let backFoxingReconciled = false;
   let exFoxingWearReconciled = false;
   let exOverTagReconciled = false;
+  let exCreaseOverTagReconciled = false;
 
   if (era === "vintage") {
     initialDefects = inferHeavyWearCrease(initialDefects, categoryScores, era, raw);
@@ -735,6 +849,15 @@ function normalizeAnalysis(raw, era) {
     initialDefects = exOver.defects;
     categoryScores = exOver.categoryScores;
     exOverTagReconciled = exOver.reconciled;
+    const exCrease = reconcileVintageExCreaseOverTag(
+      initialDefects,
+      categoryScores,
+      raw.scanQuality,
+      raw
+    );
+    initialDefects = exCrease.defects;
+    categoryScores = exCrease.categoryScores;
+    exCreaseOverTagReconciled = exCrease.reconciled;
     const reconciled = reconcileFairCardOverTags(initialDefects, categoryScores);
     initialDefects = reconciled.defects;
     categoryScores = reconciled.categoryScores;
@@ -742,9 +865,12 @@ function normalizeAnalysis(raw, era) {
   }
 
   initialDefects = inferBackWearAsWriting(initialDefects, categoryScores, raw, era);
+  const backWriting = reconcileFalseBackWriting(initialDefects, categoryScores, raw);
+  initialDefects = backWriting.defects;
+  categoryScores = backWriting.categoryScores;
 
   const dedupeOptions =
-    nmReconciled || exFoxingWearReconciled || exOverTagReconciled
+    nmReconciled || exFoxingWearReconciled || exOverTagReconciled || exCreaseOverTagReconciled
       ? { skipEscalation: true }
       : {};
 
@@ -762,7 +888,8 @@ function normalizeAnalysis(raw, era) {
       ? null
       : (backFoxingReconciled ||
           exFoxingWearReconciled ||
-          exOverTagReconciled) &&
+          exOverTagReconciled ||
+          exCreaseOverTagReconciled) &&
           (raw.primaryLimiterTag === "heavy_staining" ||
             raw.primaryLimiterTag === "edge_fraying_major" ||
             raw.primaryLimiterTag === "moderate_crease")
