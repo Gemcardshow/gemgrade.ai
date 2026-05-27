@@ -976,3 +976,61 @@ test("1963 Topps Mickey Mantle PSA 5 fair surface edge over-tags normalize to EX
   assert.ok(result.psaGrade >= 4);
   assert.ok(result.psaGrade <= 6);
 });
+
+test("1962 Topps Roger Maris PSA 1 heavy edge wear infers crease and stays in poor band", () => {
+  const raw = {
+    scanQuality: {
+      level: "good",
+      visibilityIssues: ["Some slight wear on edges", "Minor scratches on surface"],
+      inspectionLimits: [],
+    },
+    categoryScores: { corners: 6, edges: 3.5, surface: 6, centering: 7.5 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    primaryLimiterLabel: "Major edge fraying or chipping",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Decent eye appeal despite visible wear.",
+    cardMeta: {
+      estimatedYear: 1962,
+      isReflective: false,
+      isDarkBorder: true,
+    },
+    categoryNotes: {
+      corners: "Heavy rounding",
+      edges: "Major top edge chipping",
+      surface: "Vertical crease at top",
+      centering: "Strong centering",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(
+    analysis.defects.some(
+      (defect) => defect.tag === "severe_crease" || defect.tag === "moderate_crease"
+    )
+  );
+  assert.ok(analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(result.internalGrade <= 2.5);
+  assert.ok(result.psaGrade <= 2);
+});

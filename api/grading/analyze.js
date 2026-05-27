@@ -56,8 +56,8 @@ async function callStructuredVision(client, { schema, instruction, frontImage, b
 }
 
 function isFairCardPattern(categoryScores) {
-  const { corners, surface, centering } = categoryScores;
-  return corners >= 6 && surface >= 6 && centering >= 7;
+  const { corners, surface, centering, edges } = categoryScores;
+  return corners >= 6 && surface >= 6 && centering >= 7 && edges >= 5;
 }
 
 const NM_RECONCILE_BLOCKERS = new Set([
@@ -73,8 +73,9 @@ const NM_RECONCILE_BLOCKERS = new Set([
 ]);
 
 function canReconcileNmOverTags(defects, categoryScores) {
-  const { corners, centering } = categoryScores;
+  const { corners, centering, edges, surface } = categoryScores;
   if (corners < 6 || centering < 7) return false;
+  if (edges <= 4 && centering < 7) return false;
   if (defects.some((defect) => NM_RECONCILE_BLOCKERS.has(defect.tag))) {
     return false;
   }
@@ -141,14 +142,28 @@ function reconcileFairCardOverTags(defects, categoryScores) {
       categoryScores.corners >= 7 &&
       categoryScores.surface >= 7 &&
       edgeDowngraded) ||
+    (nmCandidate &&
+      edgeDowngraded &&
+      !stainDowngraded &&
+      categoryScores.centering >= 7 &&
+      categoryScores.surface >= 6) ||
     (fullFair && edgeDowngraded);
 
   if (!shouldApplyNmBump) {
-    return { defects: reconciled, categoryScores, reconciled: false };
+    return { defects, categoryScores, reconciled: false };
   }
 
-  const nmTargets =
-    categoryScores.centering >= 8
+  const vintageNmEdgeRecovery =
+    nmCandidate &&
+    edgeDowngraded &&
+    !stainDowngraded &&
+    categoryScores.centering >= 7 &&
+    categoryScores.surface >= 6 &&
+    (categoryScores.corners < 7 || categoryScores.surface < 7);
+
+  const nmTargets = vintageNmEdgeRecovery
+    ? { corners: 7, edges: 7, surface: 7 }
+    : categoryScores.centering >= 8
       ? { corners: 7.5, edges: 7, surface: 7.5 }
       : { corners: 7, edges: 7, surface: 7 };
 
@@ -454,6 +469,19 @@ const EX_OVER_TAG_BLOCKERS = new Set([
   "heavy_staining",
 ]);
 
+function hasHarshConditionSignals(raw) {
+  const text = [
+    ...(raw.scanQuality?.visibilityIssues || []),
+    ...(raw.scanQuality?.inspectionLimits || []),
+    ...Object.values(raw.categoryNotes || {}),
+  ]
+    .join(" ")
+    .toLowerCase();
+  return /\b(visible crease|heavy crease|severe crease|deep crease|diagonal crease|horizontal crease|vertical crease|\bcrease\b|heavy round|major edge|heavy edge|paper loss|writing|poor condition|heavy wear|severe wear)\b/.test(
+    text
+  );
+}
+
 function collectAppealText(raw) {
   return [raw.eyeAppealSummary, raw.bestAttribute].join(" ").toLowerCase();
 }
@@ -461,6 +489,7 @@ function collectAppealText(raw) {
 function isVintageExOverTagCandidate(categoryScores, scanQuality, raw) {
   const { corners, centering } = categoryScores;
   if (corners < 6 || centering < 7.5) return false;
+  if (hasHarshConditionSignals(raw)) return false;
   if (scanQuality.level !== "good" && scanQuality.level !== "excellent") {
     return false;
   }
@@ -486,6 +515,32 @@ function isVintageExOverTagCandidate(categoryScores, scanQuality, raw) {
       /\b(wear|chipping|scratch|rounding|flaw)\b/.test(appealText));
 
   return strongAppeal && lightWear;
+}
+
+function shouldSkipCreaseInference(defects, categoryScores, scanQuality, raw) {
+  if (hasHarshConditionSignals(raw)) return false;
+
+  if (isVintageExOverTagCandidate(categoryScores, scanQuality, raw)) {
+    return true;
+  }
+
+  const { centering, surface } = categoryScores;
+  if (centering < 7 || surface < 6) return false;
+  if (scanQuality.level !== "good" && scanQuality.level !== "excellent") {
+    return false;
+  }
+
+  const text = [
+    collectAppealText(raw),
+    ...(raw.scanQuality?.visibilityIssues || []),
+    ...Object.values(raw.categoryNotes || {}),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return /\b(light edge|minor edge|light roughness|light wear|minor touch|clean presentation|clean surface)\b/.test(
+    text
+  );
 }
 
 function reconcileVintageExOverTags(defects, categoryScores, scanQuality, raw) {
@@ -538,13 +593,26 @@ function reconcileVintageExOverTags(defects, categoryScores, scanQuality, raw) {
   };
 }
 
-function inferHeavyWearCrease(defects, categoryScores, era) {
+const CREASE_INFERENCE_BLOCKERS = new Set([
+  "surface_wear",
+  "moderate_crease",
+  "severe_crease",
+  "paper_loss",
+  "hole_tear",
+  "heavy_staining",
+  "back_damage_severe",
+]);
+
+function inferHeavyWearCrease(defects, categoryScores, era, raw) {
   if (era !== "vintage") return defects;
   if (hasBackOnlyStaining(defects)) return defects;
+  if (shouldSkipCreaseInference(defects, categoryScores, raw.scanQuality, raw)) {
+    return defects;
+  }
   if (hasWearTag(defects, new Set(["moderate_crease", "severe_crease"]))) {
     return defects;
   }
-  if (hasWearTag(defects, SURFACE_WEAR_TAGS)) {
+  if (hasWearTag(defects, CREASE_INFERENCE_BLOCKERS)) {
     return defects;
   }
 
@@ -647,7 +715,7 @@ function normalizeAnalysis(raw, era) {
   let exOverTagReconciled = false;
 
   if (era === "vintage") {
-    initialDefects = inferHeavyWearCrease(initialDefects, categoryScores, era);
+    initialDefects = inferHeavyWearCrease(initialDefects, categoryScores, era, raw);
     const foxing = reconcileBackFoxingStaining(initialDefects, categoryScores);
     initialDefects = foxing.defects;
     categoryScores = foxing.categoryScores;

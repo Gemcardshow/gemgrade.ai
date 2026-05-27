@@ -8,7 +8,8 @@ Tag creases, stains, rounded corners, edge fraying, writing, and paper loss when
 Pen, ink, pencil, marker, scribbles, or names written on the back must use writing_mark or writing_mark_severe. Do not use back_wear for ink or writing.
 Use back_wear only for general back toning, foxing, or paper wear without ink or writing.
 Back-only foxing or light toning should use staining_light, not heavy_staining, unless the stain clearly covers a large area or crosses onto the front.
-Gold-border edge chipping on T205 and similar issues should use edge_wear_light unless fiber loss is clear on the card stock.
+Wood-grain borders (1962 Topps and similar) often show edge chipping; use edge_wear_light unless fiber loss is clearly through the stock.
+Tag clear fold lines through the image as moderate_crease or severe_crease even when surface subgrades stay fair.
 Heavily worn vintage cards often have multiple simultaneous issues. Tag each visible flaw separately instead of relying on one scratch or surface tag.
 Rounded or soft corners should use corner_wear_moderate or rounded_corners_all, not corner_wear_light, when rounding is clearly visible.
 Visible edge chipping or border wear should use edge_wear_light or edge_fraying_major.
