@@ -96,6 +96,10 @@ function reconcileVintageVgLightWearUndertag(defects, categoryScores, raw) {
     return { defects, categoryScores, reconciled: false };
   }
 
+  if (isStrongCenteringWearOverTagPattern(categoryScores, raw)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
   if (!admitsDistributedWearAppeal(raw)) {
     return { defects, categoryScores, reconciled: false };
   }
@@ -695,6 +699,32 @@ function hasSoftExWearAppeal(raw) {
   return decentPresentation && mentionsWear;
 }
 
+function hasDefinitiveHarshEdgeInspectionSignals(raw) {
+  return /\b(heavy edge|severe edge|major edge fray|fiber loss|heavy chipping)\b/.test(
+    collectHarshConditionText(raw)
+  );
+}
+
+export function isStrongCenteringWearOverTagPattern(categoryScores, raw) {
+  const { corners, centering, surface } = categoryScores;
+  if (centering < 7 || corners < 6 || surface < 6) {
+    return false;
+  }
+  if (hasDefinitiveHarshCreaseSignals(raw)) {
+    return false;
+  }
+  if (hasDefinitiveHarshEdgeInspectionSignals(raw)) {
+    return false;
+  }
+
+  const appeal = collectAppealText(raw);
+  return (
+    /\b(strong centering|solid centering|well centered|centering helps|maintains strong centering)\b/.test(
+      appeal
+    ) || centering >= 7.5
+  );
+}
+
 function collectAppealText(raw) {
   return [raw.eyeAppealSummary, raw.bestAttribute].join(" ").toLowerCase();
 }
@@ -741,9 +771,29 @@ function isVintageExOverTagCandidate(categoryScores, scanQuality, raw) {
   return hasExAppealSignals(raw);
 }
 
-function isVintageExCreaseOnlyCandidate(categoryScores, scanQuality, raw) {
-  const { corners, edges, centering } = categoryScores;
-  if (corners < 6 || edges < 5.5 || centering < 7) {
+function isVintageExCreaseOnlyCandidate(
+  categoryScores,
+  scanQuality,
+  raw,
+  defects = []
+) {
+  const { corners, edges, centering, surface } = categoryScores;
+  if (corners < 6 || centering < 7) {
+    return false;
+  }
+
+  const surfaceCreaseCrushed =
+    surface < 6 &&
+    defects.some((defect) => defect.tag === "moderate_crease") &&
+    corners >= 6 &&
+    centering >= 7;
+  if (surface < 6 && !surfaceCreaseCrushed) {
+    return false;
+  }
+
+  const edgeScoreCrushedByOverTag =
+    edges <= 5.5 && corners >= 6 && centering >= 7;
+  if (!edgeScoreCrushedByOverTag && edges < 5.5) {
     return false;
   }
   if (hasDefinitiveHarshCreaseSignals(raw)) {
@@ -775,7 +825,8 @@ function reconcileVintageExCreaseOverTag(defects, categoryScores, scanQuality, r
   const creaseOnlyPath = isVintageExCreaseOnlyCandidate(
     categoryScores,
     scanQuality,
-    raw
+    raw,
+    defects
   );
 
   if (!creaseCompanionPath && !creaseOnlyPath) {
@@ -818,6 +869,10 @@ function reconcileVintageExCreaseOverTag(defects, categoryScores, scanQuality, r
 
 function shouldSkipCreaseInference(defects, categoryScores, scanQuality, raw) {
   if (hasHarshConditionSignals(raw)) return false;
+
+  if (isStrongCenteringWearOverTagPattern(categoryScores, raw)) {
+    return true;
+  }
 
   if (isVintageExOverTagCandidate(categoryScores, scanQuality, raw)) {
     return true;
@@ -1002,10 +1057,19 @@ function reconcileVintageAppealEdgeOverTag(
   if (!defects.some((defect) => defect.tag === "edge_fraying_major")) {
     return { defects, categoryScores, reconciled: false };
   }
-  if (!hasSoftEdgeWearAppeal(raw)) {
+
+  const strongCenteringPath = isStrongCenteringWearOverTagPattern(
+    categoryScores,
+    raw
+  );
+
+  if (!hasSoftEdgeWearAppeal(raw) && !strongCenteringPath) {
     return { defects, categoryScores, reconciled: false };
   }
-  if (hasHarshConditionSignals(raw)) {
+  if (hasHarshConditionSignals(raw) && !strongCenteringPath) {
+    return { defects, categoryScores, reconciled: false };
+  }
+  if (strongCenteringPath && hasDefinitiveHarshEdgeInspectionSignals(raw)) {
     return { defects, categoryScores, reconciled: false };
   }
 
@@ -1031,6 +1095,10 @@ function reconcileVintageAppealEdgeOverTag(
     (hasSoftEdgeWearAppeal(raw) &&
       !admitsDistributedWearAppeal(raw) &&
       categoryScores.centering >= 7.5 &&
+      categoryScores.corners >= 6 &&
+      categoryScores.surface >= 6) ||
+    (strongCenteringPath &&
+      categoryScores.centering >= 7 &&
       categoryScores.corners >= 6 &&
       categoryScores.surface >= 6);
 
@@ -1058,12 +1126,27 @@ function reconcileVintageAppealEdgeOverTag(
     return { defects, categoryScores, reconciled: false };
   }
 
+  const strongCenteringRecoveryTarget =
+    strongCenteringPath && categoryScores.centering < 7.5 ? 6 : 7;
+
   const adjustedScores = nmEdgeRecovery
     ? {
         ...categoryScores,
-        edges: roundToHalf(clampGrade(Math.max(categoryScores.edges, 7))),
-        corners: roundToHalf(clampGrade(Math.max(categoryScores.corners, 7))),
-        surface: roundToHalf(clampGrade(Math.max(categoryScores.surface, 7))),
+        edges: roundToHalf(
+          clampGrade(
+            Math.max(categoryScores.edges, strongCenteringRecoveryTarget)
+          )
+        ),
+        corners: roundToHalf(
+          clampGrade(
+            Math.max(categoryScores.corners, strongCenteringRecoveryTarget)
+          )
+        ),
+        surface: roundToHalf(
+          clampGrade(
+            Math.max(categoryScores.surface, strongCenteringRecoveryTarget)
+          )
+        ),
       }
     : {
         ...categoryScores,

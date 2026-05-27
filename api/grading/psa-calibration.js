@@ -4,7 +4,10 @@ import {
   resolveEffectiveDefectTag,
   countWearDefects,
 } from "./defects.js";
-import { hasVintageExAppealSignals } from "./analyze.js";
+import {
+  hasVintageExAppealSignals,
+  isStrongCenteringWearOverTagPattern,
+} from "./analyze.js";
 import { clampGrade, roundToHalf } from "./types.js";
 
 const STAIN_TAGS = new Set(["staining_light", "heavy_staining", "wax_stain"]);
@@ -310,6 +313,18 @@ export function applyVintageMultiPillarWearCap(
     const capped = Math.min(overall, 3.5);
     capAudit.push({ source: "vintage:optimistic_light_wear", cap: 3.5 });
     return capped;
+  }
+
+  if (
+    analysis &&
+    isStrongCenteringWearOverTagPattern(categoryScores, analysis) &&
+    countModeratePlusDefects(defects) === 0 &&
+    defects.some((defect) =>
+      ["edge_wear_light", "edge_fraying_major"].includes(defect.tag)
+    ) &&
+    edges <= 7
+  ) {
+    return overall;
   }
 
   const uniformCap = resolveUniformOptimisticWearCap(analysis, defects);

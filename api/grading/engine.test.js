@@ -1345,6 +1345,84 @@ test("1965 Topps Mickey Mantle PSA 5 EX light wear with back toning stays in EX 
   assert.ok(result.psaGrade <= 6);
 });
 
+test("1957 Topps Whitey Ford vision variants stabilize in EX band", () => {
+  const base = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6, edges: 3.5, surface: 6, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    cardMeta: { estimatedYear: 1957 },
+    categoryNotes: {},
+  };
+
+  const variants = [
+    {
+      eyeAppealSummary:
+        "The card exhibits moderate corner wear, light edge wear, and some surface scratches, impacting its overall appeal but maintains strong centering.",
+      bestAttribute: "strong centering",
+    },
+    {
+      eyeAppealSummary:
+        "Visible corner, edge, and surface wear with strong centering.",
+      bestAttribute: "centering",
+    },
+    {
+      eyeAppealSummary:
+        "Major edge fraying and moderate corner wear with surface scratches.",
+      bestAttribute: "strong centering",
+    },
+    {
+      defects: [
+        ...base.defects,
+        {
+          tag: "moderate_crease",
+          severity: "moderate",
+          location: "front",
+          confidence: "high",
+        },
+      ],
+      eyeAppealSummary: "Visible wear and creasing with strong centering.",
+      bestAttribute: "decent centering and overall presentation",
+      categoryNotes: { surface: "Crease through top border" },
+    },
+  ];
+
+  for (const variant of variants) {
+    const analysis = normalizeAnalysis({ ...base, ...variant }, "vintage");
+    const result = computeGrade(analysis, "vintage");
+
+    assert.ok(
+      !analysis.defects.some((defect) => defect.tag === "edge_fraying_major"),
+      variant.eyeAppealSummary
+    );
+    assert.ok(
+      !analysis.defects.some((defect) => defect.tag === "severe_crease"),
+      variant.eyeAppealSummary
+    );
+    assert.ok(result.psaGrade >= 4, variant.eyeAppealSummary);
+    assert.ok(result.psaGrade <= 6, variant.eyeAppealSummary);
+  }
+});
+
 test("1957 Topps Whitey Ford PSA 8 light edge appeal contradicts edge fraying over-tag", () => {
   const raw = {
     scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
