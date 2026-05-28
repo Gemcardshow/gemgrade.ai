@@ -17,7 +17,7 @@ export const config = {
 
 export default async function handler(req, res) {
   try {
-    const { frontImage, backImage, mode, email, era } = req.body;
+    const { frontImage, backImage, email, era } = req.body;
 
     if (!frontImage || !backImage) {
       return res.status(400).json({ error: "Missing card images" });
@@ -30,7 +30,6 @@ export default async function handler(req, res) {
     const grade = await gradeCard(client, {
       frontImage,
       backImage,
-      mode,
       eraRequest: era || "auto",
     });
 

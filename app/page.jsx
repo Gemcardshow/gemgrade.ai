@@ -5,10 +5,10 @@ export default function HomePage() {
     <main className="page">
       <header className="page__header">
         <h1>GemGrade AI</h1>
-        <p>Structured PSA-style grading powered by the rebuilt grading engine.</p>
+        <p>Professional PSA-style grading — same engine and breakdown for every scan.</p>
       </header>
 
-      <GradeScanner mode="free" />
+      <GradeScanner />
     </main>
   );
 }

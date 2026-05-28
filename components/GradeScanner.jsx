@@ -5,7 +5,7 @@ import { compressImageForUpload } from "../lib/compressImage.js";
 import { gradeCard } from "../lib/gradeApi.js";
 import GradeResult from "./GradeResult.jsx";
 
-export default function GradeScanner({ mode = "free", email = "" }) {
+export default function GradeScanner({ email = "" }) {
   const [grade, setGrade] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -36,7 +36,6 @@ export default function GradeScanner({ mode = "free", email = "" }) {
       const responseGrade = await gradeCard({
         frontImage,
         backImage,
-        mode,
         era: formData.get("era") || "auto",
         email: email || undefined,
       });
@@ -72,7 +71,7 @@ export default function GradeScanner({ mode = "free", email = "" }) {
         </label>
 
         <button type="submit" disabled={loading}>
-          {loading ? "Grading..." : mode === "pro" ? "Run Pro Scan" : "Run Free Scan"}
+          {loading ? "Grading..." : "Grade Card"}
         </button>
       </form>
 

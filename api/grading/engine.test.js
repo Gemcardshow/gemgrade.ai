@@ -9,6 +9,7 @@ import {
 } from "../grading/psa-calibration.js";
 import { resolveEra, eraFromYear, normalizeEraRequest } from "../grading/era.js";
 import { snapToPsaGrade, formatLikelyRange } from "../grading/types.js";
+import { formatGradeResponse } from "../grading/response.js";
 
 function baseAnalysis(overrides = {}) {
   return {
@@ -1588,4 +1589,30 @@ test("1957 Topps Whitey Ford PSA 8 light edge appeal contradicts edge fraying ov
   assert.ok(result.internalGrade >= 4);
   assert.ok(result.psaGrade >= 4);
   assert.ok(result.psaGrade <= 6);
+});
+
+test("formatGradeResponse returns unified professional structure for all users", () => {
+  const analysis = baseAnalysis({
+    categoryNotes: {
+      corners: "Light touch on two corners",
+      edges: "Clean factory cut",
+      surface: "Minor print speck",
+      centering: "Well centered left-right",
+    },
+  });
+  const gradeResult = computeGrade(analysis, "modern");
+
+  const response = formatGradeResponse({
+    gradeResult,
+    analysis,
+    eraSource: "auto",
+    estimatedYear: 1987,
+  });
+
+  assert.equal(response.psaGrade, gradeResult.psaGrade);
+  assert.equal(response.categoryNotes.corners, "Light touch on two corners");
+  assert.ok(response.verdict.includes("Detailed Breakdown"));
+  assert.ok(response.verdict.includes("Internal Grade"));
+  assert.equal("mode" in response, false);
+  assert.equal("proUpsellText" in response, false);
 });

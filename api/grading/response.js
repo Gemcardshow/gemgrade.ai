@@ -1,4 +1,4 @@
-import { buildProUpsellText, buildVerdict } from "./narrative.js";
+import { buildVerdict } from "./narrative.js";
 
 /**
  * @param {import("./types.js").VisionAnalysis} analysis
@@ -16,21 +16,23 @@ function formatDefects(analysis) {
  * Build the canonical structured API response from finalized grading output.
  *
  * @param {{
- *   gradeResult: Omit<import("./types.js").GradeResult, "verdict" | "mode" | "proUpsellText">,
+ *   gradeResult: import("./types.js").GradeResult,
  *   analysis: import("./types.js").VisionAnalysis,
- *   eraSource: import("./types.js").GradeResult["eraSource"],
+ *   eraSource: import("./types.js").GradeResponse["eraSource"],
  *   estimatedYear: number | null,
- *   mode: import("./types.js").GradingMode,
  * }} params
+ * @returns {import("./types.js").GradeResponse}
  */
 export function formatGradeResponse({
   gradeResult,
   analysis,
   eraSource,
   estimatedYear,
-  mode,
 }) {
-  const verdict = buildVerdict(gradeResult, analysis, mode);
+  const primaryLimiter = {
+    tag: gradeResult.primaryLimiter?.tag ?? analysis.primaryLimiterTag,
+    label: gradeResult.primaryLimiter?.label ?? analysis.primaryLimiterLabel,
+  };
 
   return {
     psaGrade: gradeResult.psaGrade,
@@ -39,17 +41,21 @@ export function formatGradeResponse({
     eraSource,
     estimatedYear,
     categoryScores: gradeResult.categoryScores,
-    primaryLimiter: gradeResult.primaryLimiter,
+    primaryLimiter,
     bestAttribute: analysis.bestAttribute,
     eyeAppealSummary: analysis.eyeAppealSummary,
     defects: formatDefects(analysis),
-    categoryNotes: mode === "pro" ? analysis.categoryNotes : undefined,
+    categoryNotes: analysis.categoryNotes,
     scanQuality: gradeResult.scanQuality,
     capAudit: gradeResult.capAudit,
     likelyRange: gradeResult.likelyRange,
-    verdict,
-    mode,
-    proUpsellText: buildProUpsellText(gradeResult.psaGrade),
+    verdict: buildVerdict(
+      {
+        ...gradeResult,
+        primaryLimiter,
+      },
+      analysis
+    ),
     cardMeta: analysis.cardMeta,
   };
 }

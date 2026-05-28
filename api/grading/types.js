@@ -5,8 +5,6 @@
  * @typedef {"minor"|"moderate"|"severe"} DefectSeverity
  * @typedef {"high"|"medium"|"low"} ConfidenceLevel
  * @typedef {"excellent"|"good"|"fair"|"poor"} ScanLevel
- * @typedef {"pro"|"free"} GradingMode
- *
  * @typedef {Object} CategoryScores
  * @property {number} corners
  * @property {number} edges
@@ -68,8 +66,6 @@
  * @property {CapAuditEntry[]} capAudit
  * @property {string} likelyRange
  * @property {string} verdict
- * @property {GradingMode} mode
- * @property {string} proUpsellText
  * @property {CardMeta} cardMeta
  *
  * @typedef {Object} GradeResult
@@ -77,7 +73,7 @@
  * @property {number} internalGrade
  * @property {Era} era
  * @property {CategoryScores} categoryScores
- * @property {{ tag: string, label: string }} primaryLimiter
+ * @property {{ tag: string, label: string }} [primaryLimiter]
  * @property {ScanQuality & { confidence: ConfidenceLevel, ceilingApplied: number }} scanQuality
  * @property {CapAuditEntry[]} capAudit
  * @property {string} likelyRange

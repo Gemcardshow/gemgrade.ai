@@ -20,6 +20,8 @@ export default function GradeResult({ grade }) {
     return null;
   }
 
+  const categoryNotes = grade.categoryNotes || {};
+
   return (
     <section className="grade-result">
       <header className="grade-result__header">
@@ -27,7 +29,8 @@ export default function GradeResult({ grade }) {
           <p className="grade-result__eyebrow">Projected PSA Grade</p>
           <h2 className="grade-result__score">PSA {grade.psaGrade}</h2>
           <p className="grade-result__meta">
-            Internal {grade.internalGrade} · {grade.likelyRange} · {grade.era} ({grade.eraSource})
+            Internal {grade.internalGrade} · {grade.likelyRange} · {grade.era} (
+            {grade.eraSource})
           </p>
         </div>
       </header>
@@ -60,6 +63,22 @@ export default function GradeResult({ grade }) {
         </article>
       </div>
 
+      {Object.keys(categoryNotes).length > 0 ? (
+        <article className="grade-card">
+          <h3>Category Notes</h3>
+          <ul>
+            {Object.entries(categoryNotes).map(([key, value]) =>
+              value ? (
+                <li key={key}>
+                  <span>{CATEGORY_LABELS[key] || key}</span>
+                  <span>{value}</span>
+                </li>
+              ) : null
+            )}
+          </ul>
+        </article>
+      ) : null}
+
       <article className="grade-card">
         <h3>Cap Audit</h3>
         <ul>
@@ -76,10 +95,6 @@ export default function GradeResult({ grade }) {
           <h3>Verdict</h3>
           <pre className="grade-result__verdict">{grade.verdict}</pre>
         </article>
-      ) : null}
-
-      {grade.proUpsellText ? (
-        <p className="grade-result__upsell">{grade.proUpsellText}</p>
       ) : null}
     </section>
   );
