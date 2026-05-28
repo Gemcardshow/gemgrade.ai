@@ -75,10 +75,142 @@ function admitsDistributedWearAppeal(raw) {
     mentionsSurface &&
     mentionsWear;
 
+  const notesMultiPillarPoorWear =
+    countNotesPillarsWithPoorWear(raw) >= 2 &&
+    !hasBackWritingDefect(raw.defects || []);
+
   return (
     (visibleModerate && mentionsCorners && mentionsEdges && mentionsSurface) ||
-    (minorMultiPillar && mentionsCorners && mentionsSurface)
+    (minorMultiPillar && mentionsCorners && mentionsSurface) ||
+    notesMultiPillarPoorWear
   );
+}
+
+function noteIndicatesPoorBandWear(text) {
+  const normalized = String(text || "").toLowerCase();
+  return (
+    /\b(moderate wear|heavy wear|severe wear|heavy round|limits grade|reduces|affecting)\b/.test(
+      normalized
+    ) ||
+    (/\bmoderate\b/.test(normalized) && /\bwear\b/.test(normalized)) ||
+    (/\b(heavy|severe)\b/.test(normalized) &&
+      /\b(chipping|fray|wear|rounding|rounded)\b/.test(normalized)) ||
+    /\b(chipping noted|visible chipping|minor chipping|some rounding|limits visual)\b/.test(
+      normalized
+    )
+  );
+}
+
+function countNotesPillarsWithPoorWear(raw) {
+  const notes = raw?.categoryNotes || {};
+  return ["corners", "edges", "surface"].filter((pillar) =>
+    noteIndicatesPoorBandWear(notes[pillar])
+  ).length;
+}
+
+function hasBackWritingDefect(defects) {
+  return defects.some(
+    (defect) =>
+      (defect.tag === "writing_mark" || defect.tag === "writing_mark_severe") &&
+      defect.location === "back"
+  );
+}
+
+function reconcileBackWritingSeverity(defects, categoryScores, raw, era) {
+  if (era !== "vintage" || !hasBackWritingDefect(defects)) {
+    return defects;
+  }
+
+  const text = [
+    raw.primaryLimiterLabel,
+    raw.eyeAppealSummary,
+    ...Object.values(raw.categoryNotes || {}),
+  ]
+    .join(" ")
+    .toLowerCase();
+  const definitiveInk = /\b(ink|pen|pencil|marker|scribble|autograph written)\b/.test(
+    text
+  );
+
+  if (definitiveInk) {
+    return defects;
+  }
+
+  return defects.map((defect) => {
+    if (defect.tag !== "writing_mark_severe" || defect.location !== "back") {
+      return defect;
+    }
+
+    return {
+      ...defect,
+      tag: "writing_mark",
+      severity: "moderate",
+    };
+  });
+}
+
+function hasTriadLightWearProfile(raw, defects) {
+  return (
+    (defects || []).length > 0 &&
+    (defects || []).every((defect) => LIGHT_WEAR_ONLY_TAGS.has(defect.tag)) &&
+    countNotesPillarsWithWear(raw) >= 3
+  );
+}
+
+function countNotesPillarsWithWear(raw) {
+  const notes = raw?.categoryNotes || {};
+  return ["corners", "edges", "surface"].filter((pillar) => {
+    const text = String(notes[pillar] || "").toLowerCase();
+    return /\b(wear|scratch(?:es)?|scuff(?:s)?|chipping|rounding|rounded|fray|stain(?:s)?|crease)\b/.test(
+      text
+    );
+  }).length;
+}
+
+function reconcilePoorBandCategoryNotes(categoryScores, raw, era) {
+  if (era !== "vintage") {
+    return { categoryScores, reconciled: false };
+  }
+
+  const notes = raw.categoryNotes || {};
+  let adjusted = { ...categoryScores };
+  let reconciled = false;
+  let poorPillarNotes = 0;
+
+  for (const pillar of ["corners", "edges", "surface"]) {
+    const text = String(notes[pillar] || "").toLowerCase();
+    if (!text) continue;
+
+    if (!noteIndicatesPoorBandWear(text)) continue;
+
+    poorPillarNotes += 1;
+    if (adjusted[pillar] > 5) {
+      adjusted[pillar] = roundToHalf(clampGrade(Math.min(adjusted[pillar], 5)));
+      reconciled = true;
+    }
+    if (
+      /\b(heavy|severe|limits grade|paper loss|major chipping|heavy round)\b/.test(
+        text
+      ) &&
+      adjusted[pillar] > 4
+    ) {
+      adjusted[pillar] = roundToHalf(clampGrade(Math.min(adjusted[pillar], 4)));
+      reconciled = true;
+    }
+  }
+
+  const floor = Math.min(adjusted.corners, adjusted.edges, adjusted.surface);
+  if (poorPillarNotes >= 2 && floor >= 6) {
+    adjusted = {
+      ...adjusted,
+      corners: roundToHalf(clampGrade(Math.min(adjusted.corners, 5.5))),
+      edges: roundToHalf(clampGrade(Math.min(adjusted.edges, 5.5))),
+      surface: roundToHalf(clampGrade(Math.min(adjusted.surface, 5))),
+    };
+    reconciled = true;
+  }
+
+  return { categoryScores: adjusted, reconciled };
 }
 
 const LIGHT_WEAR_ONLY_TAGS = new Set([
@@ -91,7 +223,42 @@ const LIGHT_WEAR_ONLY_TAGS = new Set([
   "registration_issue",
 ]);
 
+function reconcileTriadLightWearProfile(categoryScores, defects, triadProfile) {
+  if (!triadProfile) {
+    return { categoryScores, defects, reconciled: false };
+  }
+
+  const softenedDefects = defects.map((defect) => {
+    if (defect.tag === "corner_wear_moderate") {
+      return { ...defect, tag: "corner_wear_light", severity: "minor" };
+    }
+    if (defect.tag === "surface_scratch_moderate") {
+      return { ...defect, tag: "surface_scratch_light", severity: "minor" };
+    }
+    return defect;
+  });
+
+  return {
+    categoryScores: {
+      ...categoryScores,
+      corners: 5.5,
+      edges: 5.5,
+      surface: 5.5,
+    },
+    defects: softenedDefects,
+    reconciled: true,
+  };
+}
+
 function reconcileVintageVgLightWearUndertag(defects, categoryScores, raw) {
+  if (hasTriadLightWearProfile(raw, defects)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
+  if (hasBackWritingDefect(defects)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
   if (hasSoftEdgeWearAppeal(raw)) {
     return { defects, categoryScores, reconciled: false };
   }
@@ -1133,6 +1300,10 @@ function reconcileVintageNmCenteredSlabProfile(
     return { defects, categoryScores, reconciled: false };
   }
 
+  if (hasTriadLightWearProfile(raw, defects)) {
+    return { defects, categoryScores, reconciled: false };
+  }
+
   if (!isNmVintagePresentationCandidate(categoryScores, raw)) {
     return { defects, categoryScores, reconciled: false };
   }
@@ -1520,9 +1691,9 @@ function inferBackWearAsWriting(defects, categoryScores, raw, era) {
   const { corners, centering, surface } = categoryScores;
   const backWearLimiting =
     raw.primaryLimiterTag === "back_wear" &&
-    corners >= 7 &&
-    centering >= 7.5 &&
-    surface <= 6 &&
+    corners >= 6 &&
+    centering >= 7 &&
+    surface <= 6.5 &&
     frontDefectsAreMinorOnly(defects) &&
     defects.some((defect) => defect.tag === "back_wear" && defect.location === "back");
 
@@ -1591,6 +1762,13 @@ function normalizeAnalysis(raw, era) {
     );
 
   let categoryScores = normalizeCategoryScores(raw.categoryScores);
+  const poorBandNotes = reconcilePoorBandCategoryNotes(
+    categoryScores,
+    raw,
+    era
+  );
+  categoryScores = poorBandNotes.categoryScores;
+
   let initialDefects = raw.defects || [];
   let nmReconciled = false;
   let backFoxingReconciled = false;
@@ -1602,6 +1780,12 @@ function normalizeAnalysis(raw, era) {
   let stainWritingReconciled = false;
 
   if (era === "vintage") {
+    initialDefects = reconcileBackWritingSeverity(
+      initialDefects,
+      categoryScores,
+      raw,
+      era
+    );
     initialDefects = inferHeavyWearCrease(initialDefects, categoryScores, era, raw);
     const foxing = reconcileBackFoxingStaining(initialDefects, categoryScores);
     initialDefects = foxing.defects;
@@ -1806,6 +1990,30 @@ function normalizeAnalysis(raw, era) {
       categoryScores,
       era,
       { ...finalDedupeOptions, raw, skipEscalation: true }
+    );
+  }
+
+  const triadProfile =
+    era === "vintage" && visionAllLightWear && countNotesPillarsWithWear(raw) >= 3;
+  const triadClamp = reconcileTriadLightWearProfile(
+    categoryScores,
+    defects,
+    triadProfile
+  );
+  if (triadClamp.reconciled) {
+    categoryScores = triadClamp.categoryScores;
+    defects = triadClamp.defects;
+    finalLimiter = resolvePrimaryLimiter(
+      defects,
+      era,
+      "surface_scratch_light",
+      raw.primaryLimiterLabel
+    );
+    defects = dedupeDefects(
+      ensurePrimaryLimiterDefect(defects, finalLimiter.primaryLimiterTag),
+      categoryScores,
+      era,
+      { skipEscalation: true, raw }
     );
   }
 

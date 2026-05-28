@@ -1591,6 +1591,205 @@ test("1957 Topps Whitey Ford PSA 8 light edge appeal contradicts edge fraying ov
   assert.ok(result.psaGrade <= 6);
 });
 
+test("benchmark 1934 Gehrig PSA 2 optimistic vision caps in poor band", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6.5, edges: 6, surface: 6, centering: 7.5 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "back_wear",
+        severity: "moderate",
+        location: "back",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "back_wear",
+    primaryLimiterLabel: "Back wear or discoloration",
+    bestAttribute: "Strong color retention and image clarity",
+    eyeAppealSummary:
+      "Overall, the card displays a vibrant front with only minor wear affecting corners and edges.",
+    cardMeta: { estimatedYear: 1934, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Moderate wear evident, affecting overall sharpness.",
+      edges: "Light wear with some minor chipping observed.",
+      surface: "Good color; few minor scratches present.",
+      centering: "Well-centered with good alignment.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(result.psaGrade <= 3);
+  assert.ok(result.internalGrade <= 3.5);
+});
+
+test("benchmark 1962 Maris PSA 1 moderate cluster caps at PSA 2", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6, edges: 6, surface: 6, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "back",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_moderate",
+    primaryLimiterLabel: "Moderate surface scratching",
+    bestAttribute: "centering",
+    eyeAppealSummary: "Overall moderate eye appeal due to wear and staining.",
+    cardMeta: { estimatedYear: 1962, isReflective: false, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Moderate wear evident with some rounding.",
+      edges: "Minor wear with noticeable edge issues.",
+      surface: "Light scratches present on front, affecting aesthetics.",
+      centering: "Good centering overall.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(result.psaGrade <= 2);
+  assert.ok(result.internalGrade <= 2.5);
+});
+
+test("benchmark 1967 Mantle PSA 1 moderate cluster caps at PSA 2", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 6, edges: 6.5, surface: 6, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_moderate",
+    primaryLimiterLabel: "Moderate surface scratching",
+    bestAttribute: "Decent eye appeal despite multiple visible flaws",
+    eyeAppealSummary:
+      "The card presents well but shows some wear on edges and corners affecting the overall look.",
+    cardMeta: { estimatedYear: 1967, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Moderate wear limits visual quality; some rounding.",
+      edges: "Light wear is visible; minor chipping noted.",
+      surface: "Scratches reduce surface appeal; presents adequately at a glance.",
+      centering: "Decent centering, slightly off but generally acceptable.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(result.psaGrade <= 2);
+});
+
+test("benchmark 1980 Schmidt PSA 3 light wear triad caps at PSA 3", () => {
+  const raw = {
+    scanQuality: {
+      level: "good",
+      visibilityIssues: [],
+      inspectionLimits: ["Full view of corners and edges present"],
+    },
+    categoryScores: { corners: 7, edges: 6.5, surface: 6.5, centering: 7.5 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Overall appearance remains vibrant and attractive for age",
+    eyeAppealSummary: "Card displays well with minor wear visible on edges and corners.",
+    cardMeta: { estimatedYear: 1980, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Minor wear is visible on corners, no severe damage apparent.",
+      edges: "Light edge wear noted, no significant chipping.",
+      surface: "Minor surface scratches present, but overall surface is satisfactory.",
+      centering: "Well-centered image, strong alignment.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(result.psaGrade <= 3);
+  assert.ok(result.internalGrade <= 3.5);
+});
+
 test("formatGradeResponse returns unified professional structure for all users", () => {
   const analysis = baseAnalysis({
     categoryNotes: {

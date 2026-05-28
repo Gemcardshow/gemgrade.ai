@@ -7,7 +7,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test:api": "npm --prefix api test"
+    "test:api": "npm --prefix api test",
+    "benchmark:scan": "node benchmarks/scan-manifest.js",
+    "benchmark:run": "node benchmarks/run-benchmark.js",
+    "benchmark": "npm run benchmark:scan && npm run benchmark:run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

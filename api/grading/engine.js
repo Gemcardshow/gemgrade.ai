@@ -198,7 +198,8 @@ export function computeGrade(analysis, era) {
     analysis.defects,
     era,
     capAudit,
-    categoryScores
+    categoryScores,
+    analysis
   );
   rawOverall = applyPsa1Calibration(rawOverall, analysis.defects, capAudit);
 

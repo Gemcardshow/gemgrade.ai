@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "benchmark": "node ../benchmarks/run-benchmark.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
