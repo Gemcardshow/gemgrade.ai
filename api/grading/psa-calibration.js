@@ -200,6 +200,67 @@ const LIGHT_FRONT_WEAR_TAGS = new Set([
   "registration_issue",
 ]);
 
+const LIGHT_WEAR_ONLY_DEFECT_TAGS = new Set([
+  "corner_wear_light",
+  "edge_wear_light",
+  "surface_scratch_light",
+  "staining_light",
+  "print_line",
+  "gloss_loss",
+  "registration_issue",
+]);
+
+function hasLightWearOnlyDefects(defects) {
+  return (
+    defects.length > 0 &&
+    defects.every((defect) => LIGHT_WEAR_ONLY_DEFECT_TAGS.has(defect.tag))
+  );
+}
+
+function hasModerateOrMajorStructuralDefect(defects) {
+  return defects.some((defect) => {
+    if (!isStructuralDefect(defect)) {
+      return false;
+    }
+    const tag = resolveEffectiveDefectTag(defect.tag, defect.severity);
+    const definition = getDefectDefinition(tag);
+    return (
+      defect.severity === "moderate" ||
+      defect.severity === "severe" ||
+      definition?.severityClass === "moderate" ||
+      definition?.severityClass === "severe" ||
+      definition?.severityClass === "disqualifying"
+    );
+  });
+}
+
+export function qualifiesForUniformExTriadLightWearSkip(
+  categoryScores,
+  defects,
+  analysis
+) {
+  if (!analysis || !hasLightWearOnlyDefects(defects)) {
+    return false;
+  }
+  if (
+    hasModerateOrMajorStructuralDefect(defects) ||
+    countModeratePlusDefects(defects) > 0
+  ) {
+    return false;
+  }
+
+  const bandScores =
+    analysis?.writingReliefBandScores ||
+    getWearBandScores(categoryScores, analysis);
+  const { corners, edges, surface } = bandScores;
+  const wearFloor = getWearFloor(bandScores);
+  const { centering } = categoryScores;
+  const spread =
+    Math.max(corners, edges, surface) - Math.min(corners, edges, surface);
+
+  return centering >= 7.5 && wearFloor >= 5.5 && spread < 0.5;
+}
+
 function getWearBandScores(categoryScores, analysis) {
   return analysis?.visionCategoryScores || categoryScores;
 }
@@ -244,6 +305,109 @@ export function hasBackOnlyWriting(defects) {
   return writingDefects.every((defect) => defect.location === "back");
 }
 
+function hasAffirmativeFrontWritingNotes(analysis) {
+  if (!analysis) {
+    return false;
+  }
+
+  const frontNotes = [
+    analysis.categoryNotes?.corners,
+    analysis.categoryNotes?.edges,
+    analysis.categoryNotes?.surface,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  const limiter = String(analysis.primaryLimiterLabel || "").toLowerCase();
+  const appeal = [analysis.eyeAppealSummary, analysis.bestAttribute]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  const writingPattern =
+    /\b(ink|pen|pencil|marker|scribble|autograph|name written|writing|marking)\b/;
+  const frontPattern = /\b(front|face|portrait|on the front)\b/;
+
+  for (const note of [
+    analysis.categoryNotes?.corners,
+    analysis.categoryNotes?.edges,
+    analysis.categoryNotes?.surface,
+  ]) {
+    const text = String(note || "").toLowerCase();
+    if (!text || !writingPattern.test(text)) {
+      continue;
+    }
+    if (/\bback\b/.test(text)) {
+      continue;
+    }
+    return true;
+  }
+
+  if (writingPattern.test(limiter) && frontPattern.test(limiter)) {
+    return true;
+  }
+  if (writingPattern.test(appeal) && frontPattern.test(appeal)) {
+    return true;
+  }
+
+  return false;
+}
+
+export function isRyanStyleBothLocationBackWriting(defects, analysis) {
+  if (!analysis) {
+    return false;
+  }
+
+  const severeBoth = defects.find(
+    (defect) =>
+      defect.tag === "writing_mark_severe" &&
+      defect.location === "both" &&
+      defect.severity === "severe"
+  );
+  if (!severeBoth) {
+    return false;
+  }
+  if (hasAffirmativeFrontWritingNotes(analysis)) {
+    return false;
+  }
+
+  return defects.some(
+    (defect) => defect.tag === "writing_mark" && defect.location === "back"
+  );
+}
+
+function hasEffectiveBackOnlyWriting(defects, analysis) {
+  return (
+    hasBackOnlyWriting(defects) ||
+    isRyanStyleBothLocationBackWriting(defects, analysis)
+  );
+}
+
+function hasMajorFrontDefectsForWritingRelief(defects, analysis) {
+  const ryanStyle = isRyanStyleBothLocationBackWriting(defects, analysis);
+
+  return defects.some((defect) => {
+    if (defect.location !== "front" && defect.location !== "both") {
+      return false;
+    }
+    if (
+      ryanStyle &&
+      defect.tag === "writing_mark_severe" &&
+      defect.location === "both"
+    ) {
+      return false;
+    }
+    const tag = resolveEffectiveDefectTag(defect.tag, defect.severity);
+    if (MAJOR_FRONT_DEFECT_TAGS.has(tag)) {
+      return true;
+    }
+    const definition = getDefectDefinition(tag);
+    return (
+      definition?.severityClass === "severe" ||
+      definition?.severityClass === "disqualifying"
+    );
+  });
+}
+
 export function hasMajorFrontDefects(defects) {
   return defects.some((defect) => {
     if (defect.location !== "front" && defect.location !== "both") {
@@ -262,7 +426,10 @@ export function hasMajorFrontDefects(defects) {
 }
 
 export function qualifiesForBackOnlyWritingRelief(categoryScores, defects, analysis) {
-  if (!hasBackOnlyWriting(defects) || hasMajorFrontDefects(defects)) {
+  if (!hasEffectiveBackOnlyWriting(defects, analysis)) {
+    return false;
+  }
+  if (hasMajorFrontDefectsForWritingRelief(defects, analysis)) {
     return false;
   }
 
@@ -290,10 +457,17 @@ export function resolveBackOnlyWritingCap(
   analysis,
   capAudit
 ) {
+  const ryanStyleBoth =
+    defect.tag === "writing_mark_severe" &&
+    defect.location === "both" &&
+    isRyanStyleBothLocationBackWriting(defects, analysis);
   if (
-    defect.location !== "back" ||
-    (defect.tag !== "writing_mark" && defect.tag !== "writing_mark_severe")
+    defect.tag !== "writing_mark" &&
+    defect.tag !== "writing_mark_severe"
   ) {
+    return null;
+  }
+  if (defect.location !== "back" && !ryanStyleBoth) {
     return null;
   }
   if (!qualifiesForBackOnlyWritingRelief(categoryScores, defects, analysis)) {
@@ -321,10 +495,19 @@ export function applyBackOnlyWritingCategoryRelief(
 
   const backWriting = defects.find(
     (defect) =>
-      defect.location === "back" &&
-      (defect.tag === "writing_mark" || defect.tag === "writing_mark_severe")
+      (defect.tag === "writing_mark" || defect.tag === "writing_mark_severe") &&
+      (defect.location === "back" ||
+        (defect.location === "both" && defect.tag === "writing_mark_severe"))
   );
-  const targetFloor = backWriting?.tag === "writing_mark_severe" ? 4.0 : 5.0;
+  const targetFloor =
+    backWriting?.tag === "writing_mark_severe" ||
+    defects.some(
+      (defect) =>
+        defect.tag === "writing_mark_severe" &&
+        (defect.location === "back" || defect.location === "both")
+    )
+      ? 4.0
+      : 5.0;
   const adjusted = { ...categoryScores };
 
   if (adjusted.surface < targetFloor) {
@@ -351,10 +534,19 @@ export function applyBackOnlyWritingOverallFloor(
 
   const backWriting = defects.find(
     (defect) =>
-      defect.location === "back" &&
-      (defect.tag === "writing_mark" || defect.tag === "writing_mark_severe")
+      (defect.tag === "writing_mark" || defect.tag === "writing_mark_severe") &&
+      (defect.location === "back" ||
+        (defect.location === "both" && defect.tag === "writing_mark_severe"))
   );
-  const floor = backWriting?.tag === "writing_mark_severe" ? 4.0 : 5.0;
+  const floor =
+    backWriting?.tag === "writing_mark_severe" ||
+    defects.some(
+      (defect) =>
+        defect.tag === "writing_mark_severe" &&
+        (defect.location === "back" || defect.location === "both")
+    )
+      ? 4.0
+      : 5.0;
 
   if (overall >= floor) {
     return overall;
@@ -924,7 +1116,9 @@ export function applyPsa1Calibration(
     const backOnlySevereWriting =
       psa1Triggers.length === 1 &&
       psa1Triggers[0].tag === "writing_mark_severe" &&
-      psa1Triggers[0].location === "back";
+      (psa1Triggers[0].location === "back" ||
+        (psa1Triggers[0].location === "both" &&
+          isRyanStyleBothLocationBackWriting(defects, analysis)));
     if (backOnlySevereWriting) {
       return overall;
     }
@@ -1168,7 +1362,8 @@ export function applyVintageMultiPillarWearCap(
     floor >= 5 &&
     floor <= 7.5 &&
     analysis &&
-    shouldApplyTriadWearCap(analysis, categoryScores, defects)
+    shouldApplyTriadWearCap(analysis, categoryScores, defects) &&
+    !qualifiesForUniformExTriadLightWearSkip(categoryScores, defects, analysis)
   ) {
     return applyVintageWearCap(
       overall,

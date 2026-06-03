@@ -2255,3 +2255,113 @@ test("back-only severe writing relief floors at PSA 4 not PSA 2", () => {
     !result.capAudit.some((entry) => entry.source === "psa1_calibration")
   );
 });
+
+test("Ryan-style both-location back writing relief reaches PSA 4 from cached vision", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7, edges: 7, surface: 7, centering: 7.5 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "writing_mark_severe",
+        severity: "severe",
+        location: "back",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "writing_mark_severe",
+    primaryLimiterLabel: "Heavy writing or marking over significant area",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Colors are vibrant, with some minor wear noted.",
+    cardMeta: { estimatedYear: 1975, isReflective: false, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Minor softening at tips; generally good.",
+      edges: "Presenting light wear at edges.",
+      surface: "Light scratches visible, particularly on arms and shoulders.",
+      centering: "Well centered, slightly better than average.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(
+    { ...analysis, visionCategoryScores: raw.categoryScores },
+    "vintage"
+  );
+
+  assert.equal(result.psaGrade, 4);
+  assert.ok(
+    result.capAudit.some((entry) => entry.source === "back_only_writing:writing_mark_severe")
+  );
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "psa1_calibration")
+  );
+});
+
+test("uniform EX light-wear triad skip lifts Mantle 1968-style slab above PSA 3", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7, edges: 6.5, surface: 6.5, centering: 8 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "back",
+        confidence: "minor",
+      },
+    ],
+    primaryLimiterTag: "staining_light",
+    primaryLimiterLabel: "Light back staining",
+    bestAttribute: "Strong centering with minor wear",
+    eyeAppealSummary: "Clean EX presentation with light wear on all pillars.",
+    cardMeta: { estimatedYear: 1968, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Minor wear visible on corners.",
+      edges: "Light edge wear noted.",
+      surface: "Light scratches on the front surface.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(result.psaGrade >= 5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "vintage:triad_light_wear_notes")
+  );
+});
