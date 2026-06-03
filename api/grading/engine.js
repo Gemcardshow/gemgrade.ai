@@ -1,10 +1,7 @@
+import { getDefectCap, getDefectDefinition, getDefectLabel, getEffectiveDefectCap, isStructuralDefect } from "./defects.js";
 import {
-  getDefectCap,
-  getDefectDefinition,
-  getDefectLabel,
-  getEffectiveDefectCap,
-} from "./defects.js";
-import {
+  applyBackOnlyWritingCategoryRelief,
+  applyBackOnlyWritingOverallFloor,
   applyCenteringGemCap,
   applyCompoundHarshness,
   applyExBandOptimismCeiling,
@@ -15,6 +12,8 @@ import {
   countPillarsAtOrBelow,
   finalizeInternalGrade,
   getOverallCategoryFloor,
+  qualifiesForExSingleCreaseCap,
+  resolveBackOnlyWritingCap,
 } from "./psa-calibration.js";
 import {
   clampGrade,
@@ -89,6 +88,27 @@ function getScanCeiling(scanQuality) {
   return ceiling;
 }
 
+function resolveExBandEdgeFrayingCap(defect, era, bandScores, categoryScores, defects, capAudit) {
+  if (defect.tag !== "edge_fraying_major") {
+    return null;
+  }
+
+  const structuralCount = defects.filter((entry) => isStructuralDefect(entry)).length;
+  const sideStrength = Math.min(bandScores.corners, categoryScores.corners);
+  const surfaceStrength = Math.min(bandScores.surface, categoryScores.surface);
+
+  if (structuralCount > 1) {
+    return null;
+  }
+  if (sideStrength < 5.5 || surfaceStrength < 5.5) {
+    return null;
+  }
+
+  const isolatedEdgeCap = era === "vintage" ? 5.5 : 6.0;
+  capAudit.push({ source: `isolatedEdge:${defect.tag}`, cap: isolatedEdgeCap });
+  return isolatedEdgeCap;
+}
+
 function getDefectCeiling(defects, era, categoryScores, capAudit, analysis = null) {
   const bandScores = analysis?.visionCategoryScores || categoryScores;
   if (!defects.length) return 10;
@@ -98,15 +118,27 @@ function getDefectCeiling(defects, era, categoryScores, capAudit, analysis = nul
   for (const defect of defects) {
     let cap = getEffectiveDefectCap(defect, era);
 
+    const isolatedEdgeCap = resolveExBandEdgeFrayingCap(
+      defect,
+      era,
+      bandScores,
+      categoryScores,
+      defects,
+      capAudit
+    );
+    if (isolatedEdgeCap !== null && isolatedEdgeCap > cap) {
+      cap = isolatedEdgeCap;
+    }
+
     if (
-      defect.tag === "edge_fraying_major" &&
-      categoryScores.corners >= 6 &&
-      categoryScores.surface >= 6
+      era === "vintage" &&
+      defect.tag === "moderate_crease" &&
+      qualifiesForExSingleCreaseCap(categoryScores, defects, analysis, era)
     ) {
-      const isolatedEdgeCap = era === "vintage" ? 5.5 : 6.0;
-      if (isolatedEdgeCap > cap) {
-        cap = isolatedEdgeCap;
-        capAudit.push({ source: `isolatedEdge:${defect.tag}`, cap });
+      const exCreaseCap = 5.0;
+      if (exCreaseCap > cap) {
+        cap = exCreaseCap;
+        capAudit.push({ source: `exBandCrease:${defect.tag}`, cap: exCreaseCap });
       }
     }
 
@@ -136,6 +168,17 @@ function getDefectCeiling(defects, era, categoryScores, capAudit, analysis = nul
       }
     }
 
+    const backWritingCap = resolveBackOnlyWritingCap(
+      defect,
+      categoryScores,
+      defects,
+      analysis,
+      capAudit
+    );
+    if (backWritingCap !== null && backWritingCap > cap) {
+      cap = backWritingCap;
+    }
+
     if (cap < ceiling) {
       ceiling = cap;
       capAudit.push({ source: `defect:${defect.tag}`, cap });
@@ -150,24 +193,56 @@ function getPrimaryLimiterCap(
   defects,
   era,
   categoryScores,
-  capAudit
+  capAudit,
+  analysis = null
 ) {
   if (!primaryLimiterTag) return 10;
 
+  const bandScores = analysis?.visionCategoryScores || categoryScores;
   const matchingDefect = defects.find((defect) => defect.tag === primaryLimiterTag);
   let cap = matchingDefect
     ? getEffectiveDefectCap(matchingDefect, era)
     : getDefectCap(primaryLimiterTag, era);
 
-  if (
-    primaryLimiterTag === "edge_fraying_major" &&
-    categoryScores.corners >= 6 &&
-    categoryScores.surface >= 6
-  ) {
-    const isolatedEdgeCap = era === "vintage" ? 5.5 : 6.0;
-    if (isolatedEdgeCap > cap) {
+  if (matchingDefect) {
+    const isolatedEdgeCap = resolveExBandEdgeFrayingCap(
+      matchingDefect,
+      era,
+      bandScores,
+      categoryScores,
+      defects,
+      capAudit
+    );
+    if (isolatedEdgeCap !== null && isolatedEdgeCap > cap) {
       cap = isolatedEdgeCap;
-      capAudit.push({ source: `isolatedEdge:${primaryLimiterTag}`, cap });
+    }
+  }
+
+  if (
+    era === "vintage" &&
+    primaryLimiterTag === "moderate_crease" &&
+    qualifiesForExSingleCreaseCap(categoryScores, defects, analysis, era)
+  ) {
+    const exCreaseCap = 5.0;
+    if (exCreaseCap > cap) {
+      cap = exCreaseCap;
+      capAudit.push({ source: `exBandCrease:${primaryLimiterTag}`, cap: exCreaseCap });
+    }
+  }
+
+  if (
+    matchingDefect &&
+    (primaryLimiterTag === "writing_mark" || primaryLimiterTag === "writing_mark_severe")
+  ) {
+    const backWritingCap = resolveBackOnlyWritingCap(
+      matchingDefect,
+      categoryScores,
+      defects,
+      analysis,
+      capAudit
+    );
+    if (backWritingCap !== null && backWritingCap > cap) {
+      cap = backWritingCap;
     }
   }
 
@@ -205,7 +280,16 @@ export function computeGrade(analysis, era) {
     categoryScores,
     analysis.defects,
     analysis,
-    capAudit
+    capAudit,
+    era
+  );
+
+  categoryScores = applyBackOnlyWritingCategoryRelief(
+    categoryScores,
+    analysis.defects,
+    analysis,
+    capAudit,
+    era
   );
 
   const categoryFloor = getOverallCategoryFloor(
@@ -236,7 +320,13 @@ export function computeGrade(analysis, era) {
     categoryScores,
     analysis
   );
-  rawOverall = applyPsa1Calibration(rawOverall, analysis.defects, capAudit);
+  rawOverall = applyPsa1Calibration(
+    rawOverall,
+    analysis.defects,
+    capAudit,
+    categoryScores,
+    analysis
+  );
 
   const primaryLimiterCap = analysis.defects.some(
     (defect) => defect.tag === analysis.primaryLimiterTag
@@ -246,7 +336,8 @@ export function computeGrade(analysis, era) {
         analysis.defects,
         era,
         categoryScores,
-        capAudit
+        capAudit,
+        analysis
       )
     : 10;
   rawOverall = Math.min(rawOverall, primaryLimiterCap);
@@ -279,6 +370,14 @@ export function computeGrade(analysis, era) {
     analysis.defects,
     capAudit,
     analysis
+  );
+
+  rawOverall = applyBackOnlyWritingOverallFloor(
+    rawOverall,
+    categoryScores,
+    analysis.defects,
+    analysis,
+    capAudit
   );
 
   const internalGrade = finalizeInternalGrade(rawOverall);

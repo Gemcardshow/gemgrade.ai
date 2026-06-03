@@ -128,6 +128,7 @@ function shouldApplyTriadWearCap(analysis, categoryScores, defects) {
   }
 
   const bandScores = analysis.visionCategoryScores || categoryScores;
+  const { corners, edges, surface } = bandScores;
   const wearFloor = getWearFloor(bandScores);
   const { centering } = categoryScores;
 
@@ -140,6 +141,14 @@ function shouldApplyTriadWearCap(analysis, categoryScores, defects) {
     wearFloor <= 6.5
   ) {
     if (centering >= 8 && hasVintageExAppealSignals(analysis)) {
+      return false;
+    }
+    if (
+      centering >= 7.5 &&
+      wearFloor <= 6 &&
+      countPillarsAtOrBelow(bandScores, 5.5) >= 1 &&
+      Math.max(corners, edges, surface) - Math.min(corners, edges, surface) >= 0.5
+    ) {
       return false;
     }
     return true;
@@ -212,6 +221,149 @@ function hasOnlyLightFrontWear(defects) {
   });
 }
 
+const MAJOR_FRONT_DEFECT_TAGS = new Set([
+  "severe_crease",
+  "moderate_crease",
+  "paper_loss",
+  "hole_tear",
+  "writing_mark",
+  "writing_mark_severe",
+  "edge_fraying_major",
+  "back_damage_severe",
+  "trim_alteration_suspected",
+  "heavy_staining",
+]);
+
+export function hasBackOnlyWriting(defects) {
+  const writingDefects = defects.filter(
+    (defect) => defect.tag === "writing_mark" || defect.tag === "writing_mark_severe"
+  );
+  if (!writingDefects.length) {
+    return false;
+  }
+  return writingDefects.every((defect) => defect.location === "back");
+}
+
+export function hasMajorFrontDefects(defects) {
+  return defects.some((defect) => {
+    if (defect.location !== "front" && defect.location !== "both") {
+      return false;
+    }
+    const tag = resolveEffectiveDefectTag(defect.tag, defect.severity);
+    if (MAJOR_FRONT_DEFECT_TAGS.has(tag)) {
+      return true;
+    }
+    const definition = getDefectDefinition(tag);
+    return (
+      definition?.severityClass === "severe" ||
+      definition?.severityClass === "disqualifying"
+    );
+  });
+}
+
+export function qualifiesForBackOnlyWritingRelief(categoryScores, defects, analysis) {
+  if (!hasBackOnlyWriting(defects) || hasMajorFrontDefects(defects)) {
+    return false;
+  }
+
+  if (countSevereDefects(defects) >= 2) {
+    return false;
+  }
+
+  const bandScores = analysis?.writingReliefBandScores || getWearBandScores(categoryScores, analysis);
+  const { corners, edges } = bandScores;
+  let { surface } = bandScores;
+
+  if (surface < Math.min(corners, edges)) {
+    surface = Math.min(corners, edges, Math.max(surface, 5.5));
+  }
+
+  const pillarAvg = (corners + edges + surface) / 3;
+  const sideAvg = (corners + edges) / 2;
+  return pillarAvg >= 6 || sideAvg >= 6;
+}
+
+export function resolveBackOnlyWritingCap(
+  defect,
+  categoryScores,
+  defects,
+  analysis,
+  capAudit
+) {
+  if (
+    defect.location !== "back" ||
+    (defect.tag !== "writing_mark" && defect.tag !== "writing_mark_severe")
+  ) {
+    return null;
+  }
+  if (!qualifiesForBackOnlyWritingRelief(categoryScores, defects, analysis)) {
+    return null;
+  }
+
+  const raisedCap = defect.tag === "writing_mark_severe" ? 4.0 : 5.0;
+  capAudit.push({ source: `back_only_writing:${defect.tag}`, cap: raisedCap });
+  return raisedCap;
+}
+
+export function applyBackOnlyWritingCategoryRelief(
+  categoryScores,
+  defects,
+  analysis,
+  capAudit,
+  era = "vintage"
+) {
+  if (era !== "vintage") {
+    return categoryScores;
+  }
+  if (!qualifiesForBackOnlyWritingRelief(categoryScores, defects, analysis)) {
+    return categoryScores;
+  }
+
+  const backWriting = defects.find(
+    (defect) =>
+      defect.location === "back" &&
+      (defect.tag === "writing_mark" || defect.tag === "writing_mark_severe")
+  );
+  const targetFloor = backWriting?.tag === "writing_mark_severe" ? 4.0 : 5.0;
+  const adjusted = { ...categoryScores };
+
+  if (adjusted.surface < targetFloor) {
+    adjusted.surface = roundToHalf(clampGrade(Math.max(adjusted.surface, targetFloor)));
+    capAudit.push({
+      source: "back_only_writing:surface_relief",
+      floor: adjusted.surface,
+    });
+  }
+
+  return adjusted;
+}
+
+export function applyBackOnlyWritingOverallFloor(
+  overall,
+  categoryScores,
+  defects,
+  analysis,
+  capAudit
+) {
+  if (!qualifiesForBackOnlyWritingRelief(categoryScores, defects, analysis)) {
+    return overall;
+  }
+
+  const backWriting = defects.find(
+    (defect) =>
+      defect.location === "back" &&
+      (defect.tag === "writing_mark" || defect.tag === "writing_mark_severe")
+  );
+  const floor = backWriting?.tag === "writing_mark_severe" ? 4.0 : 5.0;
+
+  if (overall >= floor) {
+    return overall;
+  }
+
+  capAudit.push({ source: "back_only_writing:overall_floor", floor });
+  return floor;
+}
+
 function shouldSkipOptimisticLightWearCap(categoryScores, defects, analysis) {
   return isExVgBandProtected(categoryScores, defects, analysis);
 }
@@ -225,14 +377,29 @@ function qualifiesForExModerateWearCompound(categoryScores, defects, analysis) {
   const wearFloor = getWearFloor(bandScores);
   const { centering } = categoryScores;
 
-  if (wearFloor < 5.5 || centering < 7) {
+  if (wearFloor < 5 || centering < 7) {
     return false;
   }
   if (hasClearlySevereStructuralTrigger(defects)) {
     return false;
   }
   if (countCompoundStructuralDefects(defects, analysis) >= 2) {
-    return false;
+    if (hasClearlySevereStructuralTrigger(defects)) {
+      return false;
+    }
+    const { corners, edges, surface } = bandScores;
+    const pillarSpread =
+      Math.max(corners, edges, surface) - Math.min(corners, edges, surface);
+    const uniformHighVision =
+      corners >= 6 && edges >= 6 && surface >= 6 && pillarSpread < 1;
+    if (
+      analysis &&
+      hasPoorBandNoteSignals(analysis) &&
+      wearFloor <= 6 &&
+      (uniformHighVision || hasTriadModerateWearNotes(analysis))
+    ) {
+      return false;
+    }
   }
   if (
     analysis &&
@@ -243,10 +410,122 @@ function qualifiesForExModerateWearCompound(categoryScores, defects, analysis) {
     return false;
   }
   if (analysis && hasPoorBandNoteSignals(analysis) && wearFloor <= 6) {
-    return false;
+    const { corners, edges, surface } = bandScores;
+    const pillarSpread =
+      Math.max(corners, edges, surface) - Math.min(corners, edges, surface);
+    const uniformHighVision =
+      corners >= 6 && edges >= 6 && surface >= 6 && pillarSpread < 1;
+    if (uniformHighVision || hasTriadModerateWearNotes(analysis)) {
+      return false;
+    }
   }
 
   return countModeratePlusDefects(defects) >= 2;
+}
+
+function hasSingleModerateCrease(defects) {
+  const creaseTags = defects.filter(
+    (defect) =>
+      resolveEffectiveDefectTag(defect.tag, defect.severity) === "moderate_crease"
+  );
+  if (creaseTags.length !== 1) {
+    return false;
+  }
+  return !defects.some(
+    (defect) =>
+      resolveEffectiveDefectTag(defect.tag, defect.severity) === "severe_crease"
+  );
+}
+
+/**
+ * EX slab with one moderate crease — cap near PSA 5, not poor-band crease stack.
+ */
+export function qualifiesForExSingleCreaseCap(
+  categoryScores,
+  defects,
+  analysis,
+  era
+) {
+  if (era !== "vintage" || triggersPsa1Calibration(defects)) {
+    return false;
+  }
+  if (!hasSingleModerateCrease(defects)) {
+    return false;
+  }
+  if (hasClearlySevereStructuralTrigger(defects)) {
+    return false;
+  }
+
+  const bandScores = getWearBandScores(categoryScores, analysis);
+  const wearFloor = getWearFloor(bandScores);
+  const { centering } = categoryScores;
+
+  if (centering < 7 || wearFloor < 5) {
+    return false;
+  }
+  if (bandScores.surface <= 4 && categoryScores.surface <= 4) {
+    return false;
+  }
+
+  const nonCreaseModeratePlus = countModeratePlusDefects(defects) - 1;
+  if (nonCreaseModeratePlus >= 2) {
+    return false;
+  }
+  if (
+    nonCreaseModeratePlus >= 1 &&
+    wearFloor < 5.5 &&
+    countPillarsAtOrBelow(bandScores, 5) >= 2
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function qualifiesForExPoorBandNotesClusterRelief(
+  categoryScores,
+  defects,
+  analysis
+) {
+  if (!analysis || triggersPsa1Calibration(defects)) {
+    return false;
+  }
+  if (!hasPoorBandNoteSignals(analysis)) {
+    return false;
+  }
+  if (countModeratePlusDefects(defects) < 2) {
+    return false;
+  }
+  if (hasClearlySevereStructuralTrigger(defects) || countSevereDefects(defects) >= 1) {
+    return false;
+  }
+
+  const bandScores = getWearBandScores(categoryScores, analysis);
+  const { corners, edges, surface } = bandScores;
+  const wearFloor = getWearFloor(bandScores);
+  const { centering } = categoryScores;
+  const pillarSpread =
+    Math.max(corners, edges, surface) - Math.min(corners, edges, surface);
+  const uniformHighVision =
+    corners >= 6 && edges >= 6 && surface >= 6 && pillarSpread < 1;
+
+  if (wearFloor < 5 || centering < 7) {
+    return false;
+  }
+  if (countPillarsAtOrBelow(bandScores, 4.5) >= 1) {
+    return false;
+  }
+  if (uniformHighVision && !hasSingleModerateCrease(defects)) {
+    return false;
+  }
+
+  return (
+    hasSingleModerateCrease(defects) ||
+    (wearFloor >= 5 &&
+      Math.min(corners, edges) >= 5 &&
+      countCompoundStructuralDefects(defects, analysis) <= 1 &&
+      !defects.some((defect) => defect.tag === "writing_mark_severe"))
+  );
 }
 
 function shouldApplyHeavyMultiPillarCap(categoryScores, defects, analysis) {
@@ -625,9 +904,30 @@ export function applyCompoundHarshness(
   return adjusted;
 }
 
-export function applyPsa1Calibration(overall, defects, capAudit) {
+export function applyPsa1Calibration(
+  overall,
+  defects,
+  capAudit,
+  categoryScores = null,
+  analysis = null
+) {
   if (!triggersPsa1Calibration(defects)) {
     return overall;
+  }
+
+  if (
+    categoryScores &&
+    analysis &&
+    qualifiesForBackOnlyWritingRelief(categoryScores, defects, analysis)
+  ) {
+    const psa1Triggers = defects.filter((defect) => PSA1_TRIGGER_TAGS.has(defect.tag));
+    const backOnlySevereWriting =
+      psa1Triggers.length === 1 &&
+      psa1Triggers[0].tag === "writing_mark_severe" &&
+      psa1Triggers[0].location === "back";
+    if (backOnlySevereWriting) {
+      return overall;
+    }
   }
 
   const capped = Math.min(overall, 2.0);
@@ -748,26 +1048,39 @@ export function applyVintageMultiPillarWearCap(
   if (
     analysis &&
     hasPoorBandNoteSignals(analysis) &&
-    countModeratePlusDefects(defects) >= 2 &&
-    floor <= 5.5
+    countModeratePlusDefects(defects) >= 2
   ) {
-    const notesText = Object.values(analysis.categoryNotes || {})
-      .join(" ")
-      .toLowerCase();
-    const harshNotes =
-      /\b(rounding|rounded|limits|heavy|severe|chipping|affecting|reduces)\b/.test(
-        notesText
+    if (qualifiesForExPoorBandNotesClusterRelief(categoryScores, defects, analysis)) {
+      return applyVintageWearCap(
+        overall,
+        5.5,
+        "vintage:poor_band_notes_cluster",
+        capAudit,
+        categoryScores,
+        defects,
+        analysis
       );
-    const clusterCap = harshNotes ? 2.0 : 2.5;
-    return applyVintageWearCap(
-      overall,
-      clusterCap,
-      "vintage:poor_band_notes_cluster",
-      capAudit,
-      categoryScores,
-      defects,
-      analysis
-    );
+    }
+
+    if (floor <= 5.5) {
+      const notesText = Object.values(analysis.categoryNotes || {})
+        .join(" ")
+        .toLowerCase();
+      const harshNotes =
+        /\b(rounding|rounded|limits|heavy|severe|chipping|affecting|reduces)\b/.test(
+          notesText
+        );
+      const clusterCap = harshNotes ? 2.0 : 2.5;
+      return applyVintageWearCap(
+        overall,
+        clusterCap,
+        "vintage:poor_band_notes_cluster",
+        capAudit,
+        categoryScores,
+        defects,
+        analysis
+      );
+    }
   }
 
   const pillarsAtOrBelowFive = [corners, edges, surface].filter(
@@ -795,7 +1108,13 @@ export function applyVintageMultiPillarWearCap(
     bandPillarsAtFive >= 2 &&
     getWearFloor(bandScores) <= 4.5 &&
     countWearDefects(defects) >= 2 &&
-    !isExVgBandProtected(categoryScores, defects, analysis)
+    !isExVgBandProtected(categoryScores, defects, analysis) &&
+    !(
+      categoryScores.centering >= 7 &&
+      getWearFloor(bandScores) >= 5 &&
+      countPillarsAtOrBelow(bandScores, 4.5) === 0 &&
+      !hasClearlySevereStructuralTrigger(defects)
+    )
   ) {
     return applyVintageWearCap(
       overall,
@@ -995,14 +1314,50 @@ export function applyExCategoryImpactRelief(
   categoryScores,
   defects,
   analysis,
-  capAudit
+  capAudit,
+  era = "vintage"
 ) {
-  if (!analysis || !isExVgBandProtected(categoryScores, defects, analysis)) {
-    return categoryScores;
+  const bandScores = analysis?.visionCategoryScores || categoryScores;
+  const adjusted = { ...categoryScores };
+
+  if (
+    analysis &&
+    era === "vintage" &&
+    !triggersPsa1Calibration(defects) &&
+    bandScores.corners >= 6 &&
+    bandScores.edges >= 6 &&
+    defects.some((defect) => defect.tag === "surface_wear")
+  ) {
+    if (adjusted.surface <= 4.5) {
+      const lifted = roundToHalf(clampGrade(Math.max(adjusted.surface, 5.5)));
+      if (lifted > adjusted.surface) {
+        adjusted.surface = lifted;
+        capAudit.push({
+          source: "ex_band:surface_wear_impact_relief",
+          floor: lifted,
+        });
+      }
+    }
   }
 
-  const bandScores = analysis.visionCategoryScores || categoryScores;
-  const adjusted = { ...categoryScores };
+  if (
+    analysis &&
+    era === "vintage" &&
+    qualifiesForExSingleCreaseCap(categoryScores, defects, analysis, era)
+  ) {
+    if (adjusted.surface <= 4.5) {
+      const lifted = roundToHalf(clampGrade(Math.max(adjusted.surface, 5)));
+      if (lifted > adjusted.surface) {
+        adjusted.surface = lifted;
+        capAudit.push({ source: "ex_band:crease_surface_relief", floor: lifted });
+      }
+    }
+  }
+
+  if (!analysis || !isExVgBandProtected(categoryScores, defects, analysis)) {
+    return adjusted;
+  }
+
   const sideStrength = Math.min(bandScores.corners, bandScores.edges);
 
   if (adjusted.surface <= 4.5 && sideStrength >= 6) {
@@ -1071,9 +1426,9 @@ export function applyExBandOptimismCeiling(
     return overall;
   }
 
-  const capped = Math.min(overall, 5);
+  const capped = Math.min(overall, 4);
   if (capped < overall) {
-    capAudit.push({ source: "ex_band:uniform_light_optimism_ceiling", cap: 5 });
+    capAudit.push({ source: "ex_band:uniform_light_optimism_ceiling", cap: 4 });
   }
   return capped;
 }

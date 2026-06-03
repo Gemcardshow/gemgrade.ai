@@ -2058,6 +2058,7 @@ function normalizeAnalysis(raw, era) {
     );
 
   let categoryScores = normalizeCategoryScores(raw.categoryScores);
+  const writingReliefBandScores = { ...categoryScores };
   let categoryNotes = raw.categoryNotes || {};
   if (era === "vintage") {
     const exBandNotes = reconcileVintageExBandCategoryNotes(raw, categoryScores);
@@ -2377,6 +2378,7 @@ function normalizeAnalysis(raw, era) {
       inspectionLimits: raw.scanQuality.inspectionLimits || [],
     },
     categoryScores,
+    writingReliefBandScores,
     defects,
     primaryLimiterTag: finalLimiter.primaryLimiterTag,
     primaryLimiterLabel: finalLimiter.primaryLimiterLabel,

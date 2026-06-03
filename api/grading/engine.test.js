@@ -2117,3 +2117,141 @@ test("formatGradeResponse returns unified professional structure for all users",
   assert.equal("mode" in response, false);
   assert.equal("proUpsellText" in response, false);
 });
+
+test("back-only moderate writing relief lifts EX-front Hodges-style slab to PSA 5", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7, edges: 5, surface: 5.5, centering: 8 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "writing_mark",
+        severity: "moderate",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "writing_mark",
+    primaryLimiterLabel: "Writing, mark, or ink",
+    bestAttribute: "centering",
+    eyeAppealSummary: "Strong centering with minor edge and surface imperfections.",
+    cardMeta: { estimatedYear: 1960, isReflective: false, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Light wear noted on corners.",
+      edges: "Minor wear along the edges; no severe fraying.",
+      surface: "Light scratches detected on the front surface.",
+      centering: "The card is well-centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.equal(result.psaGrade, 5);
+  assert.ok(
+    result.capAudit.some((entry) => entry.source === "back_only_writing:writing_mark")
+  );
+});
+
+test("front severe writing keeps harsh cap and skips back-only relief", () => {
+  const analysis = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5, surface: 3.5, centering: 6 },
+    visionCategoryScores: { corners: 5, edges: 5, surface: 3.5, centering: 6 },
+    defects: [
+      {
+        tag: "writing_mark_severe",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "writing_mark_severe",
+    primaryLimiterLabel: "Heavy writing on front",
+    bestAttribute: "None significant",
+    eyeAppealSummary: "Front ink dominates the card.",
+    cardMeta: { estimatedYear: 1980, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      surface: "Heavy ink mark across the front image.",
+    },
+  };
+
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(result.psaGrade <= 3);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "back_only_writing:writing_mark_severe")
+  );
+});
+
+test("back-only severe writing relief floors at PSA 4 not PSA 2", () => {
+  const analysis = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7, edges: 7, surface: 2.5, centering: 7.5 },
+    visionCategoryScores: { corners: 7, edges: 7, surface: 5.5, centering: 7.5 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "writing_mark_severe",
+        severity: "severe",
+        location: "back",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "writing_mark_severe",
+    primaryLimiterLabel: "Heavy writing on back",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Colors are vibrant, with some minor wear noted.",
+    cardMeta: { estimatedYear: 1975, isReflective: false, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Minor softening at tips; generally good.",
+      edges: "Presenting light wear at edges.",
+      surface: "Light scratches visible, particularly on arms and shoulders.",
+      centering: "Well centered, slightly better than average.",
+    },
+  };
+
+  const result = computeGrade(analysis, "vintage");
+
+  assert.equal(result.psaGrade, 4);
+  assert.ok(
+    result.capAudit.some((entry) => entry.source === "back_only_writing:writing_mark_severe")
+  );
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "psa1_calibration")
+  );
+});
