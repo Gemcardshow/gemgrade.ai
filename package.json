@@ -10,7 +10,12 @@
     "test:api": "npm --prefix api test",
     "benchmark:scan": "node benchmarks/scan-manifest.js",
     "benchmark:run": "node benchmarks/run-benchmark.js",
-    "benchmark": "npm run benchmark:scan && npm run benchmark:run"
+    "benchmark": "npm run benchmark:scan && npm run benchmark:run",
+    "benchmark:psa46-replay": "node benchmarks/replay-psa46-calibration.js",
+    "benchmark:psa46-scorecard": "node benchmarks/build-psa46-analyze-scorecard.js",
+    "benchmark:psa46-engine-scorecard": "node benchmarks/build-psa46-engine-scorecard.js",
+    "benchmark:psa46-miss-report": "node benchmarks/build-psa46-miss-report.js",
+    "benchmark:psa46-root-cause": "node benchmarks/build-psa46-root-cause.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

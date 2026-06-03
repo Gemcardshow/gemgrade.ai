@@ -7,10 +7,14 @@ import {
 import {
   applyCenteringGemCap,
   applyCompoundHarshness,
+  applyExBandOptimismCeiling,
+  applyExCategoryImpactRelief,
   applyIsolatedPillarFloor,
   applyPsa1Calibration,
   applyVintageMultiPillarWearCap,
+  countPillarsAtOrBelow,
   finalizeInternalGrade,
+  getOverallCategoryFloor,
 } from "./psa-calibration.js";
 import {
   clampGrade,
@@ -85,7 +89,8 @@ function getScanCeiling(scanQuality) {
   return ceiling;
 }
 
-function getDefectCeiling(defects, era, categoryScores, capAudit) {
+function getDefectCeiling(defects, era, categoryScores, capAudit, analysis = null) {
+  const bandScores = analysis?.visionCategoryScores || categoryScores;
   if (!defects.length) return 10;
 
   let ceiling = 10;
@@ -106,15 +111,28 @@ function getDefectCeiling(defects, era, categoryScores, capAudit) {
     }
 
     if (
-      categoryScores.surface <= 4 &&
-      categoryScores.corners <= 5 &&
-      categoryScores.edges <= 5 &&
-      (defect.tag === "surface_wear" || defect.tag === "surface_scratch_moderate")
+      era === "vintage" &&
+      (defect.tag === "surface_wear" || defect.tag === "surface_scratch_moderate") &&
+      countPillarsAtOrBelow(bandScores, 4) >= 3 &&
+      countPillarsAtOrBelow(bandScores, 5) >= 3
     ) {
-      const surfaceBound = era === "vintage" ? 2.0 : 2.5;
+      const surfaceBound = 2.0;
       if (surfaceBound < cap) {
         cap = surfaceBound;
         capAudit.push({ source: `categoryBound:${defect.tag}`, cap });
+      }
+    }
+
+    if (
+      era === "vintage" &&
+      defect.tag === "surface_wear" &&
+      bandScores.corners >= 6 &&
+      bandScores.edges >= 6
+    ) {
+      const exSurfaceCap = 5.5;
+      if (exSurfaceCap > cap) {
+        cap = exSurfaceCap;
+        capAudit.push({ source: `exBandSurface:${defect.tag}`, cap });
       }
     }
 
@@ -174,20 +192,37 @@ function deriveConfidence(scanQuality, defects) {
  */
 export function computeGrade(analysis, era) {
   const capAudit = [];
-  const categoryScores = applyCategoryImpactScores(
-    analysis.categoryScores,
+  const visionCategoryScores = { ...analysis.categoryScores };
+  analysis.visionCategoryScores = visionCategoryScores;
+
+  let categoryScores = applyCategoryImpactScores(
+    visionCategoryScores,
     analysis.defects,
     capAudit
   );
 
-  const categoryFloor = Math.min(
-    categoryScores.corners,
-    categoryScores.edges,
-    categoryScores.surface
+  categoryScores = applyExCategoryImpactRelief(
+    categoryScores,
+    analysis.defects,
+    analysis,
+    capAudit
+  );
+
+  const categoryFloor = getOverallCategoryFloor(
+    categoryScores,
+    era,
+    analysis.defects,
+    analysis
   );
   capAudit.push({ source: "categoryFloor", value: categoryFloor });
 
-  const defectCeiling = getDefectCeiling(analysis.defects, era, categoryScores, capAudit);
+  const defectCeiling = getDefectCeiling(
+    analysis.defects,
+    era,
+    categoryScores,
+    capAudit,
+    analysis
+  );
   const scanCeiling = getScanCeiling(analysis.scanQuality);
   capAudit.push({ source: "scanQuality", cap: scanCeiling });
 
@@ -236,6 +271,14 @@ export function computeGrade(analysis, era) {
     categoryScores,
     analysis.defects,
     capAudit
+  );
+
+  rawOverall = applyExBandOptimismCeiling(
+    rawOverall,
+    categoryScores,
+    analysis.defects,
+    capAudit,
+    analysis
   );
 
   const internalGrade = finalizeInternalGrade(rawOverall);

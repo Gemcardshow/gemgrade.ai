@@ -57,9 +57,12 @@ function loadManifest(refresh) {
 }
 
 function formatTable(rows) {
-  const headers = ["Card", "PSA", "GemGrade", "Diff", "Internal", "Era", "Patterns"];
+  const hasFilename = rows.some((row) => row.fileLabel);
+  const headers = hasFilename
+    ? ["Filename", "PSA", "GemGrade", "Diff", "Internal", "Era", "Patterns"]
+    : ["Card", "PSA", "GemGrade", "Diff", "Internal", "Era", "Patterns"];
   const data = rows.map((row) => [
-    row.card,
+    hasFilename ? row.fileLabel || row.card : row.card,
     String(row.psaGrade),
     String(row.gemGrade),
     row.gradeDifference >= 0 ? `+${row.gradeDifference}` : String(row.gradeDifference),
@@ -84,6 +87,9 @@ function formatTable(rows) {
 }
 
 function buildMarkdownReport(report) {
+  const hasFilename = report.rows.some((row) => row.fileLabel);
+  const nameCol = hasFilename ? "Filename" : "Card";
+
   const lines = [
     `# GemGrade Benchmark Report`,
     ``,
@@ -91,7 +97,7 @@ function buildMarkdownReport(report) {
     `Suite: ${report.suiteId}`,
     `Cards: ${report.summary.total} · Mean |Δ|: ${report.summary.meanAbsDelta.toFixed(2)} · Within ±1: ${report.summary.withinOne}/${report.summary.total}`,
     ``,
-    `| Card | PSA | GemGrade | Diff | Internal | Era | Patterns |`,
+    `| ${nameCol} | PSA | GemGrade | Diff | Internal | Era | Patterns |`,
     `| --- | ---: | ---: | ---: | ---: | --- | --- |`,
   ];
 
@@ -101,8 +107,9 @@ function buildMarkdownReport(report) {
         ? `+${row.gradeDifference}`
         : String(row.gradeDifference);
     const patternIds = row.patterns.map((p) => p.id).join(", ") || "—";
+    const label = row.fileLabel || row.card;
     lines.push(
-      `| ${row.card} | ${row.psaGrade} | ${row.gemGrade} | ${diff} | ${row.internalGrade} | ${row.era} | ${patternIds} |`
+      `| ${label} | ${row.psaGrade} | ${row.gemGrade} | ${diff} | ${row.internalGrade} | ${row.era} | ${patternIds} |`
     );
   }
 
@@ -314,7 +321,10 @@ async function main() {
         });
       }
 
-      const row = rowFromGradeResult(card, result, Date.now() - started);
+      const row = {
+        ...rowFromGradeResult(card, result, Date.now() - started),
+        fileLabel: card.fileLabel || null,
+      };
       rows.push(row);
       console.log(
         `PSA ${result.psaGrade} (Δ ${row.gradeDifference >= 0 ? "+" : ""}${row.gradeDifference}) [${row.durationMs}ms]`
@@ -324,6 +334,7 @@ async function main() {
       rows.push({
         id: card.id,
         card: card.cardName,
+        fileLabel: card.fileLabel || null,
         suiteId: card.suiteId,
         psaGrade: card.psaGrade,
         error: error.message,

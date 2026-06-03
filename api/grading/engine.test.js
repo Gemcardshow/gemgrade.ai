@@ -978,6 +978,308 @@ test("1963 Topps Mickey Mantle PSA 5 fair surface edge over-tags normalize to EX
   assert.ok(result.psaGrade <= 6);
 });
 
+test("1963 Topps Mickey Mantle PSA 5 cached vision downgrades false surface_wear", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7.5, edges: 7, surface: 7, centering: 8 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_wear",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_wear",
+    primaryLimiterLabel: "General surface wear",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary:
+      "The card exhibits vibrant colors and minimal wear, presenting well overall.",
+    categoryNotes: {
+      corners: "Minor wear visible on corners, slight softening.",
+      edges: "Light edge wear noted, primarily at the bottom.",
+      surface: "Minor surface issues, with vibrant colors maintained.",
+      centering: "Well-centered image, appealing presentation.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(
+    { ...analysis, visionCategoryScores: raw.categoryScores },
+    "vintage"
+  );
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "surface_wear"));
+  assert.ok(analysis.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.ok(result.psaGrade >= 4);
+  assert.ok(result.psaGrade > 3);
+});
+
+test("1965 Topps Mickey Mantle PSA 5 cached vision downgrades light-edge fraying over-tag", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5, surface: 5, centering: 8 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "moderate_crease",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    bestAttribute: "Strong centering at 8.0",
+    eyeAppealSummary:
+      "The card has strong centering, but visible wear and creasing diminish its overall appeal.",
+    categoryNotes: {
+      corners: "Moderate wear observed; rounding is visible on all corners.",
+      edges: "Light wear with some noticeable scuffing along borders.",
+      surface:
+        "Moderate scratching, with a noticeable crease across the front; some surface printing flaws present.",
+      centering: "Well-centered for its age, likely above average.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(result.psaGrade >= 3);
+});
+
+test("1968 Topps Tom Seaver PSA 6 cached notes avoid false poor-band cluster", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 6.5, surface: 5, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_moderate",
+    bestAttribute: "Good centering",
+    eyeAppealSummary:
+      "Moderate wear with visible corner and surface issues, but still retains decent eye appeal.",
+    categoryNotes: {
+      corners: "Moderate wear with some rounding visible.",
+      edges: "Light edge wear present, particularly on the left side.",
+      surface: "Moderate scratches affecting surface gloss and clarity.",
+      centering: "Good centering overall with slight off-center appearance.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(
+    !result.capAudit.some(
+      (entry) => entry.source === "vintage:poor_band_notes_cluster"
+    )
+  );
+  assert.ok(result.psaGrade >= 4);
+});
+
+test("1934 Goudey Cochrane PSA 6 cached vision keeps minor edge wear not major fraying", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5, surface: 5.5, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "moderate_crease",
+        severity: "moderate",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "moderate_crease",
+    bestAttribute: "Fair centering with vibrant colors.",
+    eyeAppealSummary:
+      "Despite multiple issues, the card retains decent eye appeal with bold graphics.",
+    categoryNotes: {
+      corners: "Moderate wear visible; softening and rounding apparent.",
+      edges: "Visible fraying and minor chipping detected along edges.",
+      surface:
+        "Multiple creases noted, impacting surface visually, though not deeply cutting.",
+      centering: "Fair centering with only minor alignment issues.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(analysis.defects.some((defect) => defect.tag === "edge_wear_light"));
+});
+
+test("1980 Topps Henderson PSA 6 cached edge note denies major fraying over-tag", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5.5, surface: 5.5, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "moderate_crease",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    bestAttribute: "Strong centering with vibrant color",
+    eyeAppealSummary:
+      "The card has good eye appeal despite visible corner and crease wear.",
+    categoryNotes: {
+      corners: "Moderate wear visible, particularly on two corners.",
+      edges: "Light wear observed along edges with no severe fraying or chipping.",
+      surface:
+        "Visible moderate creases affect overall surface, diminishing its quality.",
+      centering: "Centering is strong, enhancing visual appeal.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(analysis.defects.some((defect) => defect.tag === "edge_wear_light"));
+});
+
+test("1969 Topps Seaver PSA 6 cached appeal-only writing downgrades to back stain", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5.5, surface: 8, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "writing_mark",
+        severity: "moderate",
+        location: "back",
+        confidence: "high",
+      },
+      {
+        tag: "writing_mark_severe",
+        severity: "severe",
+        location: "both",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "writing_mark_severe",
+    bestAttribute: "Visual appeal is still decent despite visible wear.",
+    eyeAppealSummary:
+      "Card maintains some charm but shows significant evidence of wear on front corners and visible writing on the back.",
+    categoryNotes: {
+      corners: "Moderate rounding and wear are evident, impacting overall appearance.",
+      edges: "Minor edge wear consistent with age, but not severe.",
+      surface: "Light scratches and general surface wear, impacting aesthetics.",
+      centering: "Centering appears decent, but not perfect.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "writing_mark_severe"));
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "writing_mark"));
+  assert.ok(analysis.defects.some((defect) => defect.tag === "staining_light"));
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "defect:writing_mark_severe")
+  );
+});
+
 test("1962 Topps Roger Maris PSA 1 heavy edge wear infers crease and stays in poor band", () => {
   const raw = {
     scanQuality: {

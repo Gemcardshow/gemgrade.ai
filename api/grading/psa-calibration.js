@@ -3,6 +3,7 @@ import {
   isStructuralDefect,
   resolveEffectiveDefectTag,
   countWearDefects,
+  countsForCompoundStructural,
 } from "./defects.js";
 import {
   hasVintageExAppealSignals,
@@ -96,12 +97,384 @@ export function hasPoorBandNoteSignals(analysis) {
   }).length >= 2;
 }
 
-function hasTriadLightWearNotes(analysis) {
+function hasModeratePlusWearLanguage(text) {
+  return (
+    /\b(moderate|major|heavy|severe)\b/.test(text) &&
+    /\b(wear|scratch(?:es)?|scuff(?:s)?|fray(?:ing)?|chipping|rounding|rounded)\b/.test(
+      text
+    )
+  );
+}
+
+function hasTriadModerateWearNotes(analysis) {
+  const notes = analysis?.categoryNotes || {};
+  return ["corners", "edges", "surface"].filter((pillar) => {
+    const text = String(notes[pillar] || "").toLowerCase();
+    return hasModeratePlusWearLanguage(text);
+  }).length >= 2;
+}
+
+function hasTriadLightWearNotesOnly(analysis) {
   const notes = analysis?.categoryNotes || {};
   return ["corners", "edges", "surface"].filter((pillar) => {
     const text = String(notes[pillar] || "").toLowerCase();
     return /\b(wear|scratch(?:es)?|scuff(?:s)?|edge wear|chipping)\b/.test(text);
   }).length >= 3;
+}
+
+function shouldApplyTriadWearCap(analysis, categoryScores, defects) {
+  if (!analysis) {
+    return false;
+  }
+
+  const bandScores = analysis.visionCategoryScores || categoryScores;
+  const wearFloor = getWearFloor(bandScores);
+  const { centering } = categoryScores;
+
+  if (
+    countWearDefects(defects) >= 3 &&
+    countModeratePlusDefects(defects) === 0 &&
+    hasTriadLightWearNotesOnly(analysis) &&
+    !hasTriadModerateWearNotes(analysis) &&
+    wearFloor >= 5.5 &&
+    wearFloor <= 6.5
+  ) {
+    if (centering >= 8 && hasVintageExAppealSignals(analysis)) {
+      return false;
+    }
+    return true;
+  }
+
+  if (hasTriadModerateWearNotes(analysis)) {
+    if (isExVgBandProtected(categoryScores, defects, analysis)) {
+      return false;
+    }
+    return true;
+  }
+  if (isExVgBandProtected(categoryScores, defects, analysis)) {
+    return false;
+  }
+  if (
+    countWearDefects(defects) >= 3 &&
+    countModeratePlusDefects(defects) === 0 &&
+    hasTriadLightWearNotesOnly(analysis)
+  ) {
+    if (isExVgBandProtected(categoryScores, defects, analysis)) {
+      return false;
+    }
+    return true;
+  }
+  return (
+    getWearFloor(categoryScores) <= 5.5 &&
+    hasPoorBandNoteSignals(analysis) &&
+    hasTriadLightWearNotesOnly(analysis)
+  );
+}
+
+const EX_VG_SKIPPED_VINTAGE_CAPS = new Set([
+  "vintage:poor_band_notes_cluster",
+  "vintage:optimistic_light_wear",
+  "vintage:distributed_vg_wear",
+  "vintage:multi_pillar_wear",
+  "vintage:multi_pillar_heavy_wear",
+  "vintage:triad_light_wear_notes",
+  "vintage:uniform_optimistic_light_wear",
+]);
+
+const LIGHT_FRONT_WEAR_TAGS = new Set([
+  "corner_wear_light",
+  "edge_wear_light",
+  "surface_scratch_light",
+  "staining_light",
+  "print_line",
+  "gloss_loss",
+  "registration_issue",
+]);
+
+function getWearBandScores(categoryScores, analysis) {
+  return analysis?.visionCategoryScores || categoryScores;
+}
+
+function hasOnlyLightFrontWear(defects) {
+  const frontDefects = defects.filter(
+    (defect) => defect.location === "front" || defect.location === "both"
+  );
+  if (!frontDefects.length) {
+    return true;
+  }
+
+  return frontDefects.every((defect) => {
+    const definition = getDefectDefinition(defect.tag);
+    return (
+      LIGHT_FRONT_WEAR_TAGS.has(defect.tag) ||
+      definition?.severityClass === "minor"
+    );
+  });
+}
+
+function shouldSkipOptimisticLightWearCap(categoryScores, defects, analysis) {
+  return isExVgBandProtected(categoryScores, defects, analysis);
+}
+
+function qualifiesForExModerateWearCompound(categoryScores, defects, analysis) {
+  if (!analysis || triggersPsa1Calibration(defects)) {
+    return false;
+  }
+
+  const bandScores = getWearBandScores(categoryScores, analysis);
+  const wearFloor = getWearFloor(bandScores);
+  const { centering } = categoryScores;
+
+  if (wearFloor < 5.5 || centering < 7) {
+    return false;
+  }
+  if (hasClearlySevereStructuralTrigger(defects)) {
+    return false;
+  }
+  if (countCompoundStructuralDefects(defects, analysis) >= 2) {
+    return false;
+  }
+  if (
+    analysis &&
+    hasTriadLightWearNotesOnly(analysis) &&
+    !hasTriadModerateWearNotes(analysis) &&
+    countModeratePlusDefects(defects) === 0
+  ) {
+    return false;
+  }
+  if (analysis && hasPoorBandNoteSignals(analysis) && wearFloor <= 6) {
+    return false;
+  }
+
+  return countModeratePlusDefects(defects) >= 2;
+}
+
+function shouldApplyHeavyMultiPillarCap(categoryScores, defects, analysis) {
+  const bandScores = getWearBandScores(categoryScores, analysis);
+  const bandPillarsAt45 = countPillarsAtOrBelow(bandScores, 4.5);
+  const impactPillarsAt45 = countPillarsAtOrBelow(categoryScores, 4.5);
+
+  if (bandPillarsAt45 >= 3) {
+    return true;
+  }
+
+  const legacyPoorMultiPillar =
+    categoryScores.surface <= 4 &&
+    categoryScores.corners <= 5 &&
+    categoryScores.edges <= 5;
+
+  if (legacyPoorMultiPillar && bandPillarsAt45 >= 2) {
+    if (analysis?.visionCategoryScores) {
+      const visionPillarsAt45 = countPillarsAtOrBelow(
+        analysis.visionCategoryScores,
+        4.5
+      );
+      if (visionPillarsAt45 < 2) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  return (
+    impactPillarsAt45 >= 3 &&
+    bandPillarsAt45 >= 2 &&
+    (hasClearlySevereStructuralTrigger(defects) || legacyPoorMultiPillar)
+  );
+}
+
+function isExBackStainOnlyPresentation(categoryScores, defects, analysis) {
+  if (!analysis?.primaryLimiterTag) {
+    return false;
+  }
+
+  const bandScores = getWearBandScores(categoryScores, analysis);
+  const { centering } = categoryScores;
+  const wearFloor = getWearFloor(bandScores);
+
+  if (centering < 7 || wearFloor < 6) {
+    return false;
+  }
+  if (countModeratePlusDefects(defects) > 0) {
+    return false;
+  }
+  if (isNmVintagePresentationCandidate(categoryScores, analysis)) {
+    return false;
+  }
+  if (!hasBackStainDefects(defects)) {
+    return false;
+  }
+  if (!STAIN_TAGS.has(analysis.primaryLimiterTag)) {
+    return false;
+  }
+
+  return hasOnlyLightFrontWear(defects);
+}
+
+const EX_VG_INTERNAL_FLOOR = 5.0;
+
+export function countPillarsAtOrBelow(categoryScores, threshold) {
+  const { corners, edges, surface } = categoryScores;
+  return [corners, edges, surface].filter((score) => score <= threshold).length;
+}
+
+export function getWearFloor(categoryScores) {
+  return Math.min(
+    categoryScores.corners,
+    categoryScores.edges,
+    categoryScores.surface
+  );
+}
+
+/**
+ * EX/VG presentation: enough pillar strength to avoid poor-band vintage caps.
+ * PSA-1/2 poor-band clusters still apply when notes or moderate+ defects say so.
+ *
+ * @param {import("./types.js").CategoryScores} categoryScores
+ * @param {import("./types.js").VisionDefect[]} defects
+ * @param {import("./types.js").VisionAnalysis | null} [analysis]
+ */
+export function isExVgBandProtected(categoryScores, defects, analysis = null) {
+  if (triggersPsa1Calibration(defects)) {
+    return false;
+  }
+
+  const bandScores = analysis?.visionCategoryScores || categoryScores;
+  const wearFloor = getWearFloor(bandScores);
+  if (wearFloor < 4.5) {
+    return false;
+  }
+  if (countPillarsAtOrBelow(bandScores, 4.5) >= 1) {
+    return false;
+  }
+  if (countPillarsAtOrBelow(bandScores, 5) >= 2) {
+    return false;
+  }
+  if (countModeratePlusDefects(defects) >= 2) {
+    return false;
+  }
+  if (analysis && hasPoorBandNoteSignals(analysis)) {
+    const { centering } = categoryScores;
+    if (wearFloor < 6 || centering < 7) {
+      return false;
+    }
+  }
+
+  // High subgrades with only minor wear tags are poor-band optimistic vision, not EX slab recovery.
+  if (
+    wearFloor >= 5.5 &&
+    wearFloor <= 7.5 &&
+    countModeratePlusDefects(defects) === 0 &&
+    countWearDefects(defects) >= 2 &&
+    !(analysis && hasVintageExAppealSignals(analysis))
+  ) {
+    return false;
+  }
+
+  // Light-wear-only triad notes on optimistic vision (PSA 3-style) still need poor-band caps.
+  if (
+    analysis &&
+    wearFloor >= 5.5 &&
+    wearFloor <= 6.5 &&
+    countModeratePlusDefects(defects) === 0 &&
+    countWearDefects(defects) >= 3 &&
+    hasTriadLightWearNotesOnly(analysis) &&
+    !hasTriadModerateWearNotes(analysis)
+  ) {
+    return false;
+  }
+
+  return wearFloor >= 5.5;
+}
+
+function hasClearlySevereStructuralTrigger(defects) {
+  if (countSevereDefects(defects) >= 2) {
+    return true;
+  }
+
+  const severeStructuralTags = new Set([
+    "severe_crease",
+    "paper_loss",
+    "hole_tear",
+    "writing_mark_severe",
+    "back_damage_severe",
+    "heavy_staining",
+  ]);
+
+  return defects.some((defect) =>
+    severeStructuralTags.has(
+      resolveEffectiveDefectTag(defect.tag, defect.severity)
+    )
+  );
+}
+
+function shouldApplyHarshStructuralCap(categoryScores, defects) {
+  if (!categoryScores) {
+    return true;
+  }
+  if (hasClearlySevereStructuralTrigger(defects)) {
+    return true;
+  }
+  return countPillarsAtOrBelow(categoryScores, 4.5) >= 2;
+}
+
+export function countCompoundStructuralDefects(defects, analysis = null) {
+  return defects.filter((defect) => countsForCompoundStructural(defect, analysis))
+    .length;
+}
+
+function applyExVgVintageCap(
+  overall,
+  capValue,
+  source,
+  capAudit,
+  categoryScores,
+  defects,
+  analysis = null
+) {
+  if (
+    isExVgBandProtected(categoryScores, defects, analysis) &&
+    EX_VG_SKIPPED_VINTAGE_CAPS.has(source)
+  ) {
+    return overall;
+  }
+
+  if (POOR_BAND_VINTAGE_CAP_SOURCES.has(source)) {
+    capAudit.push({ source, cap: capValue });
+    return Math.min(overall, capValue);
+  }
+
+  let effectiveCap = capValue;
+  if (
+    isExVgBandProtected(categoryScores, defects, analysis) &&
+    capValue < EX_VG_INTERNAL_FLOOR
+  ) {
+    effectiveCap = EX_VG_INTERNAL_FLOOR;
+    capAudit.push({ source: `${source}:ex_vg_floor`, floor: EX_VG_INTERNAL_FLOOR });
+  } else {
+    capAudit.push({ source, cap: capValue });
+  }
+  return Math.min(overall, effectiveCap);
+}
+
+function applyVintageWearCap(
+  overall,
+  capValue,
+  source,
+  capAudit,
+  categoryScores,
+  defects,
+  analysis = null
+) {
+  return applyExVgVintageCap(
+    overall,
+    capValue,
+    source,
+    capAudit,
+    categoryScores,
+    defects,
+    analysis
+  );
 }
 
 export function hasModerateFrontWear(defects) {
@@ -162,20 +535,9 @@ export function applyCompoundHarshness(
 ) {
   let adjusted = overall;
   const severeCount = countSevereDefects(defects);
-  const structuralCount = countStructuralDefects(defects);
+  const structuralCount = countCompoundStructuralDefects(defects, analysis);
   const moderatePlusCount = countModeratePlusDefects(defects);
-  const wearFloor = categoryScores
-    ? Math.min(
-        categoryScores.corners,
-        categoryScores.edges,
-        categoryScores.surface
-      )
-    : overall;
-  const hasWeakPillar =
-    categoryScores &&
-    [categoryScores.corners, categoryScores.edges, categoryScores.surface].some(
-      (score) => score <= 5.5
-    );
+  const wearFloor = categoryScores ? getWearFloor(categoryScores) : overall;
 
   if (severeCount >= 2) {
     adjusted = Math.min(adjusted, 2.5);
@@ -188,8 +550,10 @@ export function applyCompoundHarshness(
   }
 
   if (structuralCount >= 3) {
-    const applyHarshStructuralCap =
-      !categoryScores || wearFloor <= 5.5 || hasWeakPillar;
+    const applyHarshStructuralCap = shouldApplyHarshStructuralCap(
+      categoryScores,
+      defects
+    );
     const structuralCap = applyHarshStructuralCap
       ? era === "vintage"
         ? 3.5
@@ -197,32 +561,60 @@ export function applyCompoundHarshness(
       : era === "vintage"
         ? 5.0
         : 5.5;
-    adjusted = Math.min(adjusted, structuralCap);
-    capAudit.push({
-      source: applyHarshStructuralCap
-        ? "compound:3plus_structural_defects"
-        : "compound:3plus_structural_ex_band",
-      cap: structuralCap,
-    });
+    const source = applyHarshStructuralCap
+      ? "compound:3plus_structural_defects"
+      : "compound:3plus_structural_ex_band";
+    if (categoryScores) {
+      adjusted = applyExVgVintageCap(
+        adjusted,
+        structuralCap,
+        source,
+        capAudit,
+        categoryScores,
+        defects,
+        analysis
+      );
+    } else {
+      adjusted = Math.min(adjusted, structuralCap);
+      capAudit.push({ source, cap: structuralCap });
+    }
   } else if (moderatePlusCount >= 2) {
-    let moderateCap = era === "vintage" ? 4.0 : 4.5;
+    let moderateCap =
+      era === "vintage" &&
+      categoryScores &&
+      (isExVgBandProtected(categoryScores, defects, analysis) ||
+        qualifiesForExModerateWearCompound(categoryScores, defects, analysis))
+        ? 5.5
+        : era === "vintage"
+          ? 4.0
+          : 4.5;
+    let source = "compound:2plus_moderate_defects";
     if (
       era === "vintage" &&
       categoryScores &&
       wearFloor >= 6 &&
       moderatePlusCount >= 2 &&
-      (analysis ? hasPoorBandNoteSignals(analysis) : false)
+      (analysis ? hasPoorBandNoteSignals(analysis) : false) &&
+      !isExVgBandProtected(categoryScores, defects, analysis)
     ) {
       moderateCap =
         moderatePlusCount >= 3 || structuralCount >= 2 ? 2.5 : 3.0;
-      capAudit.push({
-        source: "compound:optimistic_moderate_cluster",
-        cap: moderateCap,
-      });
-    } else {
-      capAudit.push({ source: "compound:2plus_moderate_defects", cap: moderateCap });
+      source = "compound:optimistic_moderate_cluster";
     }
-    adjusted = Math.min(adjusted, moderateCap);
+    if (categoryScores) {
+      adjusted = applyExVgVintageCap(
+        adjusted,
+        moderateCap,
+        source,
+        capAudit,
+        categoryScores,
+        defects,
+        analysis
+      );
+    } else {
+      adjusted = Math.min(adjusted, moderateCap);
+      capAudit.push({ source, cap: moderateCap });
+    }
   }
 
   if (era === "vintage" && hasSevereBackDamage(defects) && hasModerateFrontWear(defects)) {
@@ -318,19 +710,39 @@ export function applyVintageMultiPillarWearCap(
     return overall;
   }
 
+  const bandScores = getWearBandScores(categoryScores, analysis);
   const { corners, edges, surface } = categoryScores;
   const floor = Math.min(corners, edges, surface);
+  const bandPillarsAt45 = countPillarsAtOrBelow(bandScores, 4.5);
 
-  if (surface <= 4 && corners <= 5 && edges <= 5) {
-    const capped = Math.min(overall, 1.5);
-    capAudit.push({ source: "vintage:multi_pillar_heavy_wear", cap: 1.5 });
-    return capped;
+  if (
+    shouldApplyHeavyMultiPillarCap(categoryScores, defects, analysis) &&
+    !isExVgBandProtected(categoryScores, defects, analysis)
+  ) {
+    return applyVintageWearCap(
+      overall,
+      1.5,
+      "vintage:multi_pillar_heavy_wear",
+      capAudit,
+      categoryScores,
+      defects,
+      analysis
+    );
   }
 
-  if (surface <= 4.5 && corners <= 5.5 && edges <= 5.5) {
-    const capped = Math.min(overall, 2.5);
-    capAudit.push({ source: "vintage:multi_pillar_wear", cap: 2.5 });
-    return capped;
+  if (
+    bandPillarsAt45 >= 3 &&
+    !isExVgBandProtected(categoryScores, defects, analysis)
+  ) {
+    return applyVintageWearCap(
+      overall,
+      2.5,
+      "vintage:multi_pillar_wear",
+      capAudit,
+      categoryScores,
+      defects,
+      analysis
+    );
   }
 
   if (
@@ -347,34 +759,88 @@ export function applyVintageMultiPillarWearCap(
         notesText
       );
     const clusterCap = harshNotes ? 2.0 : 2.5;
-    const capped = Math.min(overall, clusterCap);
-    capAudit.push({ source: "vintage:poor_band_notes_cluster", cap: clusterCap });
-    return capped;
+    return applyVintageWearCap(
+      overall,
+      clusterCap,
+      "vintage:poor_band_notes_cluster",
+      capAudit,
+      categoryScores,
+      defects,
+      analysis
+    );
   }
 
+  const pillarsAtOrBelowFive = [corners, edges, surface].filter(
+    (score) => score <= 5
+  ).length;
+  const bandPillarsAtFive = countPillarsAtOrBelow(bandScores, 5);
+
   if (
-    floor <= 5 &&
-    [corners, edges, surface].filter((score) => score <= 5).length >= 2 &&
-    corners <= 7.5 &&
-    edges <= 6.5 &&
-    surface <= 7.5 &&
-    countWearDefects(defects) >= 2
+    bandPillarsAtFive >= 3 &&
+    countWearDefects(defects) >= 2 &&
+    !isExVgBandProtected(categoryScores, defects, analysis)
   ) {
-    const capped = Math.min(overall, 3.5);
-    capAudit.push({ source: "vintage:distributed_vg_wear", cap: 3.5 });
-    return capped;
+    return applyVintageWearCap(
+      overall,
+      3.5,
+      "vintage:distributed_vg_wear",
+      capAudit,
+      categoryScores,
+      defects,
+      analysis
+    );
   }
 
   if (
-    floor >= 6 &&
-    floor <= 7 &&
+    bandPillarsAtFive >= 2 &&
+    getWearFloor(bandScores) <= 4.5 &&
+    countWearDefects(defects) >= 2 &&
+    !isExVgBandProtected(categoryScores, defects, analysis)
+  ) {
+    return applyVintageWearCap(
+      overall,
+      3.5,
+      "vintage:distributed_vg_wear",
+      capAudit,
+      categoryScores,
+      defects,
+      analysis
+    );
+  }
+
+  if (
+    pillarsAtOrBelowFive >= 2 &&
+    countWearDefects(defects) >= 2 &&
+    isExVgBandProtected(categoryScores, defects, analysis)
+  ) {
+    return applyVintageWearCap(
+      overall,
+      5.5,
+      "vintage:distributed_vg_wear",
+      capAudit,
+      categoryScores,
+      defects,
+      analysis
+    );
+  }
+
+  if (
+    getWearFloor(bandScores) >= 6 &&
+    getWearFloor(bandScores) <= 7 &&
     Math.max(corners, edges, surface) - Math.min(corners, edges, surface) >= 1.5 &&
     countWearDefects(defects) >= 2 &&
-    countModeratePlusDefects(defects) === 0
+    countModeratePlusDefects(defects) === 0 &&
+    !shouldSkipOptimisticLightWearCap(categoryScores, defects, analysis)
   ) {
-    const capped = Math.min(overall, 3.5);
-    capAudit.push({ source: "vintage:optimistic_light_wear", cap: 3.5 });
-    return capped;
+    return applyVintageWearCap(
+      overall,
+      3.5,
+      "vintage:optimistic_light_wear",
+      capAudit,
+      categoryScores,
+      defects,
+      analysis
+    );
   }
 
   if (
@@ -383,11 +849,17 @@ export function applyVintageMultiPillarWearCap(
     floor >= 5 &&
     floor <= 7.5 &&
     analysis &&
-    hasTriadLightWearNotes(analysis)
+    shouldApplyTriadWearCap(analysis, categoryScores, defects)
   ) {
-    const capped = Math.min(overall, 3.5);
-    capAudit.push({ source: "vintage:triad_light_wear_notes", cap: 3.5 });
-    return capped;
+    return applyVintageWearCap(
+      overall,
+      3.5,
+      "vintage:triad_light_wear_notes",
+      capAudit,
+      categoryScores,
+      defects,
+      analysis
+    );
   }
 
   if (
@@ -428,7 +900,182 @@ export function applyVintageMultiPillarWearCap(
     return capped;
   }
 
+  overall = applyVintageExSlabBandRecovery(
+    overall,
+    categoryScores,
+    defects,
+    capAudit,
+    analysis
+  );
+
   return overall;
+}
+
+/**
+ * Lift vintage EX/VG presentations that calibration stacked below slab band.
+ */
+const POOR_BAND_VINTAGE_CAP_SOURCES = new Set([
+  "vintage:triad_light_wear_notes",
+  "vintage:poor_band_notes_cluster",
+  "vintage:multi_pillar_heavy_wear",
+  "vintage:multi_pillar_wear",
+]);
+
+export function applyVintageExSlabBandRecovery(
+  overall,
+  categoryScores,
+  defects,
+  capAudit,
+  analysis = null
+) {
+  if (!isExVgBandProtected(categoryScores, defects, analysis)) {
+    return overall;
+  }
+
+  if (
+    capAudit.some((entry) => POOR_BAND_VINTAGE_CAP_SOURCES.has(entry.source))
+  ) {
+    return overall;
+  }
+
+  const bandScores = analysis?.visionCategoryScores || categoryScores;
+  const wearFloor = getWearFloor(bandScores);
+  const { centering } = categoryScores;
+  let target = wearFloor;
+
+  if (wearFloor >= 6.5 && centering >= 7.5) {
+    target = 6;
+  } else if (wearFloor >= 6 && centering >= 7) {
+    target = 5.5;
+  } else if (wearFloor >= 5.5) {
+    target = 5;
+  }
+
+  if (overall >= target) {
+    return overall;
+  }
+
+  capAudit.push({ source: "vintage:ex_slab_band_recovery", floor: target });
+  return target;
+}
+
+/**
+ * Surface-weighted wear floor for vintage EX/VG (corners/edges no longer sole drivers).
+ */
+export function getOverallCategoryFloor(
+  categoryScores,
+  era,
+  defects,
+  analysis = null
+) {
+  const { corners, edges, surface } = categoryScores;
+  const minPillar = Math.min(corners, edges, surface);
+
+  if (era !== "vintage" || triggersPsa1Calibration(defects)) {
+    return minPillar;
+  }
+
+  if (!isExVgBandProtected(categoryScores, defects, analysis)) {
+    return minPillar;
+  }
+
+  const sorted = [corners, edges, surface].sort((a, b) => a - b);
+  const medianPillar = sorted[1];
+  const weighted = roundToHalf(
+    clampGrade(corners * 0.2 + edges * 0.25 + surface * 0.55)
+  );
+
+  return Math.max(minPillar, Math.min(medianPillar, weighted));
+}
+
+/**
+ * Prevent a single harsh corner/edge impact from dominating EX slab presentations.
+ */
+export function applyExCategoryImpactRelief(
+  categoryScores,
+  defects,
+  analysis,
+  capAudit
+) {
+  if (!analysis || !isExVgBandProtected(categoryScores, defects, analysis)) {
+    return categoryScores;
+  }
+
+  const bandScores = analysis.visionCategoryScores || categoryScores;
+  const adjusted = { ...categoryScores };
+  const sideStrength = Math.min(bandScores.corners, bandScores.edges);
+
+  if (adjusted.surface <= 4.5 && sideStrength >= 6) {
+    const lifted = roundToHalf(
+      clampGrade(Math.max(adjusted.surface, Math.min(6, sideStrength - 0.5)))
+    );
+    if (lifted > adjusted.surface) {
+      adjusted.surface = lifted;
+      capAudit.push({ source: "ex_band:surface_pillar_relief", floor: lifted });
+    }
+  }
+
+  if (adjusted.edges <= 4.5 && adjusted.corners >= 6 && adjusted.surface >= 5.5) {
+    const lifted = roundToHalf(clampGrade(Math.max(adjusted.edges, 5)));
+    if (lifted > adjusted.edges) {
+      adjusted.edges = lifted;
+      capAudit.push({ source: "ex_band:edge_pillar_relief", floor: lifted });
+    }
+  }
+
+  if (adjusted.corners <= 4.5 && adjusted.edges >= 6 && adjusted.surface >= 5.5) {
+    const lifted = roundToHalf(clampGrade(Math.max(adjusted.corners, 5)));
+    if (lifted > adjusted.corners) {
+      adjusted.corners = lifted;
+      capAudit.push({ source: "ex_band:corner_pillar_relief", floor: lifted });
+    }
+  }
+
+  return adjusted;
+}
+
+/**
+ * Cap uniform light-tag optimism on otherwise EX scans (Ryan-style inflation).
+ */
+export function applyExBandOptimismCeiling(
+  overall,
+  categoryScores,
+  defects,
+  capAudit,
+  analysis = null
+) {
+  if (analysis && isExBackStainOnlyPresentation(categoryScores, defects, analysis)) {
+    const bandScores = getWearBandScores(categoryScores, analysis);
+    const wearFloor = getWearFloor(bandScores);
+    const ceiling = Math.min(6, roundToHalf(clampGrade(wearFloor + 1)));
+    const capped = Math.min(overall, ceiling);
+    if (capped < overall) {
+      capAudit.push({ source: "ex_band:back_stain_only_ceiling", cap: ceiling });
+    }
+    return capped;
+  }
+
+  if (countModeratePlusDefects(defects) > 0 || defects.length === 0) {
+    return overall;
+  }
+
+  const wearFloor = getWearFloor(categoryScores);
+  if (wearFloor < 7.5) {
+    return overall;
+  }
+
+  const ryanStyleInflation =
+    defects.length === 1 && defects[0]?.tag === "corner_wear_light";
+
+  if (!ryanStyleInflation) {
+    return overall;
+  }
+
+  const capped = Math.min(overall, 5);
+  if (capped < overall) {
+    capAudit.push({ source: "ex_band:uniform_light_optimism_ceiling", cap: 5 });
+  }
+  return capped;
 }
 
 /**

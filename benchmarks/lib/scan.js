@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { BENCHMARKS_ROOT } from "./paths.js";
+import { isFlatImageSuite, scanFlatFileSuite } from "./scanFlat.js";
 
 const IMAGE_NAMES = ["front.jpg", "back.jpg", "front.jpeg", "back.jpeg", "front.png", "back.png"];
 
@@ -67,6 +68,12 @@ export function scanBenchmarkSuites(rootDir = BENCHMARKS_ROOT) {
     if (entry.name === "lib" || entry.name === "reports") continue;
 
     const suitePath = path.join(rootDir, entry.name);
+
+    if (isFlatImageSuite(suitePath)) {
+      suites.push(scanFlatFileSuite(suitePath, entry.name));
+      continue;
+    }
+
     const cardEntries = fs
       .readdirSync(suitePath, { withFileTypes: true })
       .filter((item) => item.isDirectory());
