@@ -2314,6 +2314,55 @@ test("Ryan-style both-location back writing relief reaches PSA 4 from cached vis
   );
 });
 
+test("T206 Rhodes cached vision keeps edge_wear_light and reaches PSA 5", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5, surface: 6, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "corner_wear_moderate",
+    primaryLimiterLabel: "Moderate corner wear observed",
+    bestAttribute: "Good centering with minor flaws present",
+    eyeAppealSummary:
+      "Despite moderate wear, the colors remain vibrant and the centering is appealing, contributing to a decent eye appeal.",
+    cardMeta: { estimatedYear: 1909, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Moderate wear is visible, showing rounding and softening.",
+      edges: "Visible fraying on the edges, indicating moderate wear.",
+      surface: "Some surface scratches and creases are present, affecting visual quality.",
+      centering: "Centering is good, contributing positively to the overall presentation.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(analysis.defects.some((defect) => defect.tag === "edge_wear_light"));
+  assert.equal(result.psaGrade, 5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "vintage:poor_band_notes_cluster")
+  );
+});
+
 test("uniform EX light-wear triad skip lifts Mantle 1968-style slab above PSA 3", () => {
   const raw = {
     scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
