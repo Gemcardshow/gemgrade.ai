@@ -8,9 +8,10 @@ Repeatable PSA slab comparison set for tuning GemGrade projections.
 benchmarks/
   manifest.json          # Generated card index (commit this)
   psa-1-3/               # Suite: poor-band PSA 1–3 cards
-    1967-mantle-psa1/
-      front.jpg
-      back.jpg
+  TEST 4 TO 6/           # Suite: PSA 4–6 (flat filename layout)
+  psa7-8/                # Suite: PSA 7–8 (near mint) — see suite README
+  psa9/                  # Suite: PSA 9 (mint)
+  psa10/                 # Suite: PSA 10 (gem mint)
   reports/               # Run output (gitignored)
   lib/                   # Scan + pattern helpers
   scan-manifest.js
@@ -18,6 +19,8 @@ benchmarks/
 ```
 
 Folder names must end with `-psa{N}` (e.g. `1967-mantle-psa1`). Each card folder needs `front.jpg` and `back.jpg`.
+
+For **PSA 7–10** suites (`psa7-8/`, `psa9/`, `psa10/`), see each suite's `README.md` and `manifest.template.json` for card metadata (`set`, `notes`, cert #). Optional per-card metadata lives in `card.meta.json`.
 
 ## Commands
 

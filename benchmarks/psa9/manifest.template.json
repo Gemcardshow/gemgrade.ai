@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "generatedAt": "TEMPLATE — run npm run benchmark:scan after adding cards",
+  "root": "benchmarks",
+  "suites": [
+    {
+      "id": "psa9",
+      "label": "PSA 9",
+      "cardCount": 1,
+      "cards": [
+        {
+          "id": "1989-upper-deck-griffey-psa9",
+          "slug": "1989-upper-deck-griffey",
+          "cardName": "1989 Upper Deck Ken Griffey Jr.",
+          "fileLabel": "1989 Upper Deck Ken Griffey Jr. PSA 9",
+          "year": 1989,
+          "set": "1989 Upper Deck",
+          "psaGrade": 9,
+          "suiteId": "psa9",
+          "relativeDir": "psa9/1989-upper-deck-griffey-psa9",
+          "images": {
+            "front": "psa9/1989-upper-deck-griffey-psa9/front.jpg",
+            "back": "psa9/1989-upper-deck-griffey-psa9/back.jpg"
+          },
+          "notes": "Replace with real slab scans. Document cert # and limiting factor in card.meta.json."
+        }
+      ]
+    }
+  ]
+}
