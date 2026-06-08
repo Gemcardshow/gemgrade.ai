@@ -20,7 +20,17 @@ benchmarks/
 
 Folder names must end with `-psa{N}` (e.g. `1967-mantle-psa1`). Each card folder needs `front.jpg` and `back.jpg`.
 
-For **PSA 7–10** suites (`psa7-8/`, `psa9/`, `psa10/`), see each suite's `README.md` and `manifest.template.json` for card metadata (`set`, `notes`, cert #). Optional per-card metadata lives in `card.meta.json`.
+For **PSA 4–10** flat suites (`TEST 4` … `TEST 10`), place folders under `benchmarks/` with paired filenames:
+
+```
+benchmarks/TEST 7/
+  1972 T STARGELL PSA 7 FRONT.jpg
+  1972 T STARGELL PSA 7 BACK.jpg
+```
+
+Suite folder name must match the grade band (`TEST 4`, not `TEST 4 TO 6`). Regenerate with `npm run benchmark:scan`.
+
+For **PSA 7–10** nested scaffolding (`psa7-8/`, `psa9/`, `psa10/`), see each suite's `README.md` and `manifest.template.json` for card metadata (`set`, `notes`, cert #). Optional per-card metadata lives in `card.meta.json`.
 
 ## Commands
 
@@ -55,3 +65,21 @@ Reports are written to `benchmarks/reports/latest.json` and `latest.md`.
 | Diff | GemGrade − PSA (positive = inflation) |
 
 Pattern flags (heuristic) highlight recurring calibration gaps: low-grade inflation, weak crease penalties, surface over-scoring, rounded-corner under-penalties, and centering inconsistencies.
+
+## Recovery gating baseline
+
+Primary grading path: **recovery gating** in `api/grading/analyze.js`.
+
+| Artifact | Path |
+| --- | --- |
+| Git tag | `recovery-gating-baseline-v1` |
+| Analyze snapshot | `benchmarks/snapshots/analyze-recovery-baseline.js` |
+| Benchmark metrics | `benchmarks/baselines/recovery-gating-v1.json` |
+
+Regenerate metrics (cache + `live-runs/vision-snapshots/` required locally):
+
+```bash
+npm run benchmark:recovery-baseline
+```
+
+See `benchmarks/baselines/README.md` for comparison workflow. Do not change recovery logic until PSA 9/10 validation is complete.

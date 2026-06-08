@@ -6,6 +6,7 @@ import {
   applyCompoundHarshness,
   applyPsa1Calibration,
   triggersPsa1Calibration,
+  qualifiesForNmBandVintageCapSkip,
 } from "../grading/psa-calibration.js";
 import { resolveEra, eraFromYear, normalizeEraRequest } from "../grading/era.js";
 import { snapToPsaGrade, formatLikelyRange } from "../grading/types.js";
@@ -2412,5 +2413,409 @@ test("uniform EX light-wear triad skip lifts Mantle 1968-style slab above PSA 3"
   assert.ok(result.psaGrade >= 5);
   assert.ok(
     !result.capAudit.some((entry) => entry.source === "vintage:triad_light_wear_notes")
+  );
+});
+
+test("NM-band cap skip avoids poor_band and triad caps on PSA 9-style light wear", () => {
+  const categoryScores = { corners: 7.5, edges: 7, surface: 7.5, centering: 8 };
+  const defects = [
+    { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+    { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "high" },
+    { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "high" },
+    { tag: "staining_light", severity: "minor", location: "back", confidence: "medium" },
+  ];
+  const analysis = {
+    visionCategoryScores: categoryScores,
+    writingReliefBandScores: categoryScores,
+    categoryNotes: {
+      corners: "Sharp corners with minor touch wear.",
+      edges: "Light edge wear only.",
+      surface: "Clean surface with minor imperfections.",
+      centering: "Well centered.",
+    },
+    eyeAppealSummary: "Well preserved NM presentation.",
+    bestAttribute: "Strong centering",
+  };
+
+  assert.ok(qualifiesForNmBandVintageCapSkip(categoryScores, defects, analysis));
+
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores,
+    defects: [
+      ...defects,
+      { tag: "surface_wear", severity: "moderate", location: "front", confidence: "medium" },
+    ],
+    primaryLimiterTag: "surface_wear",
+    primaryLimiterLabel: "Surface wear",
+    bestAttribute: "Strong centering with sharp corners",
+    eyeAppealSummary: "Well preserved with vibrant color and minimal wear.",
+    cardMeta: { estimatedYear: 1968, isReflective: false, isDarkBorder: false },
+    categoryNotes: analysis.categoryNotes,
+  };
+
+  const normalized = normalizeAnalysis(raw, "vintage");
+  assert.ok(!normalized.defects.some((defect) => defect.tag === "surface_wear"));
+  assert.ok(
+    normalized.defects.some((defect) => defect.tag === "surface_scratch_light")
+  );
+
+  const result = computeGrade(
+    { ...normalized, visionCategoryScores: categoryScores, writingReliefBandScores: categoryScores },
+    "vintage"
+  );
+  assert.ok(result.psaGrade >= 7);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "vintage:poor_band_notes_cluster")
+  );
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "vintage:triad_light_wear_notes")
+  );
+});
+
+test("NM poor-band skip does not apply when moderate structural defects remain", () => {
+  const categoryScores = { corners: 7, edges: 7, surface: 7, centering: 8 };
+  const defects = [
+    { tag: "corner_wear_moderate", severity: "moderate", location: "front", confidence: "high" },
+  ];
+  const analysis = { writingReliefBandScores: categoryScores };
+  assert.ok(!qualifiesForNmBandVintageCapSkip(categoryScores, defects, analysis));
+});
+
+test("NM gem band lifts Henderson-style back-stain PSA 10 presentation", () => {
+  const categoryScores = { corners: 8, edges: 8, surface: 8, centering: 9 };
+  const defects = [
+    { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+    { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "high" },
+    { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "high" },
+    { tag: "staining_light", severity: "minor", location: "back", confidence: "high" },
+  ];
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores,
+    defects,
+    primaryLimiterTag: "staining_light",
+    primaryLimiterLabel: "Light staining or discoloration",
+    bestAttribute: "Strong centering and color",
+    eyeAppealSummary: "Well preserved with vibrant color and minimal wear.",
+    cardMeta: { estimatedYear: 1981, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners with minor touch wear.",
+      edges: "Light edge wear only.",
+      surface: "Clean surface with minor imperfections.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(
+    {
+      ...analysis,
+      visionCategoryScores: categoryScores,
+      writingReliefBandScores: categoryScores,
+    },
+    "vintage"
+  );
+
+  assert.ok(result.psaGrade >= 8);
+  assert.ok(
+    result.capAudit.some((entry) => entry.source.startsWith("nm_band:"))
+  );
+});
+
+test("high-grade vision guard demotes false back_damage_severe on SO LEAD-style slab", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5, surface: 5, centering: 7 },
+    defects: [
+      { tag: "corner_wear_moderate", severity: "moderate", location: "front", confidence: "high" },
+      { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "surface_scratch_moderate", severity: "moderate", location: "front", confidence: "high" },
+      { tag: "back_wear", severity: "moderate", location: "back", confidence: "high" },
+      { tag: "back_damage_severe", severity: "severe", location: "back", confidence: "medium" },
+    ],
+    primaryLimiterTag: "back_damage_severe",
+    primaryLimiterLabel: "Severe back damage",
+    bestAttribute: "Good centering with slight wear on edges.",
+    eyeAppealSummary: "Overall eye appeal is fair due to the moderate corner and surface wear.",
+    cardMeta: { estimatedYear: 1978, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Moderate wear with noticeable softening.",
+      edges: "Light wear on edges, with minor chipping.",
+      surface: "Moderate scratches present, affecting visual quality.",
+      centering: "Well centered for the card's age.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "back_damage_severe"));
+  assert.ok(
+    analysis.defects.some(
+      (defect) => defect.tag === "staining_light" && defect.location === "back"
+    )
+  );
+});
+
+test("high-grade vision guard demotes false writing_mark on Robinson-style slab", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 8.5, edges: 8, surface: 6, centering: 9 },
+    defects: [
+      { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "writing_mark", severity: "moderate", location: "back", confidence: "medium" },
+    ],
+    primaryLimiterTag: "writing_mark",
+    primaryLimiterLabel: "Writing, mark, or ink",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Front appeal is strong with minor surface issues.",
+    cardMeta: { estimatedYear: 1968, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Corners appear mostly sharp with minor wear.",
+      edges: "Edges show minimal wear; light chipping present.",
+      surface: "Surface has light scratches that impact visual appeal.",
+      centering: "Centering is excellent, slightly off but acceptable.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "writing_mark"));
+});
+
+test("high-grade vision guard demotes scratch_moderate with back-only stain companion", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 6, surface: 6, centering: 7 },
+    defects: [
+      { tag: "corner_wear_moderate", severity: "moderate", location: "front", confidence: "medium" },
+      { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "medium" },
+      { tag: "surface_scratch_moderate", severity: "moderate", location: "front", confidence: "medium" },
+      { tag: "staining_light", severity: "minor", location: "back", confidence: "medium" },
+    ],
+    primaryLimiterTag: "surface_scratch_moderate",
+    primaryLimiterLabel: "Moderate surface scratching",
+    bestAttribute: "fair eye appeal with moderate visible defects",
+    eyeAppealSummary: "Good centering with moderate corner wear and surface scratches.",
+    cardMeta: { estimatedYear: 1970, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Moderate wear visible with softening.",
+      edges: "Light wear visible along the edges.",
+      surface: "Moderate scratches and a few surface imperfections.",
+      centering: "Well-centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "surface_scratch_moderate"));
+  assert.ok(analysis.defects.some((defect) => defect.tag === "surface_scratch_light"));
+});
+
+test("NM/GEM guard lifts Robinson-style PSA 10 light-wear pillar collapse above 5.5", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5.5, edges: 5.5, surface: 5.5, centering: 9 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "medium" },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Well preserved with sharp corners and minimal wear.",
+    cardMeta: { estimatedYear: 1968, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Corners appear sharp with minor touch wear.",
+      edges: "Light edge wear only.",
+      surface: "Light scratches visible under close inspection.",
+      centering: "Excellent centering.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(
+    { ...analysis, visionCategoryScores: raw.categoryScores },
+    "vintage"
+  );
+
+  assert.ok(analysis.categoryScores.corners >= 8);
+  assert.ok(analysis.categoryScores.surface >= 8);
+  assert.ok(result.psaGrade >= 7);
+});
+
+test("NM/GEM guard removes cosmetic back staining_light on PSA 10 presentation", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5.5, edges: 5.5, surface: 5.5, centering: 9 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "staining_light", severity: "minor", location: "back", confidence: "medium" },
+    ],
+    primaryLimiterTag: "staining_light",
+    primaryLimiterLabel: "Light staining or discoloration",
+    bestAttribute: "Strong centering and color",
+    eyeAppealSummary: "Well preserved with vibrant color and minimal wear.",
+    cardMeta: { estimatedYear: 1968, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners with minor touch wear.",
+      edges: "Light edge wear only.",
+      surface: "Clean surface; light back toning only.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "staining_light"));
+  assert.ok(Math.min(analysis.categoryScores.corners, analysis.categoryScores.surface) >= 8);
+});
+
+test("NM/GEM guard does not lift PSA 4-style poor-band presentation", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5, surface: 4.5, centering: 6.5 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "medium" },
+      { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "medium" },
+      { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "medium" },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Fair eye appeal",
+    eyeAppealSummary: "Heavy wear visible across the card.",
+    cardMeta: { estimatedYear: 1962, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Rounded corners with moderate wear.",
+      edges: "Heavy edge wear and chipping.",
+      surface: "Heavy surface wear throughout.",
+      centering: "Off center.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(analysis.categoryScores.corners <= 6);
+  assert.ok(analysis.categoryScores.surface <= 5.5);
+});
+
+test("NM/GEM guard does not lift EX-band PSA 7 presentation (Mantle-style)", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7.5, edges: 7, surface: 7, centering: 8 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "high" },
+    ],
+    primaryLimiterTag: "corner_wear_light",
+    primaryLimiterLabel: "Light corner wear",
+    bestAttribute: "Good color",
+    eyeAppealSummary: "Well preserved with good color.",
+    cardMeta: { estimatedYear: 1962, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Minor corner touch.",
+      edges: "Light edge wear.",
+      surface: "Clean with minor scratches.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(analysis.categoryScores.corners <= 7.5);
+  assert.ok(analysis.categoryScores.edges <= 7.5);
+  assert.ok(analysis.categoryScores.surface <= 7.5);
+  assert.ok(analysis.categoryScores.corners < 8);
+  assert.ok(analysis.categoryScores.surface < 8);
+});
+
+test("NM/GEM recovery does not lift PSA 1-3 low-grade vintage presentation", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 4, edges: 4, surface: 3.5, centering: 7 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "medium" },
+      { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "medium" },
+      { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "medium" },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Fair eye appeal",
+    eyeAppealSummary: "Poor condition with heavy wear visible.",
+    cardMeta: { estimatedYear: 1952, isReflective: false, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Rounded corners with heavy wear.",
+      edges: "Heavy edge wear.",
+      surface: "Heavy surface wear throughout.",
+      centering: "Off center.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(analysis.categoryScores.corners <= 5.5);
+  assert.ok(analysis.categoryScores.surface <= 5.5);
+});
+
+test("NM/GEM recovery allows pillar lift on gem-mint collapsed presentation", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5.5, edges: 5.5, surface: 5.5, centering: 9 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "staining_light", severity: "minor", location: "front", confidence: "high" },
+    ],
+    primaryLimiterTag: "staining_light",
+    primaryLimiterLabel: "Light staining",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Gem mint presentation with sharp corners.",
+    cardMeta: { estimatedYear: 1975, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Light edge wear.",
+      surface: "Light front staining visible.",
+      centering: "Excellent centering.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(Math.min(analysis.categoryScores.corners, analysis.categoryScores.surface) >= 8);
+});
+
+test("gem-mint slab profile lifts Robinson-style PSA 10 above mint PSA 9 path", () => {
+  const robinson = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5.5, edges: 5.5, surface: 5.5, centering: 9 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "medium" },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    eyeAppealSummary: "Well preserved with sharp corners and minimal wear.",
+    categoryNotes: {
+      corners: "Corners appear sharp with minor touch wear.",
+      edges: "Light edge wear only.",
+      surface: "Clean surface; light scratches under inspection.",
+      centering: "Excellent centering.",
+    },
+    cardMeta: { estimatedYear: 1968 },
+  };
+  const bench = {
+    ...robinson,
+    categoryScores: { corners: 7.5, edges: 7.5, surface: 7, centering: 8 },
+    categoryNotes: {
+      corners: "Slight softening observed but otherwise fair corners.",
+      edges: "Good edges with minor wear noted.",
+      surface: "Minor scratches present, primarily on the lower section.",
+      centering: "Well-centered presentation indicative of higher grade potential.",
+    },
+    eyeAppealSummary: "The card maintains a bright and clear image with only minor visible flaws.",
+  };
+
+  const gemAnalysis = normalizeAnalysis(robinson, "vintage");
+  const mintAnalysis = normalizeAnalysis(bench, "vintage");
+  assert.ok(
+    Math.min(
+      gemAnalysis.categoryScores.corners,
+      gemAnalysis.categoryScores.surface
+    ) >= 8.5
+  );
+  assert.ok(
+    Math.min(mintAnalysis.categoryScores.corners, mintAnalysis.categoryScores.surface) <= 8
   );
 });

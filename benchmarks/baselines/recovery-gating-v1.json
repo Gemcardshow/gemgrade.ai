@@ -1,0 +1,622 @@
+{
+  "tag": "recovery-gating-baseline-v1",
+  "label": "Recovery gating primary path (gem-mint vs mint slab profiles)",
+  "generatedAt": "2026-06-08T01:59:47.031Z",
+  "analyzeSnapshot": "benchmarks/snapshots/analyze-recovery-baseline.js",
+  "mode": {
+    "psa46": "cache-replay",
+    "psa710": "live-vision-snapshots"
+  },
+  "summary": {
+    "psa46": {
+      "n": 15,
+      "meanError": 0.4666666666666667,
+      "withinOne": 10,
+      "exact": 6,
+      "inflated": 6
+    },
+    "psa710": {
+      "n": 78,
+      "meanError": -2.730769230769231,
+      "withinOne": 22,
+      "exact": 7,
+      "inflated": 2
+    }
+  },
+  "byBand": {
+    "psa710": {
+      "10": {
+        "n": 26,
+        "meanError": -3.1923076923076925,
+        "withinOne": 6,
+        "exact": 0,
+        "inflated": 0
+      },
+      "7+": {
+        "n": 78,
+        "meanError": -2.730769230769231,
+        "withinOne": 22,
+        "exact": 7,
+        "inflated": 2
+      },
+      "8+": {
+        "n": 55,
+        "meanError": -3.109090909090909,
+        "withinOne": 16,
+        "exact": 4,
+        "inflated": 0
+      },
+      "9+": {
+        "n": 42,
+        "meanError": -3.380952380952381,
+        "withinOne": 10,
+        "exact": 1,
+        "inflated": 0
+      }
+    }
+  },
+  "rows": {
+    "psa46": [
+      {
+        "id": "1962-t-aaron-psa4",
+        "psaGrade": 4,
+        "gemGrade": 5,
+        "variance": 0
+      },
+      {
+        "id": "1965-t-howe-psa4",
+        "psaGrade": 4,
+        "gemGrade": 3,
+        "variance": 0
+      },
+      {
+        "id": "1975-t-ryan-psa4",
+        "psaGrade": 4,
+        "gemGrade": 2,
+        "variance": 0
+      },
+      {
+        "id": "1980-t-mccovey-psa4",
+        "psaGrade": 4,
+        "gemGrade": 1,
+        "variance": -1
+      },
+      {
+        "id": "1989-f-bird-psa4",
+        "psaGrade": 4,
+        "gemGrade": 7,
+        "variance": 3
+      },
+      {
+        "id": "1953-t-martin-psa5",
+        "psaGrade": 5,
+        "gemGrade": 2,
+        "variance": 0
+      },
+      {
+        "id": "1960-t-hodges-psa5",
+        "psaGrade": 5,
+        "gemGrade": 5,
+        "variance": 2
+      },
+      {
+        "id": "1970-t-sutton-psa5",
+        "psaGrade": 5,
+        "gemGrade": 5,
+        "variance": -1
+      },
+      {
+        "id": "1980-t-henderson-psa5",
+        "psaGrade": 5,
+        "gemGrade": 5,
+        "variance": 2
+      },
+      {
+        "id": "t206-rhodes-psa5",
+        "psaGrade": 5,
+        "gemGrade": 5,
+        "variance": 0
+      },
+      {
+        "id": "1951-b-williams-psa6",
+        "psaGrade": 6,
+        "gemGrade": 6,
+        "variance": 1
+      },
+      {
+        "id": "1951-p-smith-psa6",
+        "psaGrade": 6,
+        "gemGrade": 6,
+        "variance": 1
+      },
+      {
+        "id": "1968-t-mantle-psa6",
+        "psaGrade": 6,
+        "gemGrade": 5,
+        "variance": 2
+      },
+      {
+        "id": "1971-t-price-psa6",
+        "psaGrade": 6,
+        "gemGrade": 3,
+        "variance": 0
+      },
+      {
+        "id": "t206-killan-psa6",
+        "psaGrade": 6,
+        "gemGrade": 5,
+        "variance": -2
+      }
+    ],
+    "psa710": [
+      {
+        "id": "1950-c-anson-psa10",
+        "psaGrade": 10,
+        "gemGrade": 7,
+        "variance": -3
+      },
+      {
+        "id": "1968-t-robinson-psa10",
+        "psaGrade": 10,
+        "gemGrade": 7,
+        "variance": -3
+      },
+      {
+        "id": "1968-t-torborg-psa10",
+        "psaGrade": 10,
+        "gemGrade": 7,
+        "variance": -3
+      },
+      {
+        "id": "1970-t-snell-psa10",
+        "psaGrade": 10,
+        "gemGrade": 9,
+        "variance": -1
+      },
+      {
+        "id": "1971-t-taylor-psa10",
+        "psaGrade": 10,
+        "gemGrade": 9,
+        "variance": -1
+      },
+      {
+        "id": "1974-t-phillies-psa10",
+        "psaGrade": 10,
+        "gemGrade": 7,
+        "variance": -3
+      },
+      {
+        "id": "1975-t-holden-psa10",
+        "psaGrade": 10,
+        "gemGrade": 8,
+        "variance": -2
+      },
+      {
+        "id": "1975-t-hr-lead-psa10",
+        "psaGrade": 10,
+        "gemGrade": 5,
+        "variance": -5
+      },
+      {
+        "id": "1977-t-red-sox-psa10",
+        "psaGrade": 10,
+        "gemGrade": 3,
+        "variance": -7
+      },
+      {
+        "id": "1978-t-bench-psa10",
+        "psaGrade": 10,
+        "gemGrade": 8,
+        "variance": -2
+      },
+      {
+        "id": "1978-t-so-lead-psa10",
+        "psaGrade": 10,
+        "gemGrade": 5,
+        "variance": -5
+      },
+      {
+        "id": "1979-t-griffen-psa10",
+        "psaGrade": 10,
+        "gemGrade": 5,
+        "variance": -5
+      },
+      {
+        "id": "1980-t-schmidt-psa10",
+        "psaGrade": 10,
+        "gemGrade": 5,
+        "variance": -5
+      },
+      {
+        "id": "1981-f-henderson-psa10",
+        "psaGrade": 10,
+        "gemGrade": 9,
+        "variance": -1
+      },
+      {
+        "id": "1981-t-harris-psa10",
+        "psaGrade": 10,
+        "gemGrade": 5,
+        "variance": -5
+      },
+      {
+        "id": "1981-t-schmidt-psa10",
+        "psaGrade": 10,
+        "gemGrade": 7,
+        "variance": -3
+      },
+      {
+        "id": "1982-t-smith-psa10",
+        "psaGrade": 10,
+        "gemGrade": 3,
+        "variance": -7
+      },
+      {
+        "id": "1983-t-sandberg-psa10",
+        "psaGrade": 10,
+        "gemGrade": 5,
+        "variance": -5
+      },
+      {
+        "id": "1984-t-mattingly-psa10",
+        "psaGrade": 10,
+        "gemGrade": 9,
+        "variance": -1
+      },
+      {
+        "id": "1985-d-clemens-psa10",
+        "psaGrade": 10,
+        "gemGrade": 9,
+        "variance": -1
+      },
+      {
+        "id": "1986-t-gooden-psa10",
+        "psaGrade": 10,
+        "gemGrade": 5,
+        "variance": -5
+      },
+      {
+        "id": "1987-f-guillen-psa10",
+        "psaGrade": 10,
+        "gemGrade": 8,
+        "variance": -2
+      },
+      {
+        "id": "1987-f-jordan-psa10",
+        "psaGrade": 10,
+        "gemGrade": 7,
+        "variance": -3
+      },
+      {
+        "id": "1988-f-jordan-psa10",
+        "psaGrade": 10,
+        "gemGrade": 8,
+        "variance": -2
+      },
+      {
+        "id": "1989-f-ripken-psa10",
+        "psaGrade": 10,
+        "gemGrade": 9,
+        "variance": -1
+      },
+      {
+        "id": "1989-s-sanders-psa10",
+        "psaGrade": 10,
+        "gemGrade": 8,
+        "variance": -2
+      },
+      {
+        "id": "1933-d-dykes-psa7",
+        "psaGrade": 7,
+        "gemGrade": 3,
+        "variance": -4
+      },
+      {
+        "id": "1950-c-cochrane-psa7",
+        "psaGrade": 7,
+        "gemGrade": 5,
+        "variance": -2
+      },
+      {
+        "id": "1952-t-meyer-psa7",
+        "psaGrade": 7,
+        "gemGrade": 5,
+        "variance": -2
+      },
+      {
+        "id": "1953-t-groth-psa7",
+        "psaGrade": 7,
+        "gemGrade": 4,
+        "variance": -3
+      },
+      {
+        "id": "1956-t-moon-psa7",
+        "psaGrade": 7,
+        "gemGrade": 2,
+        "variance": -5
+      },
+      {
+        "id": "1958-t-turley-psa7",
+        "psaGrade": 7,
+        "gemGrade": 6,
+        "variance": -1
+      },
+      {
+        "id": "1960-t-starr-psa7",
+        "psaGrade": 7,
+        "gemGrade": 9,
+        "variance": 2
+      },
+      {
+        "id": "1962-t-mantle-psa7",
+        "psaGrade": 7,
+        "gemGrade": 5,
+        "variance": -2
+      },
+      {
+        "id": "1963-t-rose-psa7",
+        "psaGrade": 7,
+        "gemGrade": 7,
+        "variance": 0
+      },
+      {
+        "id": "1964-t-beatles-psa7",
+        "psaGrade": 7,
+        "gemGrade": 6,
+        "variance": -1
+      },
+      {
+        "id": "1967-t-carew-psa7",
+        "psaGrade": 7,
+        "gemGrade": 2,
+        "variance": -5
+      },
+      {
+        "id": "1971-t-cash-psa7",
+        "psaGrade": 7,
+        "gemGrade": 3,
+        "variance": -4
+      },
+      {
+        "id": "1972-t-stargell-psa7",
+        "psaGrade": 7,
+        "gemGrade": 5,
+        "variance": -2
+      },
+      {
+        "id": "1974-t-parker-psa7",
+        "psaGrade": 7,
+        "gemGrade": 5,
+        "variance": -2
+      },
+      {
+        "id": "1977-t-dawson-psa7",
+        "psaGrade": 7,
+        "gemGrade": 5,
+        "variance": -2
+      },
+      {
+        "id": "1978-b-munson-psa7",
+        "psaGrade": 7,
+        "gemGrade": 7,
+        "variance": 0
+      },
+      {
+        "id": "1978-t-morris-psa7",
+        "psaGrade": 7,
+        "gemGrade": 5,
+        "variance": -2
+      },
+      {
+        "id": "1981-t-henderson-psa7",
+        "psaGrade": 7,
+        "gemGrade": 5,
+        "variance": -2
+      },
+      {
+        "id": "1982-t-ripken-psa7",
+        "psaGrade": 7,
+        "gemGrade": 5,
+        "variance": -2
+      },
+      {
+        "id": "1983-t-boggs-psa7",
+        "psaGrade": 7,
+        "gemGrade": 7,
+        "variance": 0
+      },
+      {
+        "id": "1984-t-mattingly-psa7",
+        "psaGrade": 7,
+        "gemGrade": 8,
+        "variance": 1
+      },
+      {
+        "id": "1985-t-mcgwire-psa7",
+        "psaGrade": 7,
+        "gemGrade": 5,
+        "variance": -2
+      },
+      {
+        "id": "1987-t-canseco-psa7",
+        "psaGrade": 7,
+        "gemGrade": 5,
+        "variance": -2
+      },
+      {
+        "id": "1933-w-brydge-psa8",
+        "psaGrade": 8,
+        "gemGrade": 3,
+        "variance": -5
+      },
+      {
+        "id": "1953-t-kennedy-psa8",
+        "psaGrade": 8,
+        "gemGrade": 6,
+        "variance": -2
+      },
+      {
+        "id": "1956-t-clemente-psa8",
+        "psaGrade": 8,
+        "gemGrade": 7,
+        "variance": -1
+      },
+      {
+        "id": "1957-t-howton-psa8",
+        "psaGrade": 8,
+        "gemGrade": 5,
+        "variance": -3
+      },
+      {
+        "id": "1960-t-spahn-psa8",
+        "psaGrade": 8,
+        "gemGrade": 5,
+        "variance": -3
+      },
+      {
+        "id": "1966-t-kennedy-psa8",
+        "psaGrade": 8,
+        "gemGrade": 7,
+        "variance": -1
+      },
+      {
+        "id": "1966-t-superman-psa8",
+        "psaGrade": 8,
+        "gemGrade": 3,
+        "variance": -5
+      },
+      {
+        "id": "1970-t-wert-psa8",
+        "psaGrade": 8,
+        "gemGrade": 8,
+        "variance": 0
+      },
+      {
+        "id": "1971-t-neibauer-psa8",
+        "psaGrade": 8,
+        "gemGrade": 7,
+        "variance": -1
+      },
+      {
+        "id": "1972-t-winfield-psa8",
+        "psaGrade": 8,
+        "gemGrade": 3,
+        "variance": -5
+      },
+      {
+        "id": "1975-t-luzinski-psa8",
+        "psaGrade": 8,
+        "gemGrade": 8,
+        "variance": 0
+      },
+      {
+        "id": "1975-t-wright-psa8",
+        "psaGrade": 8,
+        "gemGrade": 8,
+        "variance": 0
+      },
+      {
+        "id": "t206-young-psa8",
+        "psaGrade": 8,
+        "gemGrade": 5,
+        "variance": -3
+      },
+      {
+        "id": "1950-c-cobb-psa9",
+        "psaGrade": 9,
+        "gemGrade": 5,
+        "variance": -4
+      },
+      {
+        "id": "1959-t-marshall-psa9",
+        "psaGrade": 9,
+        "gemGrade": 3,
+        "variance": -6
+      },
+      {
+        "id": "1967-t-hunter-psa9",
+        "psaGrade": 9,
+        "gemGrade": 5,
+        "variance": -4
+      },
+      {
+        "id": "1968-t-bench-psa9",
+        "psaGrade": 9,
+        "gemGrade": 9,
+        "variance": 0
+      },
+      {
+        "id": "1968-t-drysdale-psa9",
+        "psaGrade": 9,
+        "gemGrade": 5,
+        "variance": -4
+      },
+      {
+        "id": "1969-t-rose-psa9",
+        "psaGrade": 9,
+        "gemGrade": 5,
+        "variance": -4
+      },
+      {
+        "id": "1971-t-expos-psa9",
+        "psaGrade": 9,
+        "gemGrade": 5,
+        "variance": -4
+      },
+      {
+        "id": "1974-t-bird-psa9",
+        "psaGrade": 9,
+        "gemGrade": 8,
+        "variance": -1
+      },
+      {
+        "id": "1976-t-yount-psa9",
+        "psaGrade": 9,
+        "gemGrade": 3,
+        "variance": -6
+      },
+      {
+        "id": "1978-t-eckersley-psa9",
+        "psaGrade": 9,
+        "gemGrade": 5,
+        "variance": -4
+      },
+      {
+        "id": "1981-t-gibson-psa9",
+        "psaGrade": 9,
+        "gemGrade": 5,
+        "variance": -4
+      },
+      {
+        "id": "1981-t-tyler-psa9",
+        "psaGrade": 9,
+        "gemGrade": 3,
+        "variance": -6
+      },
+      {
+        "id": "1983-t-seaver-psa9",
+        "psaGrade": 9,
+        "gemGrade": 3,
+        "variance": -6
+      },
+      {
+        "id": "1984-f-clemens-psa9",
+        "psaGrade": 9,
+        "gemGrade": 5,
+        "variance": -4
+      },
+      {
+        "id": "1986-f-cooper-psa9",
+        "psaGrade": 9,
+        "gemGrade": 8,
+        "variance": -1
+      },
+      {
+        "id": "1987-t-larkin-psa9",
+        "psaGrade": 9,
+        "gemGrade": 8,
+        "variance": -1
+      }
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-import { GRADING_PHILOSOPHY } from "./philosophy.js";
+import { GRADING_PHILOSOPHY } from "../../api/grading/philosophy.js";
 import {
   getDefectDefinition,
   getDefectLabel,
@@ -6,15 +6,15 @@ import {
   normalizeDefectObservation,
   resolveEffectiveDefectTag,
   escalateLightWearObservation,
-} from "./defects.js";
+} from "../../api/grading/defects.js";
 import {
   ANALYSIS_JSON_SCHEMA,
   buildAnalysisInstruction,
   ERA_JSON_SCHEMA,
-} from "./prompts/core.js";
-import { MODERN_RUBRIC } from "./prompts/modern.js";
-import { VINTAGE_RUBRIC } from "./prompts/vintage.js";
-import { clampGrade, roundToHalf } from "./types.js";
+} from "../../api/grading/prompts/core.js";
+import { MODERN_RUBRIC } from "../../api/grading/prompts/modern.js";
+import { VINTAGE_RUBRIC } from "../../api/grading/prompts/vintage.js";
+import { clampGrade, roundToHalf } from "../../api/grading/types.js";
 
 function parseJsonResponse(outputText) {
   try {
@@ -1305,13 +1305,6 @@ function hasNmGemPresentationAppeal(raw) {
   );
 }
 
-function hasGemMintPresentationAppeal(raw) {
-  const appeal = collectAppealText(raw).toLowerCase();
-  return /\b(gem mint|gem.?mint|pristine|virtually flawless|pack fresh|flawless|razor sharp|museum quality|exceptionally sharp|nm-mt|nm\/mt)\b/.test(
-    appeal
-  );
-}
-
 function hasNmPresentationBlockers(raw) {
   const defects = raw.defects || [];
   if (
@@ -1613,151 +1606,9 @@ function noteIndicatesSharpCornerPresentation(raw) {
   const cornersNote = String(raw.categoryNotes?.corners || "").toLowerCase();
   const appeal = collectAppealText(raw).toLowerCase();
   return (
-    /\b(sharp|primarily sharp|intact|clean corners|strong corners|minimal corner|nice shape|generally sharp)\b/.test(
+    /\b(sharp|primarily sharp|intact|clean corners|strong corners|minimal corner)\b/.test(
       `${cornersNote} ${appeal}`
     ) && !noteIndicatesModerateCornerEvidence(cornersNote)
-  );
-}
-
-function noteIndicatesEdgeMicroChipping(raw) {
-  const edgesNote = String(raw.categoryNotes?.edges || "").toLowerCase();
-  if (!edgesNote) {
-    return false;
-  }
-  return (
-    /\b(chipping|chipped|micro.?chip|notched|rough edge|edge break)\b/.test(edgesNote) &&
-    !/\b(no|not|without|minimal|light)\s+(chipping|chip|fray)/.test(edgesNote)
-  );
-}
-
-function noteIndicatesCornerSoftening(raw) {
-  const cornersNote = String(raw.categoryNotes?.corners || "").toLowerCase();
-  if (!cornersNote) {
-    return false;
-  }
-  if (noteIndicatesSharpCornerPresentation(raw)) {
-    return false;
-  }
-  return /\b(softening|rounded|rounding|not sharp|fair corners|moderate wear)\b/.test(
-    cornersNote
-  );
-}
-
-function noteIndicatesSurfaceLimitingWear(raw) {
-  const surfaceNote = String(raw.categoryNotes?.surface || "").toLowerCase();
-  if (!surfaceNote) {
-    return false;
-  }
-  if (/\b(minor|light|slight|small|few|little)\b/.test(surfaceNote)) {
-    return false;
-  }
-  return /\b(moderate|heavy|severe|extensive|deep|multiple|visible wear|limits grade)\b/.test(
-    surfaceNote
-  );
-}
-
-function noteIndicatesCenteringPrecision(categoryScores, raw) {
-  if (categoryScores.centering >= 8.5) {
-    return true;
-  }
-  if (categoryScores.centering < 8) {
-    return false;
-  }
-  const centeringNote = String(raw.categoryNotes?.centering || "").toLowerCase();
-  const appeal = collectAppealText(raw).toLowerCase();
-  return /\b(strong centering|excellent centering|well.?centered|well centered|good centering)\b/.test(
-    `${centeringNote} ${appeal}`
-  );
-}
-
-function noteIndicatesCleanSurfaceProfile(raw) {
-  const surfaceNote = String(raw.categoryNotes?.surface || "").toLowerCase();
-  const appeal = collectAppealText(raw).toLowerCase();
-  if (noteIndicatesSurfaceLimitingWear(raw)) {
-    return false;
-  }
-  return (
-    /\b(clean surface|minimal wear|presents well|retains gloss|good color|bright|clear image|minor scratch)\b/.test(
-      `${surfaceNote} ${appeal}`
-    ) || (/\b(minor|light|slight)\b/.test(surfaceNote) && !/\bmoderate|heavy|severe\b/.test(surfaceNote))
-  );
-}
-
-function isCosmeticPrintDefect(defect, raw) {
-  if (!["print_line", "registration_issue", "gloss_loss"].includes(defect.tag)) {
-    return false;
-  }
-  const surfaceNote = String(raw.categoryNotes?.surface || "").toLowerCase();
-  return (
-    !/\b(severe|heavy|extensive|misregister|off.?center print)\b/.test(surfaceNote) &&
-    (hasVintageStockOrPrintTextureSignals(raw) ||
-      hasPrintLineOrArtifactSignals(raw, [defect]) ||
-      defect.tag === "gloss_loss")
-  );
-}
-
-function qualifiesForGemMintSlabProfile(defects, categoryScores, raw) {
-  if (!defectsAreHighGradeLightWearOnly(defects)) {
-    return false;
-  }
-  if (hasHighGradeMajorDefect(defects)) {
-    return false;
-  }
-  if (!noteIndicatesCenteringPrecision(categoryScores, raw)) {
-    return false;
-  }
-  if (noteIndicatesCornerSoftening(raw)) {
-    return false;
-  }
-  if (noteIndicatesEdgeMicroChipping(raw)) {
-    return false;
-  }
-  if (!noteIndicatesSharpCornerPresentation(raw)) {
-    return false;
-  }
-  if (!noteIndicatesCleanSurfaceProfile(raw)) {
-    return false;
-  }
-  if (countNotesPillarsWithPoorWear(raw) >= 1) {
-    return false;
-  }
-  const appeal = collectAppealText(raw).toLowerCase();
-  if (
-    /\b(heavy wear|severe wear|poor condition|fair eye appeal|significant wear)\b/.test(
-      appeal
-    )
-  ) {
-    return false;
-  }
-  return true;
-}
-
-function qualifiesForMintSlabProfile(defects, categoryScores, raw) {
-  if (qualifiesForGemMintSlabProfile(defects, categoryScores, raw)) {
-    return false;
-  }
-  if (!defectsAreHighGradeLightWearOnly(defects)) {
-    return false;
-  }
-  if (hasHighGradeMajorDefect(defects)) {
-    return false;
-  }
-  if (categoryScores.centering < PILLAR_LIFT_RECOVERY_MIN_CENTERING) {
-    return false;
-  }
-  if (noteIndicatesEdgeMicroChipping(raw)) {
-    return false;
-  }
-  if (noteIndicatesSurfaceLimitingWear(raw)) {
-    return false;
-  }
-  if (countNotesPillarsWithPoorWear(raw) >= 2) {
-    return false;
-  }
-  return (
-    hasNmGemPresentationAppeal(raw) ||
-    isNmVintageCleanPresentation(categoryScores, raw) ||
-    isNmVintagePresentationCandidate(categoryScores, raw)
   );
 }
 
@@ -1821,7 +1672,30 @@ function shouldReclassifyCornerWearAsPrintArtifact(defect, raw, categoryScores) 
 }
 
 function qualifiesForNmGemStrongPresentation(categoryScores, raw, defects) {
-  return qualifiesForGemMintSlabProfile(defects, categoryScores, raw);
+  if (hasHighGradeMajorDefect(defects)) {
+    return false;
+  }
+  if (!defectsAreHighGradeLightWearOnly(defects)) {
+    return false;
+  }
+  if (categoryScores.centering < 8.5) {
+    return false;
+  }
+  if (countNotesPillarsWithPoorWear(raw) >= 2) {
+    return false;
+  }
+  const appeal = collectAppealText(raw).toLowerCase();
+  if (/\b(heavy wear|severe wear|poor condition|heavy crease|paper loss|rounded heavily)\b/.test(appeal)) {
+    return false;
+  }
+  return (
+    hasNmGemPresentationAppeal(raw) ||
+    isNmVintageCleanPresentation(categoryScores, raw) ||
+    (noteIndicatesSharpCornerPresentation(raw) &&
+      /\b(strong centering|well centered|clean borders|strong gloss|vibrant|minimal wear)\b/.test(
+        appeal
+      ))
+  );
 }
 
 function computeHighGradePillarFloors(defects, categoryScores, raw) {
@@ -1847,31 +1721,25 @@ function computeHighGradePillarFloors(defects, categoryScores, raw) {
     return null;
   }
 
-  const minPillar = Math.min(
-    categoryScores.corners,
-    categoryScores.edges,
-    categoryScores.surface
-  );
-
-  if (qualifiesForGemMintSlabProfile(defects, categoryScores, raw)) {
-    return { corners: 8.5, edges: 8.5, surface: 8.5 };
-  }
-
   const nmGemAppeal =
     hasNmGemPresentationAppeal(raw) || isNmVintageCleanPresentation(categoryScores, raw);
 
-  if (
-    categoryScores.centering >= PILLAR_LIFT_STRONG_CENTERING &&
-    nmGemAppeal &&
-    minPillar <= PILLAR_LIFT_COLLAPSE_MAX
-  ) {
-    return { corners: 7.5, edges: 7.5, surface: 7.5 };
+  if (qualifiesForNmGemStrongPresentation(categoryScores, raw, defects)) {
+    return { corners: 8.5, edges: 8.5, surface: 8.5 };
   }
 
-  if (
-    minPillar <= PILLAR_LIFT_COLLAPSE_MAX &&
-    qualifiesForMintSlabProfile(defects, categoryScores, raw)
-  ) {
+  if (categoryScores.centering >= 8.5 && nmGemAppeal) {
+    const floor = Math.min(
+      categoryScores.corners,
+      categoryScores.edges,
+      categoryScores.surface
+    );
+    if (floor <= 6.5) {
+      return { corners: 7.5, edges: 7.5, surface: 7.5 };
+    }
+  }
+
+  if (categoryScores.centering >= 8 && nmGemAppeal) {
     return { corners: 8, edges: 8, surface: 8 };
   }
 
@@ -1879,16 +1747,13 @@ function computeHighGradePillarFloors(defects, categoryScores, raw) {
 }
 
 function qualifiesForHighGradeTriadSkip(categoryScores, raw, defects) {
-  if (qualifiesForGemMintSlabProfile(defects, categoryScores, raw)) {
-    return true;
-  }
   if (!defectsAreHighGradeLightWearOnly(defects)) {
     return false;
   }
   if (hasHighGradeMajorDefect(defects)) {
     return false;
   }
-  if (categoryScores.centering < PILLAR_LIFT_STRONG_CENTERING) {
+  if (categoryScores.centering < 8.5) {
     return false;
   }
   if (countNotesPillarsWithPoorWear(raw) >= 2) {
@@ -1898,7 +1763,6 @@ function qualifiesForHighGradeTriadSkip(categoryScores, raw, defects) {
     return false;
   }
   return (
-    qualifiesForMintSlabProfile(defects, categoryScores, raw) ||
     hasNmGemPresentationAppeal(raw) ||
     isNmVintageCleanPresentation(categoryScores, raw)
   );
@@ -1950,23 +1814,13 @@ function reconcileHighGradeNmGemVisionCalibration(defects, categoryScores, raw) 
     if (
       defect.tag === "gloss_loss" &&
       categoryScores.centering >= 8 &&
-      (qualifiesForGemMintSlabProfile(defects, categoryScores, raw) ||
-        hasNmGemPresentationAppeal(raw) ||
-        isNmVintageCleanPresentation(categoryScores, raw)) &&
+      (hasNmGemPresentationAppeal(raw) || isNmVintageCleanPresentation(categoryScores, raw)) &&
       !/\b(severe|heavy|extensive)\b/.test(
         String(raw.categoryNotes?.surface || "").toLowerCase()
       )
     ) {
       adjusted = true;
       return [{ ...defect, tag: "print_line", severity: "minor" }];
-    }
-
-    if (
-      qualifiesForGemMintSlabProfile(defects, categoryScores, raw) &&
-      isCosmeticPrintDefect(defect, raw)
-    ) {
-      adjusted = true;
-      return [];
     }
 
     return [defect];

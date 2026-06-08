@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-03T03:05:36.133Z",
+  "generatedAt": "2026-06-06T02:34:11.729Z",
   "root": "benchmarks",
   "suites": [
     {
@@ -76,178 +76,381 @@
       ]
     },
     {
-      "id": "TEST 4 TO 6",
-      "label": "TEST 4 TO 6",
-      "cardCount": 36,
+      "id": "TEST 10",
+      "label": "TEST 10",
+      "cardCount": 26,
       "cards": [
         {
-          "id": "1933-w-harris-psa5",
-          "slug": "1933-w-harris-psa5",
-          "cardName": "1933 W HARRIS",
-          "fileLabel": "1933 W HARRIS PSA 5",
-          "year": 1933,
-          "psaGrade": 5,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1933 W HARRIS PSA 5 FRONT.jpg",
-            "back": "TEST 4 TO 6/1933 W HARRIS PSA 5 BACK.jpg"
-          }
-        },
-        {
-          "id": "1934-g-cochrane-psa6",
-          "slug": "1934-g-cochrane-psa6",
-          "cardName": "1934 G COCHRANE",
-          "fileLabel": "1934 G COCHRANE PSA 6",
-          "year": 1934,
-          "psaGrade": 6,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1934 G COCHRANE PSA 6  FRONT.jpg",
-            "back": "TEST 4 TO 6/1934 G COCHRANE PSA 6  BACK.jpg"
-          }
-        },
-        {
-          "id": "1939-p-greenberg-psa6",
-          "slug": "1939-p-greenberg-psa6",
-          "cardName": "1939 P GREENBERG",
-          "fileLabel": "1939 P GREENBERG PSA 6",
-          "year": 1939,
-          "psaGrade": 6,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1939 P GREENBERG PSA 6  FRONT.jpg",
-            "back": "TEST 4 TO 6/1939 P GREENBERG PSA 6  BACK.jpg"
-          }
-        },
-        {
-          "id": "1950-c-dean-psa5",
-          "slug": "1950-c-dean-psa5",
-          "cardName": "1950 C DEAN",
-          "fileLabel": "1950 C DEAN PSA 5",
+          "id": "1950-c-anson-psa10",
+          "slug": "1950-c-anson-psa10",
+          "cardName": "1950 C ANSON",
+          "fileLabel": "1950 C ANSON PSA 10",
           "year": 1950,
-          "psaGrade": 5,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
           "images": {
-            "front": "TEST 4 TO 6/1950 C DEAN PSA 5 FRONT.jpg",
-            "back": "TEST 4 TO 6/1950 C DEAN PSA 5 BACK.jpg"
+            "front": "TEST 10/1950 C ANSON PSA 10 FRONT.jpg",
+            "back": "TEST 10/1950 C ANSON PSA 10 BACK.jpg"
           }
         },
         {
-          "id": "1951-b-williams-psa6",
-          "slug": "1951-b-williams-psa6",
-          "cardName": "1951 B WILLIAMS",
-          "fileLabel": "1951 B WILLIAMS PSA 6",
-          "year": 1951,
-          "psaGrade": 6,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "id": "1968-t-robinson-psa10",
+          "slug": "1968-t-robinson-psa10",
+          "cardName": "1968 T ROBINSON",
+          "fileLabel": "1968 T ROBINSON PSA 10",
+          "year": 1968,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
           "images": {
-            "front": "TEST 4 TO 6/1951 B WILLIAMS PSA 6  FRONT.jpg",
-            "back": "TEST 4 TO 6/1951 B WILLIAMS PSA 6  BACK.jpg"
+            "front": "TEST 10/1968 T ROBINSON PSA 10 FRONT.jpg",
+            "back": "TEST 10/1968 T ROBINSON PSA 10 BACK.jpg"
           }
         },
         {
-          "id": "1951-p-smith-psa6",
-          "slug": "1951-p-smith-psa6",
-          "cardName": "1951 P SMITH",
-          "fileLabel": "1951 P SMITH PSA 6",
-          "year": 1951,
-          "psaGrade": 6,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "id": "1968-t-torborg-psa10",
+          "slug": "1968-t-torborg-psa10",
+          "cardName": "1968 T TORBORG",
+          "fileLabel": "1968 T TORBORG PSA 10",
+          "year": 1968,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
           "images": {
-            "front": "TEST 4 TO 6/1951 P SMITH PSA 6  FRONT.jpg",
-            "back": "TEST 4 TO 6/1951 P SMITH PSA 6 BACK.jpg"
+            "front": "TEST 10/1968 T TORBORG PSA 10 FRONT.jpg",
+            "back": "TEST 10/1968 T TORBORG PSA 10 BACK.jpg"
           }
         },
         {
-          "id": "1951-t-bauer-psa4",
-          "slug": "1951-t-bauer-psa4",
-          "cardName": "1951 T BAUER",
-          "fileLabel": "1951 T BAUER PSA 4",
-          "year": 1951,
-          "psaGrade": 4,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "id": "1970-t-snell-psa10",
+          "slug": "1970-t-snell-psa10",
+          "cardName": "1970 T SNELL",
+          "fileLabel": "1970 T SNELL PSA 10",
+          "year": 1970,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
           "images": {
-            "front": "TEST 4 TO 6/1951 T BAUER PSA  4 FRONT.jpg",
-            "back": "TEST 4 TO 6/1951 T BAUER PSA  4 BACK.jpg"
+            "front": "TEST 10/1970 T SNELL PSA 10 FRONT.jpg",
+            "back": "TEST 10/1970 T SNELL PSA 10 BACK.jpg"
           }
         },
         {
-          "id": "1952-t-berra-psa5",
-          "slug": "1952-t-berra-psa5",
-          "cardName": "1952 T BERRA",
-          "fileLabel": "1952 T BERRA PSA 5",
-          "year": 1952,
-          "psaGrade": 5,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "id": "1971-t-taylor-psa10",
+          "slug": "1971-t-taylor-psa10",
+          "cardName": "1971 T TAYLOR",
+          "fileLabel": "1971 T TAYLOR PSA 10",
+          "year": 1971,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
           "images": {
-            "front": "TEST 4 TO 6/1952 T BERRA PSA 5 FRONT.jpg",
-            "back": "TEST 4 TO 6/1952 T BERRA PSA 5 BACK.jpg"
+            "front": "TEST 10/1971 T TAYLOR PSA 10 FRONT.jpg",
+            "back": "TEST 10/1971 T TAYLOR PSA 10 BACK.jpg"
           }
         },
         {
-          "id": "1952-t-kennedy-psa6",
-          "slug": "1952-t-kennedy-psa6",
-          "cardName": "1952 T KENNEDY",
-          "fileLabel": "1952 T KENNEDY PSA 6",
-          "year": 1952,
-          "psaGrade": 6,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "id": "1974-t-phillies-psa10",
+          "slug": "1974-t-phillies-psa10",
+          "cardName": "1974 T PHILLIES",
+          "fileLabel": "1974 T PHILLIES PSA 10",
+          "year": 1974,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
           "images": {
-            "front": "TEST 4 TO 6/1952 T KENNEDY PSA 6 FRONT.jpg",
-            "back": "TEST 4 TO 6/1952 T KENNEDY PSA 6 BACK.jpg"
+            "front": "TEST 10/1974 T PHILLIES PSA 10 FRONT.jpg",
+            "back": "TEST 10/1974 T PHILLIES PSA 10 BACK.jpg"
           }
         },
         {
-          "id": "1953-t-martin-psa5",
-          "slug": "1953-t-martin-psa5",
-          "cardName": "1953 T MARTIN",
-          "fileLabel": "1953 T MARTIN PSA 5",
-          "year": 1953,
-          "psaGrade": 5,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "id": "1975-t-holden-psa10",
+          "slug": "1975-t-holden-psa10",
+          "cardName": "1975 T HOLDEN",
+          "fileLabel": "1975 T HOLDEN PSA 10",
+          "year": 1975,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
           "images": {
-            "front": "TEST 4 TO 6/1953 T MARTIN PSA 5 FRONT.jpg",
-            "back": "TEST 4 TO 6/1953 T MARTIN PSA 5 BACK.jpg"
+            "front": "TEST 10/1975 T HOLDEN PSA 10 FRONT.jpg",
+            "back": "TEST 10/1975 T HOLDEN PSA 10 BACK.jpg"
           }
         },
         {
-          "id": "1959-t-herbert-psa6",
-          "slug": "1959-t-herbert-psa6",
-          "cardName": "1959 T HERBERT",
-          "fileLabel": "1959 T HERBERT PSA 6",
-          "year": 1959,
-          "psaGrade": 6,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "id": "1975-t-hr-lead-psa10",
+          "slug": "1975-t-hr-lead-psa10",
+          "cardName": "1975 T HR LEAD",
+          "fileLabel": "1975 T HR LEAD PSA 10",
+          "year": 1975,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
           "images": {
-            "front": "TEST 4 TO 6/1959 T HERBERT PSA 6 FRONT.jpg",
-            "back": "TEST 4 TO 6/1959 T HERBERT PSA 6 BACK.jpg"
+            "front": "TEST 10/1975 T HR LEAD PSA 10 FRONT.jpg",
+            "back": "TEST 10/1975 T HR LEAD PSA 10 BACK.jpg"
           }
         },
         {
-          "id": "1960-t-hodges-psa5",
-          "slug": "1960-t-hodges-psa5",
-          "cardName": "1960 T HODGES",
-          "fileLabel": "1960 T HODGES PSA 5",
-          "year": 1960,
-          "psaGrade": 5,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "id": "1977-t-red-sox-psa10",
+          "slug": "1977-t-red-sox-psa10",
+          "cardName": "1977 T RED SOX",
+          "fileLabel": "1977 T RED SOX PSA 10",
+          "year": 1977,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
           "images": {
-            "front": "TEST 4 TO 6/1960 T HODGES PSA 5 FRONT.jpg",
-            "back": "TEST 4 TO 6/1960 T HODGES PSA 5 BACK.jpg"
+            "front": "TEST 10/1977 T RED SOX PSA 10 FRONT.jpg",
+            "back": "TEST 10/1977 T RED SOX PSA 10 BACK.jpg"
           }
         },
+        {
+          "id": "1978-t-bench-psa10",
+          "slug": "1978-t-bench-psa10",
+          "cardName": "1978 T BENCH",
+          "fileLabel": "1978 T BENCH PSA 10",
+          "year": 1978,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1978 T BENCH PSA 10 FRONT.jpg",
+            "back": "TEST 10/1978 T BENCH PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1978-t-so-lead-psa10",
+          "slug": "1978-t-so-lead-psa10",
+          "cardName": "1978 T SO LEAD",
+          "fileLabel": "1978 T SO LEAD PSA 10",
+          "year": 1978,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1978 T SO LEAD PSA 10 FRONT.jpg",
+            "back": "TEST 10/1978 T SO LEAD PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1979-t-griffen-psa10",
+          "slug": "1979-t-griffen-psa10",
+          "cardName": "1979 T GRIFFEN",
+          "fileLabel": "1979 T GRIFFEN PSA 10",
+          "year": 1979,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1979 T GRIFFEN PSA 10 FRONT.jpg",
+            "back": "TEST 10/1979 T GRIFFEN PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1980-t-schmidt-psa10",
+          "slug": "1980-t-schmidt-psa10",
+          "cardName": "1980 T SCHMIDT",
+          "fileLabel": "1980 T SCHMIDT PSA 10",
+          "year": 1980,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1980 T SCHMIDT PSA 10 FRONT.jpg",
+            "back": "TEST 10/1980 T SCHMIDT PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1981-f-henderson-psa10",
+          "slug": "1981-f-henderson-psa10",
+          "cardName": "1981 F HENDERSON",
+          "fileLabel": "1981 F HENDERSON PSA 10",
+          "year": 1981,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1981 F HENDERSON PSA 10 FRONT.jpg",
+            "back": "TEST 10/1981 F HENDERSON PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1981-t-harris-psa10",
+          "slug": "1981-t-harris-psa10",
+          "cardName": "1981 T HARRIS",
+          "fileLabel": "1981 T HARRIS PSA 10",
+          "year": 1981,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1981 T HARRIS PSA 10 FRONT.jpg",
+            "back": "TEST 10/1981 T HARRIS PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1981-t-schmidt-psa10",
+          "slug": "1981-t-schmidt-psa10",
+          "cardName": "1981 T SCHMIDT",
+          "fileLabel": "1981 T SCHMIDT PSA 10",
+          "year": 1981,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1981 T SCHMIDT PSA 10 FRONT.jpg",
+            "back": "TEST 10/1981 T SCHMIDT PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1982-t-smith-psa10",
+          "slug": "1982-t-smith-psa10",
+          "cardName": "1982 T SMITH",
+          "fileLabel": "1982 T SMITH PSA 10",
+          "year": 1982,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1982 T SMITH PSA 10 FRONT.jpg",
+            "back": "TEST 10/1982 T SMITH PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1983-t-sandberg-psa10",
+          "slug": "1983-t-sandberg-psa10",
+          "cardName": "1983 T SANDBERG",
+          "fileLabel": "1983 T SANDBERG PSA 10",
+          "year": 1983,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1983 T SANDBERG PSA 10 FRONT.jpg",
+            "back": "TEST 10/1983 T SANDBERG PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1984-t-mattingly-psa10",
+          "slug": "1984-t-mattingly-psa10",
+          "cardName": "1984 T MATTINGLY",
+          "fileLabel": "1984 T MATTINGLY PSA 10",
+          "year": 1984,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1984 T MATTINGLY PSA 10 FRONT.jpg",
+            "back": "TEST 10/1984 T MATTINGLY PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1985-d-clemens-psa10",
+          "slug": "1985-d-clemens-psa10",
+          "cardName": "1985 D CLEMENS",
+          "fileLabel": "1985 D CLEMENS PSA 10",
+          "year": 1985,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1985 D CLEMENS PSA 10 FRONT.jpg",
+            "back": "TEST 10/1985 D CLEMENS PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1986-t-gooden-psa10",
+          "slug": "1986-t-gooden-psa10",
+          "cardName": "1986 T GOODEN",
+          "fileLabel": "1986 T GOODEN PSA 10",
+          "year": 1986,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1986 T GOODEN PSA 10 FRONT.jpg",
+            "back": "TEST 10/1986 T GOODEN PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1987-f-guillen-psa10",
+          "slug": "1987-f-guillen-psa10",
+          "cardName": "1987 F GUILLEN",
+          "fileLabel": "1987 F GUILLEN PSA 10",
+          "year": 1987,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1987 F GUILLEN PSA 10 FRONT.jpg",
+            "back": "TEST 10/1987 F GUILLEN PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1987-f-jordan-psa10",
+          "slug": "1987-f-jordan-psa10",
+          "cardName": "1987 F JORDAN",
+          "fileLabel": "1987 F JORDAN PSA 10",
+          "year": 1987,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1987 F JORDAN PSA 10 FRONT.jpg",
+            "back": "TEST 10/1987 F JORDAN PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1988-f-jordan-psa10",
+          "slug": "1988-f-jordan-psa10",
+          "cardName": "1988 F JORDAN",
+          "fileLabel": "1988 F JORDAN PSA 10",
+          "year": 1988,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1988 F JORDAN PSA 10 FRONT.jpg",
+            "back": "TEST 10/1988 F JORDAN PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1989-f-ripken-psa10",
+          "slug": "1989-f-ripken-psa10",
+          "cardName": "1989 F RIPKEN",
+          "fileLabel": "1989 F RIPKEN PSA 10",
+          "year": 1989,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1989 F RIPKEN PSA 10 FRONT.jpg",
+            "back": "TEST 10/1989 F RIPKEN PSA 10 BACK.jpg"
+          }
+        },
+        {
+          "id": "1989-s-sanders-psa10",
+          "slug": "1989-s-sanders-psa10",
+          "cardName": "1989 S SANDERS",
+          "fileLabel": "1989 S SANDERS PSA 10",
+          "year": 1989,
+          "psaGrade": 10,
+          "suiteId": "TEST 10",
+          "relativeDir": "TEST 10",
+          "images": {
+            "front": "TEST 10/1989 S SANDERS PSA 10 FRONT.jpg",
+            "back": "TEST 10/1989 S SANDERS PSA 10 BACK.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "TEST 4",
+      "label": "TEST 4",
+      "cardCount": 5,
+      "cards": [
         {
           "id": "1962-t-aaron-psa4",
           "slug": "1962-t-aaron-psa4",
@@ -255,25 +458,11 @@
           "fileLabel": "1962 T AARON PSA 4",
           "year": 1962,
           "psaGrade": 4,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "suiteId": "TEST 4",
+          "relativeDir": "TEST 4",
           "images": {
-            "front": "TEST 4 TO 6/1962 T AARON PSA 4 FRONT.jpg",
-            "back": "TEST 4 TO 6/1962 T AARON PSA 4 BACK.jpg"
-          }
-        },
-        {
-          "id": "1963-t-mantle-psa5",
-          "slug": "1963-t-mantle-psa5",
-          "cardName": "1963 T MANTLE",
-          "fileLabel": "1963 T MANTLE PSA 5",
-          "year": 1963,
-          "psaGrade": 5,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1963 T MANTLE PSA 5 FRONT.jpg",
-            "back": "TEST 4 TO 6/1963 T MANTLE PSA 5 BACK.jpg"
+            "front": "TEST 4/1962 T AARON PSA 4 FRONT.jpg",
+            "back": "TEST 4/1962 T AARON PSA 4 BACK.jpg"
           }
         },
         {
@@ -283,151 +472,11 @@
           "fileLabel": "1965 T HOWE PSA 4",
           "year": 1965,
           "psaGrade": 4,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "suiteId": "TEST 4",
+          "relativeDir": "TEST 4",
           "images": {
-            "front": "TEST 4 TO 6/1965 T HOWE PSA 4 FRONT.jpg",
-            "back": "TEST 4 TO 6/1965 T HOWE PSA 4 BACK.jpg"
-          }
-        },
-        {
-          "id": "1965-t-mantle-psa5",
-          "slug": "1965-t-mantle-psa5",
-          "cardName": "1965 T MANTLE",
-          "fileLabel": "1965 T MANTLE PSA 5",
-          "year": 1965,
-          "psaGrade": 5,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1965 T MANTLE PSA 5 FRONT.jpg",
-            "back": "TEST 4 TO 6/1965 T MANTLE PSA 5 BACK.jpg"
-          }
-        },
-        {
-          "id": "1968-t-mantle-psa6",
-          "slug": "1968-t-mantle-psa6",
-          "cardName": "1968 T MANTLE",
-          "fileLabel": "1968 T MANTLE PSA 6",
-          "year": 1968,
-          "psaGrade": 6,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1968 T MANTLE PSA 6 FRONT.jpg",
-            "back": "TEST 4 TO 6/1968 T MANTLE PSA 6 BACK.jpg"
-          }
-        },
-        {
-          "id": "1968-t-seaver-psa6",
-          "slug": "1968-t-seaver-psa6",
-          "cardName": "1968 T SEAVER",
-          "fileLabel": "1968 T SEAVER PSA 6",
-          "year": 1968,
-          "psaGrade": 6,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1968 T SEAVER PSA 6 FRONT.jpg",
-            "back": "TEST 4 TO 6/1968 T SEAVER PSA 6 BACK.jpg"
-          }
-        },
-        {
-          "id": "1969-t-aaron-psa4",
-          "slug": "1969-t-aaron-psa4",
-          "cardName": "1969 T AARON",
-          "fileLabel": "1969 T AARON PSA 4",
-          "year": 1969,
-          "psaGrade": 4,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1969 T AARON PSA 4 FRONT.jpg",
-            "back": "TEST 4 TO 6/1969 T AARON PSA 4 BACK.jpg"
-          }
-        },
-        {
-          "id": "1969-t-seaver-psa6",
-          "slug": "1969-t-seaver-psa6",
-          "cardName": "1969 T SEAVER",
-          "fileLabel": "1969 T SEAVER PSA 6",
-          "year": 1969,
-          "psaGrade": 6,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1969 T SEAVER PSA 6 FRONT.jpg",
-            "back": "TEST 4 TO 6/1969 T SEAVER PSA 6 BACK.jpg"
-          }
-        },
-        {
-          "id": "1970-t-aaron-psa4",
-          "slug": "1970-t-aaron-psa4",
-          "cardName": "1970 T AARON",
-          "fileLabel": "1970 T AARON PSA 4",
-          "year": 1970,
-          "psaGrade": 4,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1970 T AARON PSA 4 FRONT.jpg",
-            "back": "TEST 4 TO 6/1970 T AARON PSA 4 BACK.jpg"
-          }
-        },
-        {
-          "id": "1970-t-sutton-psa5",
-          "slug": "1970-t-sutton-psa5",
-          "cardName": "1970 T SUTTON",
-          "fileLabel": "1970 T SUTTON PSA 5",
-          "year": 1970,
-          "psaGrade": 5,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1970 T SUTTON PSA 5 FRONT.jpg",
-            "back": "TEST 4 TO 6/1970 T SUTTON PSA 5 BACK.jpg"
-          }
-        },
-        {
-          "id": "1970-t-williams-psa4",
-          "slug": "1970-t-williams-psa4",
-          "cardName": "1970 T WILLIAMS",
-          "fileLabel": "1970 T WILLIAMS PSA 4",
-          "year": 1970,
-          "psaGrade": 4,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1970 T WILLIAMS PSA 4 FRONT.jpg",
-            "back": "TEST 4 TO 6/1970 T WILLIAMS PSA 4 BACK.jpg"
-          }
-        },
-        {
-          "id": "1971-t-price-psa6",
-          "slug": "1971-t-price-psa6",
-          "cardName": "1971 T PRICE",
-          "fileLabel": "1971 T PRICE PSA 6",
-          "year": 1971,
-          "psaGrade": 6,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1971 T PRICE PSA 6 FRONT.jpg",
-            "back": "TEST 4 TO 6/1971 T PRICE PSA 6 BACK.jpg"
-          }
-        },
-        {
-          "id": "1973-t-clemente-psa4",
-          "slug": "1973-t-clemente-psa4",
-          "cardName": "1973 T CLEMENTE",
-          "fileLabel": "1973 T CLEMENTE PSA 4",
-          "year": 1973,
-          "psaGrade": 4,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1973 T CLEMENTE PSA 4 FRONT.jpg",
-            "back": "TEST 4 TO 6/1973 T CLEMENTE PSA 4 BACK.jpg"
+            "front": "TEST 4/1965 T HOWE PSA 4 FRONT.jpg",
+            "back": "TEST 4/1965 T HOWE PSA 4 BACK.jpg"
           }
         },
         {
@@ -437,67 +486,11 @@
           "fileLabel": "1975 T RYAN PSA 4",
           "year": 1975,
           "psaGrade": 4,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "suiteId": "TEST 4",
+          "relativeDir": "TEST 4",
           "images": {
-            "front": "TEST 4 TO 6/1975 T RYAN PSA 4 FRONT.jpg",
-            "back": "TEST 4 TO 6/1975 T RYAN PSA 4 BACK.jpg"
-          }
-        },
-        {
-          "id": "1978-t-parker-psa5",
-          "slug": "1978-t-parker-psa5",
-          "cardName": "1978 T PARKER",
-          "fileLabel": "1978 T PARKER PSA 5",
-          "year": 1978,
-          "psaGrade": 5,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1978 T PARKER PSA 5 FRONT.jpg",
-            "back": "TEST 4 TO 6/1978 T PARKER PSA 5 BACK.jpg"
-          }
-        },
-        {
-          "id": "1978-t-ryan-psa4",
-          "slug": "1978-t-ryan-psa4",
-          "cardName": "1978 T RYAN",
-          "fileLabel": "1978 T RYAN PSA 4",
-          "year": 1978,
-          "psaGrade": 4,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1978 T RYAN PSA 4 FRONT.jpg",
-            "back": "TEST 4 TO 6/1978 T RYAN PSA 4 BACK.jpg"
-          }
-        },
-        {
-          "id": "1980-t-henderson-psa5",
-          "slug": "1980-t-henderson-psa5",
-          "cardName": "1980 T HENDERSON",
-          "fileLabel": "1980 T HENDERSON PSA 5",
-          "year": 1980,
-          "psaGrade": 5,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1980 T HENDERSON PSA 5 FRONT.jpg",
-            "back": "TEST 4 TO 6/1980 T HENDERSON PSA 5 BACK.jpg"
-          }
-        },
-        {
-          "id": "1980-t-henderson-psa6",
-          "slug": "1980-t-henderson-psa6",
-          "cardName": "1980 T HENDERSON",
-          "fileLabel": "1980 T HENDERSON PSA 6",
-          "year": 1980,
-          "psaGrade": 6,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
-          "images": {
-            "front": "TEST 4 TO 6/1980 T HENDERSON PSA 6 FRONT.jpg",
-            "back": "TEST 4 TO 6/1980 T HENDERSON PSA 6 BACK.jpg"
+            "front": "TEST 4/1975 T RYAN PSA 4 FRONT.jpg",
+            "back": "TEST 4/1975 T RYAN PSA 4 BACK.jpg"
           }
         },
         {
@@ -507,11 +500,11 @@
           "fileLabel": "1980 T MCCOVEY PSA 4",
           "year": 1980,
           "psaGrade": 4,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "suiteId": "TEST 4",
+          "relativeDir": "TEST 4",
           "images": {
-            "front": "TEST 4 TO 6/1980 T MCCOVEY PSA 4 FRONT.jpg",
-            "back": "TEST 4 TO 6/1980 T MCCOVEY PSA 4 BACK.jpg"
+            "front": "TEST 4/1980 T MCCOVEY PSA 4 FRONT.jpg",
+            "back": "TEST 4/1980 T MCCOVEY PSA 4 BACK.jpg"
           }
         },
         {
@@ -521,53 +514,88 @@
           "fileLabel": "1989 F BIRD PSA 4",
           "year": 1989,
           "psaGrade": 4,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "suiteId": "TEST 4",
+          "relativeDir": "TEST 4",
           "images": {
-            "front": "TEST 4 TO 6/1989 F BIRD PSA 4  FRONT.jpg",
-            "back": "TEST 4 TO 6/1989 F BIRD PSA 4 BACK.jpg"
+            "front": "TEST 4/1989 F BIRD PSA 4  FRONT.jpg",
+            "back": "TEST 4/1989 F BIRD PSA 4 BACK.jpg"
           }
-        },
+        }
+      ]
+    },
+    {
+      "id": "TEST 5",
+      "label": "TEST 5",
+      "cardCount": 6,
+      "cards": [
         {
-          "id": "t205-leever-psa5",
-          "slug": "t205-leever-psa5",
-          "cardName": "T205 LEEVER",
-          "fileLabel": "T205 LEEVER PSA 5",
-          "year": null,
+          "id": "1952-t-berra-psa5",
+          "slug": "1952-t-berra-psa5",
+          "cardName": "1952 T BERRA",
+          "fileLabel": "1952 T BERRA PSA 5",
+          "year": 1952,
           "psaGrade": 5,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "suiteId": "TEST 5",
+          "relativeDir": "TEST 5",
           "images": {
-            "front": "TEST 4 TO 6/T205 LEEVER PSA 5 FRONT.jpg",
-            "back": "TEST 4 TO 6/T205 LEEVER PSA 5 BACK.jpg"
+            "front": "TEST 5/1952 T BERRA PSA 5 FRONT.jpg",
+            "back": "TEST 5/1952 T BERRA PSA 5 BACK.jpg"
           }
         },
         {
-          "id": "t206-bender-psa4",
-          "slug": "t206-bender-psa4",
-          "cardName": "T206 BENDER",
-          "fileLabel": "T206 BENDER PSA 4",
-          "year": null,
-          "psaGrade": 4,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "id": "1953-t-martin-psa5",
+          "slug": "1953-t-martin-psa5",
+          "cardName": "1953 T MARTIN",
+          "fileLabel": "1953 T MARTIN PSA 5",
+          "year": 1953,
+          "psaGrade": 5,
+          "suiteId": "TEST 5",
+          "relativeDir": "TEST 5",
           "images": {
-            "front": "TEST 4 TO 6/T206 BENDER PSA 4 FRONT.jpg",
-            "back": "TEST 4 TO 6/T206 BENDER PSA 4 BACK.jpg"
+            "front": "TEST 5/1953 T MARTIN PSA 5 FRONT.jpg",
+            "back": "TEST 5/1953 T MARTIN PSA 5 BACK.jpg"
           }
         },
         {
-          "id": "t206-killan-psa6",
-          "slug": "t206-killan-psa6",
-          "cardName": "T206 KILLAN",
-          "fileLabel": "T206 KILLAN PSA 6",
-          "year": null,
-          "psaGrade": 6,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "id": "1960-t-hodges-psa5",
+          "slug": "1960-t-hodges-psa5",
+          "cardName": "1960 T HODGES",
+          "fileLabel": "1960 T HODGES PSA 5",
+          "year": 1960,
+          "psaGrade": 5,
+          "suiteId": "TEST 5",
+          "relativeDir": "TEST 5",
           "images": {
-            "front": "TEST 4 TO 6/T206 KILLAN PSA 6 FRONT.jpg",
-            "back": "TEST 4 TO 6/T206 KILLAN PSA 6 BACK.jpg"
+            "front": "TEST 5/1960 T HODGES PSA 5 FRONT.jpg",
+            "back": "TEST 5/1960 T HODGES PSA 5 BACK.jpg"
+          }
+        },
+        {
+          "id": "1970-t-sutton-psa5",
+          "slug": "1970-t-sutton-psa5",
+          "cardName": "1970 T SUTTON",
+          "fileLabel": "1970 T SUTTON PSA 5",
+          "year": 1970,
+          "psaGrade": 5,
+          "suiteId": "TEST 5",
+          "relativeDir": "TEST 5",
+          "images": {
+            "front": "TEST 5/1970 T SUTTON PSA 5 FRONT.jpg",
+            "back": "TEST 5/1970 T SUTTON PSA 5 BACK.jpg"
+          }
+        },
+        {
+          "id": "1980-t-henderson-psa5",
+          "slug": "1980-t-henderson-psa5",
+          "cardName": "1980 T HENDERSON",
+          "fileLabel": "1980 T HENDERSON PSA 5",
+          "year": 1980,
+          "psaGrade": 5,
+          "suiteId": "TEST 5",
+          "relativeDir": "TEST 5",
+          "images": {
+            "front": "TEST 5/1980 T HENDERSON PSA 5 FRONT.jpg",
+            "back": "TEST 5/1980 T HENDERSON PSA 5 BACK.jpg"
           }
         },
         {
@@ -577,11 +605,837 @@
           "fileLabel": "T206 RHODES PSA 5",
           "year": null,
           "psaGrade": 5,
-          "suiteId": "TEST 4 TO 6",
-          "relativeDir": "TEST 4 TO 6",
+          "suiteId": "TEST 5",
+          "relativeDir": "TEST 5",
           "images": {
-            "front": "TEST 4 TO 6/T206 RHODES PSA 5 FRONT.jpg",
-            "back": "TEST 4 TO 6/T206 RHODES PSA 5 BACK.jpg"
+            "front": "TEST 5/T206 RHODES PSA 5 FRONT.jpg",
+            "back": "TEST 5/T206 RHODES PSA 5 BACK.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "TEST 6",
+      "label": "TEST 6",
+      "cardCount": 5,
+      "cards": [
+        {
+          "id": "1951-b-williams-psa6",
+          "slug": "1951-b-williams-psa6",
+          "cardName": "1951 B WILLIAMS",
+          "fileLabel": "1951 B WILLIAMS PSA 6",
+          "year": 1951,
+          "psaGrade": 6,
+          "suiteId": "TEST 6",
+          "relativeDir": "TEST 6",
+          "images": {
+            "front": "TEST 6/1951 B WILLIAMS PSA 6  FRONT.jpg",
+            "back": "TEST 6/1951 B WILLIAMS PSA 6  BACK.jpg"
+          }
+        },
+        {
+          "id": "1951-p-smith-psa6",
+          "slug": "1951-p-smith-psa6",
+          "cardName": "1951 P SMITH",
+          "fileLabel": "1951 P SMITH PSA 6",
+          "year": 1951,
+          "psaGrade": 6,
+          "suiteId": "TEST 6",
+          "relativeDir": "TEST 6",
+          "images": {
+            "front": "TEST 6/1951 P SMITH PSA 6  FRONT.jpg",
+            "back": "TEST 6/1951 P SMITH PSA 6 BACK.jpg"
+          }
+        },
+        {
+          "id": "1968-t-mantle-psa6",
+          "slug": "1968-t-mantle-psa6",
+          "cardName": "1968 T MANTLE",
+          "fileLabel": "1968 T MANTLE PSA 6",
+          "year": 1968,
+          "psaGrade": 6,
+          "suiteId": "TEST 6",
+          "relativeDir": "TEST 6",
+          "images": {
+            "front": "TEST 6/1968 T MANTLE PSA 6 FRONT.jpg",
+            "back": "TEST 6/1968 T MANTLE PSA 6 BACK.jpg"
+          }
+        },
+        {
+          "id": "1971-t-price-psa6",
+          "slug": "1971-t-price-psa6",
+          "cardName": "1971 T PRICE",
+          "fileLabel": "1971 T PRICE PSA 6",
+          "year": 1971,
+          "psaGrade": 6,
+          "suiteId": "TEST 6",
+          "relativeDir": "TEST 6",
+          "images": {
+            "front": "TEST 6/1971 T PRICE PSA 6 FRONT.jpg",
+            "back": "TEST 6/1971 T PRICE PSA 6 BACK.jpg"
+          }
+        },
+        {
+          "id": "t206-killan-psa6",
+          "slug": "t206-killan-psa6",
+          "cardName": "T206 KILLAN",
+          "fileLabel": "T206 KILLAN PSA 6",
+          "year": null,
+          "psaGrade": 6,
+          "suiteId": "TEST 6",
+          "relativeDir": "TEST 6",
+          "images": {
+            "front": "TEST 6/T206 KILLAN PSA 6 FRONT.jpg",
+            "back": "TEST 6/T206 KILLAN PSA 6 BACK.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "TEST 7",
+      "label": "TEST 7",
+      "cardCount": 23,
+      "cards": [
+        {
+          "id": "1933-d-dykes-psa7",
+          "slug": "1933-d-dykes-psa7",
+          "cardName": "1933 D DYKES",
+          "fileLabel": "1933 D DYKES PSA 7",
+          "year": 1933,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1933 D DYKES PSA 7 FRONT.jpg",
+            "back": "TEST 7/1933 D DYKES PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1950-c-cochrane-psa7",
+          "slug": "1950-c-cochrane-psa7",
+          "cardName": "1950 C COCHRANE",
+          "fileLabel": "1950 C COCHRANE PSA 7",
+          "year": 1950,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1950 C COCHRANE PSA 7  FRONT.jpg",
+            "back": "TEST 7/1950 C COCHRANE PSA 7  BACK.jpg"
+          }
+        },
+        {
+          "id": "1952-t-meyer-psa7",
+          "slug": "1952-t-meyer-psa7",
+          "cardName": "1952 T MEYER",
+          "fileLabel": "1952 T MEYER PSA 7",
+          "year": 1952,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1952 T MEYER PSA 7 FRONT.jpg",
+            "back": "TEST 7/1952 T MEYER PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1953-t-groth-psa7",
+          "slug": "1953-t-groth-psa7",
+          "cardName": "1953 T GROTH",
+          "fileLabel": "1953 T GROTH PSA 7",
+          "year": 1953,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1953 T GROTH PSA 7 FRONT.jpg",
+            "back": "TEST 7/1953 T GROTH PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1956-t-moon-psa7",
+          "slug": "1956-t-moon-psa7",
+          "cardName": "1956 T MOON",
+          "fileLabel": "1956 T MOON PSA 7",
+          "year": 1956,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1956 T MOON PSA 7 FRONT.jpg",
+            "back": "TEST 7/1956 T MOON PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1958-t-turley-psa7",
+          "slug": "1958-t-turley-psa7",
+          "cardName": "1958 T TURLEY",
+          "fileLabel": "1958 T TURLEY PSA 7",
+          "year": 1958,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1958 T TURLEY PSA 7 FRONT.jpg",
+            "back": "TEST 7/1958 T TURLEY PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1960-t-starr-psa7",
+          "slug": "1960-t-starr-psa7",
+          "cardName": "1960 T STARR",
+          "fileLabel": "1960 T STARR PSA 7",
+          "year": 1960,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1960 T STARR PSA 7 FRONT.jpg",
+            "back": "TEST 7/1960 T STARR PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1962-t-mantle-psa7",
+          "slug": "1962-t-mantle-psa7",
+          "cardName": "1962 T MANTLE",
+          "fileLabel": "1962 T MANTLE PSA 7",
+          "year": 1962,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1962 T MANTLE PSA 7 FRONT.jpg",
+            "back": "TEST 7/1962 T MANTLE PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1963-t-rose-psa7",
+          "slug": "1963-t-rose-psa7",
+          "cardName": "1963 T ROSE",
+          "fileLabel": "1963 T ROSE PSA 7",
+          "year": 1963,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1963 T ROSE PSA 7 FRONT.jpg",
+            "back": "TEST 7/1963 T ROSE PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1964-t-beatles-psa7",
+          "slug": "1964-t-beatles-psa7",
+          "cardName": "1964 T BEATLES",
+          "fileLabel": "1964 T BEATLES PSA 7",
+          "year": 1964,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1964 T BEATLES PSA 7 FRONT.jpg",
+            "back": "TEST 7/1964 T BEATLES PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1967-t-carew-psa7",
+          "slug": "1967-t-carew-psa7",
+          "cardName": "1967 T CAREW",
+          "fileLabel": "1967 T CAREW PSA 7",
+          "year": 1967,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1967 T CAREW PSA 7 FRONT.jpg",
+            "back": "TEST 7/1967 T CAREW PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1971-t-cash-psa7",
+          "slug": "1971-t-cash-psa7",
+          "cardName": "1971 T CASH",
+          "fileLabel": "1971 T CASH PSA 7",
+          "year": 1971,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1971 T CASH PSA 7 FRONT.jpg",
+            "back": "TEST 7/1971 T CASH PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1972-t-stargell-psa7",
+          "slug": "1972-t-stargell-psa7",
+          "cardName": "1972 T STARGELL",
+          "fileLabel": "1972 T STARGELL PSA 7",
+          "year": 1972,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1972 T STARGELL PSA 7 FRONT.jpg",
+            "back": "TEST 7/1972 T STARGELL PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1974-t-parker-psa7",
+          "slug": "1974-t-parker-psa7",
+          "cardName": "1974 T PARKER",
+          "fileLabel": "1974 T PARKER PSA 7",
+          "year": 1974,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1974 T PARKER PSA 7 FRONT.jpg",
+            "back": "TEST 7/1974 T PARKER PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1977-t-dawson-psa7",
+          "slug": "1977-t-dawson-psa7",
+          "cardName": "1977 T DAWSON",
+          "fileLabel": "1977 T DAWSON PSA 7",
+          "year": 1977,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1977 T DAWSON PSA 7 FRONT.jpg",
+            "back": "TEST 7/1977 T DAWSON PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1978-b-munson-psa7",
+          "slug": "1978-b-munson-psa7",
+          "cardName": "1978 B MUNSON",
+          "fileLabel": "1978 B MUNSON PSA 7",
+          "year": 1978,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1978 B MUNSON PSA 7 FRONT.jpg",
+            "back": "TEST 7/1978 B MUNSON PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1978-t-morris-psa7",
+          "slug": "1978-t-morris-psa7",
+          "cardName": "1978 T MORRIS",
+          "fileLabel": "1978 T MORRIS PSA 7",
+          "year": 1978,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1978 T MORRIS PSA 7 FRONT.jpg",
+            "back": "TEST 7/1978 T MORRIS PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1981-t-henderson-psa7",
+          "slug": "1981-t-henderson-psa7",
+          "cardName": "1981 T HENDERSON",
+          "fileLabel": "1981 T HENDERSON PSA 7",
+          "year": 1981,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1981 T HENDERSON PSA 7 FRONT.jpg",
+            "back": "TEST 7/1981 T HENDERSON PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1982-t-ripken-psa7",
+          "slug": "1982-t-ripken-psa7",
+          "cardName": "1982 T RIPKEN",
+          "fileLabel": "1982 T RIPKEN PSA 7",
+          "year": 1982,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1982 T RIPKEN PSA 7 FRONT.jpg",
+            "back": "TEST 7/1982 T RIPKEN PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1983-t-boggs-psa7",
+          "slug": "1983-t-boggs-psa7",
+          "cardName": "1983 T BOGGS",
+          "fileLabel": "1983 T BOGGS PSA 7",
+          "year": 1983,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1983 T BOGGS PSA 7 FRONT.jpg",
+            "back": "TEST 7/1983 T BOGGS PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1984-t-mattingly-psa7",
+          "slug": "1984-t-mattingly-psa7",
+          "cardName": "1984 T MATTINGLY",
+          "fileLabel": "1984 T MATTINGLY PSA 7",
+          "year": 1984,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1984 T MATTINGLY PSA 7 FRONT.jpg",
+            "back": "TEST 7/1984 T MATTINGLY PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1985-t-mcgwire-psa7",
+          "slug": "1985-t-mcgwire-psa7",
+          "cardName": "1985 T MCGWIRE",
+          "fileLabel": "1985 T MCGWIRE PSA 7",
+          "year": 1985,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1985 T MCGWIRE PSA 7 FRONT.jpg",
+            "back": "TEST 7/1985 T MCGWIRE PSA 7 BACK.jpg"
+          }
+        },
+        {
+          "id": "1987-t-canseco-psa7",
+          "slug": "1987-t-canseco-psa7",
+          "cardName": "1987 T CANSECO",
+          "fileLabel": "1987 T CANSECO PSA 7",
+          "year": 1987,
+          "psaGrade": 7,
+          "suiteId": "TEST 7",
+          "relativeDir": "TEST 7",
+          "images": {
+            "front": "TEST 7/1987 T CANSECO PSA 7 FRONT.jpg",
+            "back": "TEST 7/1987 T CANSECO PSA 7 BACK.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "TEST 8",
+      "label": "TEST 8",
+      "cardCount": 13,
+      "cards": [
+        {
+          "id": "1933-w-brydge-psa8",
+          "slug": "1933-w-brydge-psa8",
+          "cardName": "1933 W BRYDGE",
+          "fileLabel": "1933 W BRYDGE PSA 8",
+          "year": 1933,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/1933 W BRYDGE PSA 8 FRONT.jpg",
+            "back": "TEST 8/1933 W BRYDGE PSA 8 BACK.jpg"
+          }
+        },
+        {
+          "id": "1953-t-kennedy-psa8",
+          "slug": "1953-t-kennedy-psa8",
+          "cardName": "1953 T KENNEDY",
+          "fileLabel": "1953 T KENNEDY PSA 8",
+          "year": 1953,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/1953 T KENNEDY PSA 8 FRONT.jpg",
+            "back": "TEST 8/1953 T KENNEDY PSA 8 BACK.jpg"
+          }
+        },
+        {
+          "id": "1956-t-clemente-psa8",
+          "slug": "1956-t-clemente-psa8",
+          "cardName": "1956 T CLEMENTE",
+          "fileLabel": "1956 T CLEMENTE PSA 8",
+          "year": 1956,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/1956 T CLEMENTE PSA 8 FRONT.jpg",
+            "back": "TEST 8/1956 T CLEMENTE PSA 8 BACK.jpg"
+          }
+        },
+        {
+          "id": "1957-t-howton-psa8",
+          "slug": "1957-t-howton-psa8",
+          "cardName": "1957 T HOWTON",
+          "fileLabel": "1957 T HOWTON PSA 8",
+          "year": 1957,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/1957 T HOWTON PSA 8 FRONT.jpg",
+            "back": "TEST 8/1957 T HOWTON PSA 8 BACK.jpg"
+          }
+        },
+        {
+          "id": "1960-t-spahn-psa8",
+          "slug": "1960-t-spahn-psa8",
+          "cardName": "1960 T SPAHN",
+          "fileLabel": "1960 T SPAHN PSA 8",
+          "year": 1960,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/1960 T SPAHN PSA 8 FRONT.jpg",
+            "back": "TEST 8/1960 T SPAHN PSA 8 BACK.jpg"
+          }
+        },
+        {
+          "id": "1966-t-kennedy-psa8",
+          "slug": "1966-t-kennedy-psa8",
+          "cardName": "1966 T KENNEDY",
+          "fileLabel": "1966 T KENNEDY PSA 8",
+          "year": 1966,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/1966 T KENNEDY PSA 8 FRONT.jpg",
+            "back": "TEST 8/1966 T KENNEDY PSA 8 BACK.jpg"
+          }
+        },
+        {
+          "id": "1966-t-superman-psa8",
+          "slug": "1966-t-superman-psa8",
+          "cardName": "1966 T SUPERMAN",
+          "fileLabel": "1966 T SUPERMAN PSA 8",
+          "year": 1966,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/1966 T SUPERMAN PSA 8 FRONT.jpg",
+            "back": "TEST 8/1966 T SUPERMAN PSA 8 BACK.jpg"
+          }
+        },
+        {
+          "id": "1970-t-wert-psa8",
+          "slug": "1970-t-wert-psa8",
+          "cardName": "1970 T WERT",
+          "fileLabel": "1970 T WERT PSA 8",
+          "year": 1970,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/1970 T WERT PSA 8 FRONT.jpg",
+            "back": "TEST 8/1970 T WERT PSA 8 BACK.jpg"
+          }
+        },
+        {
+          "id": "1971-t-neibauer-psa8",
+          "slug": "1971-t-neibauer-psa8",
+          "cardName": "1971 T NEIBAUER",
+          "fileLabel": "1971 T NEIBAUER PSA 8",
+          "year": 1971,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/1971 T NEIBAUER PSA 8 FRONT.jpg",
+            "back": "TEST 8/1971 T NEIBAUER PSA 8 BACK.jpg"
+          }
+        },
+        {
+          "id": "1972-t-winfield-psa8",
+          "slug": "1972-t-winfield-psa8",
+          "cardName": "1972 T WINFIELD",
+          "fileLabel": "1972 T WINFIELD PSA 8",
+          "year": 1972,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/1972 T WINFIELD PSA 8 FRONT.jpg",
+            "back": "TEST 8/1972 T WINFIELD PSA 8 BACK.jpg"
+          }
+        },
+        {
+          "id": "1975-t-luzinski-psa8",
+          "slug": "1975-t-luzinski-psa8",
+          "cardName": "1975 T LUZINSKI",
+          "fileLabel": "1975 T LUZINSKI PSA 8",
+          "year": 1975,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/1975 T LUZINSKI PSA 8 FRONT.jpg",
+            "back": "TEST 8/1975 T LUZINSKI PSA 8 BACK.jpg"
+          }
+        },
+        {
+          "id": "1975-t-wright-psa8",
+          "slug": "1975-t-wright-psa8",
+          "cardName": "1975 T WRIGHT",
+          "fileLabel": "1975 T WRIGHT PSA 8",
+          "year": 1975,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/1975 T WRIGHT PSA 8 FRONT.jpg",
+            "back": "TEST 8/1975 T WRIGHT PSA 8 BACK.jpg"
+          }
+        },
+        {
+          "id": "t206-young-psa8",
+          "slug": "t206-young-psa8",
+          "cardName": "T206 YOUNG",
+          "fileLabel": "T206 YOUNG PSA 8",
+          "year": null,
+          "psaGrade": 8,
+          "suiteId": "TEST 8",
+          "relativeDir": "TEST 8",
+          "images": {
+            "front": "TEST 8/T206 YOUNG PSA 8 FRONT.jpg",
+            "back": "TEST 8/T206 YOUNG PSA 8 BACK.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "TEST 9",
+      "label": "TEST 9",
+      "cardCount": 16,
+      "cards": [
+        {
+          "id": "1950-c-cobb-psa9",
+          "slug": "1950-c-cobb-psa9",
+          "cardName": "1950 C COBB",
+          "fileLabel": "1950 C COBB PSA 9",
+          "year": 1950,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1950 C COBB PSA 9 FRONT.jpg",
+            "back": "TEST 9/1950 C COBB PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1959-t-marshall-psa9",
+          "slug": "1959-t-marshall-psa9",
+          "cardName": "1959 T MARSHALL",
+          "fileLabel": "1959 T MARSHALL PSA 9",
+          "year": 1959,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1959 T MARSHALL PSA 9 FRONT.jpg",
+            "back": "TEST 9/1959 T MARSHALL PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1967-t-hunter-psa9",
+          "slug": "1967-t-hunter-psa9",
+          "cardName": "1967 T HUNTER",
+          "fileLabel": "1967 T HUNTER PSA 9",
+          "year": 1967,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1967 T HUNTER PSA 9 FRONT.jpg",
+            "back": "TEST 9/1967 T HUNTER PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1968-t-bench-psa9",
+          "slug": "1968-t-bench-psa9",
+          "cardName": "1968 T BENCH",
+          "fileLabel": "1968 T BENCH PSA 9",
+          "year": 1968,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1968 T BENCH PSA 9 FRONT.jpg",
+            "back": "TEST 9/1968 T BENCH PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1968-t-drysdale-psa9",
+          "slug": "1968-t-drysdale-psa9",
+          "cardName": "1968 T DRYSDALE",
+          "fileLabel": "1968 T DRYSDALE PSA 9",
+          "year": 1968,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1968 T DRYSDALE PSA 9 FRONT.jpg",
+            "back": "TEST 9/1968 T DRYSDALE PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1969-t-rose-psa9",
+          "slug": "1969-t-rose-psa9",
+          "cardName": "1969 T ROSE",
+          "fileLabel": "1969 T ROSE PSA 9",
+          "year": 1969,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1969 T ROSE PSA 9 FRONT.jpg",
+            "back": "TEST 9/1969 T ROSE PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1971-t-expos-psa9",
+          "slug": "1971-t-expos-psa9",
+          "cardName": "1971 T EXPOS",
+          "fileLabel": "1971 T EXPOS PSA 9",
+          "year": 1971,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1971 T EXPOS PSA 9 FRONT.jpg",
+            "back": "TEST 9/1971 T EXPOS PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1974-t-bird-psa9",
+          "slug": "1974-t-bird-psa9",
+          "cardName": "1974 T BIRD",
+          "fileLabel": "1974 T BIRD PSA 9",
+          "year": 1974,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1974 T BIRD PSA 9 FRONT.jpg",
+            "back": "TEST 9/1974 T BIRD PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1976-t-yount-psa9",
+          "slug": "1976-t-yount-psa9",
+          "cardName": "1976 T YOUNT",
+          "fileLabel": "1976 T YOUNT PSA 9",
+          "year": 1976,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1976 T YOUNT PSA 9 FRONT.jpg",
+            "back": "TEST 9/1976 T YOUNT PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1978-t-eckersley-psa9",
+          "slug": "1978-t-eckersley-psa9",
+          "cardName": "1978 T ECKERSLEY",
+          "fileLabel": "1978 T ECKERSLEY PSA 9",
+          "year": 1978,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1978 T ECKERSLEY PSA 9 FRONT.jpg",
+            "back": "TEST 9/1978 T ECKERSLEY PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1981-t-gibson-psa9",
+          "slug": "1981-t-gibson-psa9",
+          "cardName": "1981 T GIBSON",
+          "fileLabel": "1981 T GIBSON PSA 9",
+          "year": 1981,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1981 T GIBSON PSA 9 FRONT.jpg",
+            "back": "TEST 9/1981 T GIBSON PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1981-t-tyler-psa9",
+          "slug": "1981-t-tyler-psa9",
+          "cardName": "1981 T TYLER",
+          "fileLabel": "1981 T TYLER PSA 9",
+          "year": 1981,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1981 T TYLER PSA 9 FRONT.jpg",
+            "back": "TEST 9/1981 T TYLER PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1983-t-seaver-psa9",
+          "slug": "1983-t-seaver-psa9",
+          "cardName": "1983 T SEAVER",
+          "fileLabel": "1983 T SEAVER PSA 9",
+          "year": 1983,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1983 T SEAVER PSA 9 FRONT.jpg",
+            "back": "TEST 9/1983 T SEAVER PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1984-f-clemens-psa9",
+          "slug": "1984-f-clemens-psa9",
+          "cardName": "1984 F CLEMENS",
+          "fileLabel": "1984 F CLEMENS PSA 9",
+          "year": 1984,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1984 F CLEMENS PSA 9 FRONT.jpg",
+            "back": "TEST 9/1984 F CLEMENS PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1986-f-cooper-psa9",
+          "slug": "1986-f-cooper-psa9",
+          "cardName": "1986 F COOPER",
+          "fileLabel": "1986 F COOPER PSA 9",
+          "year": 1986,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1986 F COOPER PSA 9 FRONT.jpg",
+            "back": "TEST 9/1986 F COOPER PSA 9 BACK.jpg"
+          }
+        },
+        {
+          "id": "1987-t-larkin-psa9",
+          "slug": "1987-t-larkin-psa9",
+          "cardName": "1987 T LARKIN",
+          "fileLabel": "1987 T LARKIN PSA 9",
+          "year": 1987,
+          "psaGrade": 9,
+          "suiteId": "TEST 9",
+          "relativeDir": "TEST 9",
+          "images": {
+            "front": "TEST 9/1987 T LARKIN PSA 9 FRONT.jpg",
+            "back": "TEST 9/1987 T LARKIN PSA 9 BACK.jpg"
           }
         }
       ]

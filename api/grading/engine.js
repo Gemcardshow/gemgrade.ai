@@ -7,6 +7,7 @@ import {
   applyExBandOptimismCeiling,
   applyExCategoryImpactRelief,
   applyIsolatedPillarFloor,
+  applyNmGemVintageBandRules,
   applyPsa1Calibration,
   applyVintageMultiPillarWearCap,
   countPillarsAtOrBelow,
@@ -14,6 +15,7 @@ import {
   getOverallCategoryFloor,
   qualifiesForExSingleCreaseCap,
   resolveBackOnlyWritingCap,
+  resolveNmVintageDefectCap,
 } from "./psa-calibration.js";
 import {
   clampGrade,
@@ -179,6 +181,18 @@ function getDefectCeiling(defects, era, categoryScores, capAudit, analysis = nul
       cap = backWritingCap;
     }
 
+    const nmVintageCap = resolveNmVintageDefectCap(
+      defect,
+      era,
+      categoryScores,
+      defects,
+      analysis
+    );
+    if (nmVintageCap !== null && nmVintageCap > cap) {
+      cap = nmVintageCap;
+      capAudit.push({ source: `nm_band:defect:${defect.tag}`, cap: nmVintageCap });
+    }
+
     if (cap < ceiling) {
       ceiling = cap;
       capAudit.push({ source: `defect:${defect.tag}`, cap });
@@ -244,6 +258,26 @@ function getPrimaryLimiterCap(
     if (backWritingCap !== null && backWritingCap > cap) {
       cap = backWritingCap;
     }
+  }
+
+  const nmVintageCap = matchingDefect
+    ? resolveNmVintageDefectCap(
+        matchingDefect,
+        era,
+        categoryScores,
+        defects,
+        analysis
+      )
+    : resolveNmVintageDefectCap(
+        { tag: primaryLimiterTag, severity: "minor", location: "front", confidence: "high" },
+        era,
+        categoryScores,
+        defects,
+        analysis
+      );
+  if (nmVintageCap !== null && nmVintageCap > cap) {
+    cap = nmVintageCap;
+    capAudit.push({ source: `nm_band:primary:${primaryLimiterTag}`, cap: nmVintageCap });
   }
 
   if (cap < 10) {
@@ -370,6 +404,15 @@ export function computeGrade(analysis, era) {
     analysis.defects,
     capAudit,
     analysis
+  );
+
+  rawOverall = applyNmGemVintageBandRules(
+    rawOverall,
+    categoryScores,
+    analysis.defects,
+    capAudit,
+    analysis,
+    era
   );
 
   rawOverall = applyBackOnlyWritingOverallFloor(

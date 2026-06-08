@@ -1,4 +1,9 @@
-import { GRADING_PHILOSOPHY } from "./philosophy.js";
+/**
+ * Frozen snapshot: recovery gating baseline (primary grading path).
+ * Tag: recovery-gating-baseline-v1
+ * Do not edit — update only after PSA 9/10 validation.
+ */
+import { GRADING_PHILOSOPHY } from "../../api/grading/philosophy.js";
 import {
   getDefectDefinition,
   getDefectLabel,
@@ -6,15 +11,15 @@ import {
   normalizeDefectObservation,
   resolveEffectiveDefectTag,
   escalateLightWearObservation,
-} from "./defects.js";
+} from "../../api/grading/defects.js";
 import {
   ANALYSIS_JSON_SCHEMA,
   buildAnalysisInstruction,
   ERA_JSON_SCHEMA,
-} from "./prompts/core.js";
-import { MODERN_RUBRIC } from "./prompts/modern.js";
-import { VINTAGE_RUBRIC } from "./prompts/vintage.js";
-import { clampGrade, roundToHalf } from "./types.js";
+} from "../../api/grading/prompts/core.js";
+import { MODERN_RUBRIC } from "../../api/grading/prompts/modern.js";
+import { VINTAGE_RUBRIC } from "../../api/grading/prompts/vintage.js";
+import { clampGrade, roundToHalf } from "../../api/grading/types.js";
 
 function parseJsonResponse(outputText) {
   try {
@@ -3876,3 +3881,4 @@ Return estimatedYear as a 4-digit year when possible, otherwise null.
 }
 
 export { callStructuredVision, normalizeAnalysis, parseJsonResponse, reconcileFairCardOverTags };
+
