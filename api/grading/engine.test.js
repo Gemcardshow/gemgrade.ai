@@ -6,6 +6,7 @@ import {
   applyCompoundHarshness,
   applyPsa1Calibration,
   triggersPsa1Calibration,
+  qualifiesForNmBandVintageCapSkip,
 } from "../grading/psa-calibration.js";
 import { resolveEra, eraFromYear, normalizeEraRequest } from "../grading/era.js";
 import { snapToPsaGrade, formatLikelyRange } from "../grading/types.js";
@@ -120,6 +121,70 @@ test("modern clean card can reach PSA 9-10", () => {
   const result = computeGrade(analysis, "modern");
   assert.equal(result.internalGrade, 10);
   assert.equal(result.psaGrade, 10);
+});
+
+test("clean modern card with all 9s rejects unconfirmed surface_scratch_light limiter", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Sharp corners and clean surface",
+    eyeAppealSummary: "Clean presentation with strong eye appeal.",
+    cardMeta: { estimatedYear: 2023, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners with no visible wear.",
+      edges: "Clean crisp edges.",
+      surface: "Clean surface with no scratches or marks.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "modern");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.equal(analysis.primaryLimiterTag, null);
+  assert.equal(analysis.primaryLimiterLabel, "None visible");
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade >= 9);
+  assert.ok(result.psaGrade >= 9);
+  assert.ok(
+    !result.capAudit.some((entry) =>
+      String(entry.source || "").includes("surface_scratch_light")
+    )
+  );
+  assert.equal(result.primaryLimiter.label, "None visible");
+});
+
+test("confirmed surface_scratch_light remains when surface notes support it", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9, edges: 9, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch on front",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Minor scratch under close inspection.",
+    cardMeta: { estimatedYear: 2023, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Clean edges.",
+      surface: "Light scratch visible on front under close inspection.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "modern");
+  assert.ok(analysis.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.equal(analysis.primaryLimiterTag, "surface_scratch_light");
 });
 
 test("overall grade follows lowest severe category", () => {
@@ -978,6 +1043,308 @@ test("1963 Topps Mickey Mantle PSA 5 fair surface edge over-tags normalize to EX
   assert.ok(result.psaGrade <= 6);
 });
 
+test("1963 Topps Mickey Mantle PSA 5 cached vision downgrades false surface_wear", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7.5, edges: 7, surface: 7, centering: 8 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_wear",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_wear",
+    primaryLimiterLabel: "General surface wear",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary:
+      "The card exhibits vibrant colors and minimal wear, presenting well overall.",
+    categoryNotes: {
+      corners: "Minor wear visible on corners, slight softening.",
+      edges: "Light edge wear noted, primarily at the bottom.",
+      surface: "Minor surface issues, with vibrant colors maintained.",
+      centering: "Well-centered image, appealing presentation.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(
+    { ...analysis, visionCategoryScores: raw.categoryScores },
+    "vintage"
+  );
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "surface_wear"));
+  assert.ok(analysis.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.ok(result.psaGrade >= 4);
+  assert.ok(result.psaGrade > 3);
+});
+
+test("1965 Topps Mickey Mantle PSA 5 cached vision downgrades light-edge fraying over-tag", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5, surface: 5, centering: 8 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "moderate_crease",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    bestAttribute: "Strong centering at 8.0",
+    eyeAppealSummary:
+      "The card has strong centering, but visible wear and creasing diminish its overall appeal.",
+    categoryNotes: {
+      corners: "Moderate wear observed; rounding is visible on all corners.",
+      edges: "Light wear with some noticeable scuffing along borders.",
+      surface:
+        "Moderate scratching, with a noticeable crease across the front; some surface printing flaws present.",
+      centering: "Well-centered for its age, likely above average.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(result.psaGrade >= 3);
+});
+
+test("1968 Topps Tom Seaver PSA 6 cached notes avoid false poor-band cluster", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 6.5, surface: 5, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_moderate",
+    bestAttribute: "Good centering",
+    eyeAppealSummary:
+      "Moderate wear with visible corner and surface issues, but still retains decent eye appeal.",
+    categoryNotes: {
+      corners: "Moderate wear with some rounding visible.",
+      edges: "Light edge wear present, particularly on the left side.",
+      surface: "Moderate scratches affecting surface gloss and clarity.",
+      centering: "Good centering overall with slight off-center appearance.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(
+    !result.capAudit.some(
+      (entry) => entry.source === "vintage:poor_band_notes_cluster"
+    )
+  );
+  assert.ok(result.psaGrade >= 4);
+});
+
+test("1934 Goudey Cochrane PSA 6 cached vision keeps minor edge wear not major fraying", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5, surface: 5.5, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "moderate_crease",
+        severity: "moderate",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "moderate_crease",
+    bestAttribute: "Fair centering with vibrant colors.",
+    eyeAppealSummary:
+      "Despite multiple issues, the card retains decent eye appeal with bold graphics.",
+    categoryNotes: {
+      corners: "Moderate wear visible; softening and rounding apparent.",
+      edges: "Visible fraying and minor chipping detected along edges.",
+      surface:
+        "Multiple creases noted, impacting surface visually, though not deeply cutting.",
+      centering: "Fair centering with only minor alignment issues.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(analysis.defects.some((defect) => defect.tag === "edge_wear_light"));
+});
+
+test("1980 Topps Henderson PSA 6 cached edge note denies major fraying over-tag", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5.5, surface: 5.5, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "moderate_crease",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_fraying_major",
+    bestAttribute: "Strong centering with vibrant color",
+    eyeAppealSummary:
+      "The card has good eye appeal despite visible corner and crease wear.",
+    categoryNotes: {
+      corners: "Moderate wear visible, particularly on two corners.",
+      edges: "Light wear observed along edges with no severe fraying or chipping.",
+      surface:
+        "Visible moderate creases affect overall surface, diminishing its quality.",
+      centering: "Centering is strong, enhancing visual appeal.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(analysis.defects.some((defect) => defect.tag === "edge_wear_light"));
+});
+
+test("1969 Topps Seaver PSA 6 cached appeal-only writing downgrades to back stain", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5.5, surface: 8, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_fraying_major",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "writing_mark",
+        severity: "moderate",
+        location: "back",
+        confidence: "high",
+      },
+      {
+        tag: "writing_mark_severe",
+        severity: "severe",
+        location: "both",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "writing_mark_severe",
+    bestAttribute: "Visual appeal is still decent despite visible wear.",
+    eyeAppealSummary:
+      "Card maintains some charm but shows significant evidence of wear on front corners and visible writing on the back.",
+    categoryNotes: {
+      corners: "Moderate rounding and wear are evident, impacting overall appearance.",
+      edges: "Minor edge wear consistent with age, but not severe.",
+      surface: "Light scratches and general surface wear, impacting aesthetics.",
+      centering: "Centering appears decent, but not perfect.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "writing_mark_severe"));
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "writing_mark"));
+  assert.ok(analysis.defects.some((defect) => defect.tag === "staining_light"));
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "defect:writing_mark_severe")
+  );
+});
+
 test("1962 Topps Roger Maris PSA 1 heavy edge wear infers crease and stays in poor band", () => {
   const raw = {
     scanQuality: {
@@ -1814,4 +2181,1187 @@ test("formatGradeResponse returns unified professional structure for all users",
   assert.ok(response.verdict.includes("Internal Grade"));
   assert.equal("mode" in response, false);
   assert.equal("proUpsellText" in response, false);
+});
+
+test("back-only moderate writing relief lifts EX-front Hodges-style slab to PSA 5", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7, edges: 5, surface: 5.5, centering: 8 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "writing_mark",
+        severity: "moderate",
+        location: "back",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "writing_mark",
+    primaryLimiterLabel: "Writing, mark, or ink",
+    bestAttribute: "centering",
+    eyeAppealSummary: "Strong centering with minor edge and surface imperfections.",
+    cardMeta: { estimatedYear: 1960, isReflective: false, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Light wear noted on corners.",
+      edges: "Minor wear along the edges; no severe fraying.",
+      surface: "Light scratches detected on the front surface.",
+      centering: "The card is well-centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.equal(result.psaGrade, 5);
+  assert.ok(
+    result.capAudit.some((entry) => entry.source === "back_only_writing:writing_mark")
+  );
+});
+
+test("front severe writing keeps harsh cap and skips back-only relief", () => {
+  const analysis = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5, surface: 3.5, centering: 6 },
+    visionCategoryScores: { corners: 5, edges: 5, surface: 3.5, centering: 6 },
+    defects: [
+      {
+        tag: "writing_mark_severe",
+        severity: "severe",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "writing_mark_severe",
+    primaryLimiterLabel: "Heavy writing on front",
+    bestAttribute: "None significant",
+    eyeAppealSummary: "Front ink dominates the card.",
+    cardMeta: { estimatedYear: 1980, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      surface: "Heavy ink mark across the front image.",
+    },
+  };
+
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(result.psaGrade <= 3);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "back_only_writing:writing_mark_severe")
+  );
+});
+
+test("back-only severe writing relief floors at PSA 4 not PSA 2", () => {
+  const analysis = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7, edges: 7, surface: 2.5, centering: 7.5 },
+    visionCategoryScores: { corners: 7, edges: 7, surface: 5.5, centering: 7.5 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "writing_mark_severe",
+        severity: "severe",
+        location: "back",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "writing_mark_severe",
+    primaryLimiterLabel: "Heavy writing on back",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Colors are vibrant, with some minor wear noted.",
+    cardMeta: { estimatedYear: 1975, isReflective: false, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Minor softening at tips; generally good.",
+      edges: "Presenting light wear at edges.",
+      surface: "Light scratches visible, particularly on arms and shoulders.",
+      centering: "Well centered, slightly better than average.",
+    },
+  };
+
+  const result = computeGrade(analysis, "vintage");
+
+  assert.equal(result.psaGrade, 4);
+  assert.ok(
+    result.capAudit.some((entry) => entry.source === "back_only_writing:writing_mark_severe")
+  );
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "psa1_calibration")
+  );
+});
+
+test("Ryan-style both-location back writing relief reaches PSA 4 from cached vision", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7, edges: 7, surface: 7, centering: 7.5 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "writing_mark_severe",
+        severity: "severe",
+        location: "back",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "writing_mark_severe",
+    primaryLimiterLabel: "Heavy writing or marking over significant area",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Colors are vibrant, with some minor wear noted.",
+    cardMeta: { estimatedYear: 1975, isReflective: false, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Minor softening at tips; generally good.",
+      edges: "Presenting light wear at edges.",
+      surface: "Light scratches visible, particularly on arms and shoulders.",
+      centering: "Well centered, slightly better than average.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(
+    { ...analysis, visionCategoryScores: raw.categoryScores },
+    "vintage"
+  );
+
+  assert.equal(result.psaGrade, 4);
+  assert.ok(
+    result.capAudit.some((entry) => entry.source === "back_only_writing:writing_mark_severe")
+  );
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "psa1_calibration")
+  );
+});
+
+test("T206 Rhodes cached vision keeps edge_wear_light and reaches PSA 5", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5, surface: 6, centering: 7 },
+    defects: [
+      {
+        tag: "corner_wear_moderate",
+        severity: "moderate",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "corner_wear_moderate",
+    primaryLimiterLabel: "Moderate corner wear observed",
+    bestAttribute: "Good centering with minor flaws present",
+    eyeAppealSummary:
+      "Despite moderate wear, the colors remain vibrant and the centering is appealing, contributing to a decent eye appeal.",
+    cardMeta: { estimatedYear: 1909, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Moderate wear is visible, showing rounding and softening.",
+      edges: "Visible fraying on the edges, indicating moderate wear.",
+      surface: "Some surface scratches and creases are present, affecting visual quality.",
+      centering: "Centering is good, contributing positively to the overall presentation.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "edge_fraying_major"));
+  assert.ok(analysis.defects.some((defect) => defect.tag === "edge_wear_light"));
+  assert.equal(result.psaGrade, 5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "vintage:poor_band_notes_cluster")
+  );
+});
+
+test("uniform EX light-wear triad skip lifts Mantle 1968-style slab above PSA 3", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7, edges: 6.5, surface: 6.5, centering: 8 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+      {
+        tag: "staining_light",
+        severity: "minor",
+        location: "back",
+        confidence: "minor",
+      },
+    ],
+    primaryLimiterTag: "staining_light",
+    primaryLimiterLabel: "Light back staining",
+    bestAttribute: "Strong centering with minor wear",
+    eyeAppealSummary: "Clean EX presentation with light wear on all pillars.",
+    cardMeta: { estimatedYear: 1968, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Minor wear visible on corners.",
+      edges: "Light edge wear noted.",
+      surface: "Light scratches on the front surface.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(analysis, "vintage");
+
+  assert.ok(result.psaGrade >= 5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "vintage:triad_light_wear_notes")
+  );
+});
+
+test("NM-band cap skip avoids poor_band and triad caps on PSA 9-style light wear", () => {
+  const categoryScores = { corners: 7.5, edges: 7, surface: 7.5, centering: 8 };
+  const defects = [
+    { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+    { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "high" },
+    { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "high" },
+    { tag: "staining_light", severity: "minor", location: "back", confidence: "medium" },
+  ];
+  const analysis = {
+    visionCategoryScores: categoryScores,
+    writingReliefBandScores: categoryScores,
+    categoryNotes: {
+      corners: "Sharp corners with minor touch wear.",
+      edges: "Light edge wear only.",
+      surface: "Clean surface with minor imperfections.",
+      centering: "Well centered.",
+    },
+    eyeAppealSummary: "Well preserved NM presentation.",
+    bestAttribute: "Strong centering",
+  };
+
+  assert.ok(qualifiesForNmBandVintageCapSkip(categoryScores, defects, analysis));
+
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores,
+    defects: [
+      ...defects,
+      { tag: "surface_wear", severity: "moderate", location: "front", confidence: "medium" },
+    ],
+    primaryLimiterTag: "surface_wear",
+    primaryLimiterLabel: "Surface wear",
+    bestAttribute: "Strong centering with sharp corners",
+    eyeAppealSummary: "Well preserved with vibrant color and minimal wear.",
+    cardMeta: { estimatedYear: 1968, isReflective: false, isDarkBorder: false },
+    categoryNotes: analysis.categoryNotes,
+  };
+
+  const normalized = normalizeAnalysis(raw, "vintage");
+  assert.ok(!normalized.defects.some((defect) => defect.tag === "surface_wear"));
+  assert.ok(
+    normalized.defects.some((defect) => defect.tag === "surface_scratch_light")
+  );
+
+  const result = computeGrade(
+    { ...normalized, visionCategoryScores: categoryScores, writingReliefBandScores: categoryScores },
+    "vintage"
+  );
+  assert.ok(result.psaGrade >= 7);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "vintage:poor_band_notes_cluster")
+  );
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "vintage:triad_light_wear_notes")
+  );
+});
+
+test("NM poor-band skip does not apply when moderate structural defects remain", () => {
+  const categoryScores = { corners: 7, edges: 7, surface: 7, centering: 8 };
+  const defects = [
+    { tag: "corner_wear_moderate", severity: "moderate", location: "front", confidence: "high" },
+  ];
+  const analysis = { writingReliefBandScores: categoryScores };
+  assert.ok(!qualifiesForNmBandVintageCapSkip(categoryScores, defects, analysis));
+});
+
+test("NM gem band lifts Henderson-style back-stain PSA 10 presentation", () => {
+  const categoryScores = { corners: 8, edges: 8, surface: 8, centering: 9 };
+  const defects = [
+    { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+    { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "high" },
+    { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "high" },
+    { tag: "staining_light", severity: "minor", location: "back", confidence: "high" },
+  ];
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores,
+    defects,
+    primaryLimiterTag: "staining_light",
+    primaryLimiterLabel: "Light staining or discoloration",
+    bestAttribute: "Strong centering and color",
+    eyeAppealSummary: "Well preserved with vibrant color and minimal wear.",
+    cardMeta: { estimatedYear: 1981, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners with minor touch wear.",
+      edges: "Light edge wear only.",
+      surface: "Clean surface with minor imperfections.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(
+    {
+      ...analysis,
+      visionCategoryScores: categoryScores,
+      writingReliefBandScores: categoryScores,
+    },
+    "vintage"
+  );
+
+  assert.ok(result.psaGrade >= 8);
+  assert.ok(
+    result.capAudit.some((entry) => entry.source.startsWith("nm_band:"))
+  );
+});
+
+test("high-grade vision guard demotes false back_damage_severe on SO LEAD-style slab", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5, surface: 5, centering: 7 },
+    defects: [
+      { tag: "corner_wear_moderate", severity: "moderate", location: "front", confidence: "high" },
+      { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "surface_scratch_moderate", severity: "moderate", location: "front", confidence: "high" },
+      { tag: "back_wear", severity: "moderate", location: "back", confidence: "high" },
+      { tag: "back_damage_severe", severity: "severe", location: "back", confidence: "medium" },
+    ],
+    primaryLimiterTag: "back_damage_severe",
+    primaryLimiterLabel: "Severe back damage",
+    bestAttribute: "Good centering with slight wear on edges.",
+    eyeAppealSummary: "Overall eye appeal is fair due to the moderate corner and surface wear.",
+    cardMeta: { estimatedYear: 1978, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Moderate wear with noticeable softening.",
+      edges: "Light wear on edges, with minor chipping.",
+      surface: "Moderate scratches present, affecting visual quality.",
+      centering: "Well centered for the card's age.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "back_damage_severe"));
+  assert.ok(
+    analysis.defects.some(
+      (defect) => defect.tag === "staining_light" && defect.location === "back"
+    )
+  );
+});
+
+test("high-grade vision guard demotes false writing_mark on Robinson-style slab", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 8.5, edges: 8, surface: 6, centering: 9 },
+    defects: [
+      { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "writing_mark", severity: "moderate", location: "back", confidence: "medium" },
+    ],
+    primaryLimiterTag: "writing_mark",
+    primaryLimiterLabel: "Writing, mark, or ink",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Front appeal is strong with minor surface issues.",
+    cardMeta: { estimatedYear: 1968, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Corners appear mostly sharp with minor wear.",
+      edges: "Edges show minimal wear; light chipping present.",
+      surface: "Surface has light scratches that impact visual appeal.",
+      centering: "Centering is excellent, slightly off but acceptable.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "writing_mark"));
+});
+
+test("high-grade vision guard demotes scratch_moderate with back-only stain companion", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 6, surface: 6, centering: 7 },
+    defects: [
+      { tag: "corner_wear_moderate", severity: "moderate", location: "front", confidence: "medium" },
+      { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "medium" },
+      { tag: "surface_scratch_moderate", severity: "moderate", location: "front", confidence: "medium" },
+      { tag: "staining_light", severity: "minor", location: "back", confidence: "medium" },
+    ],
+    primaryLimiterTag: "surface_scratch_moderate",
+    primaryLimiterLabel: "Moderate surface scratching",
+    bestAttribute: "fair eye appeal with moderate visible defects",
+    eyeAppealSummary: "Good centering with moderate corner wear and surface scratches.",
+    cardMeta: { estimatedYear: 1970, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Moderate wear visible with softening.",
+      edges: "Light wear visible along the edges.",
+      surface: "Moderate scratches and a few surface imperfections.",
+      centering: "Well-centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "surface_scratch_moderate"));
+  assert.ok(analysis.defects.some((defect) => defect.tag === "surface_scratch_light"));
+});
+
+test("NM/GEM guard lifts Robinson-style PSA 10 light-wear pillar collapse above 5.5", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5.5, edges: 5.5, surface: 5.5, centering: 9 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "medium" },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Well preserved with sharp corners and minimal wear.",
+    cardMeta: { estimatedYear: 1968, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Corners appear sharp with minor touch wear.",
+      edges: "Light edge wear only.",
+      surface: "Light scratches visible under close inspection.",
+      centering: "Excellent centering.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  const result = computeGrade(
+    { ...analysis, visionCategoryScores: raw.categoryScores },
+    "vintage"
+  );
+
+  assert.ok(analysis.categoryScores.corners >= 8);
+  assert.ok(analysis.categoryScores.surface >= 8);
+  assert.ok(result.psaGrade >= 7);
+});
+
+test("NM/GEM guard removes cosmetic back staining_light on PSA 10 presentation", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5.5, edges: 5.5, surface: 5.5, centering: 9 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "staining_light", severity: "minor", location: "back", confidence: "medium" },
+    ],
+    primaryLimiterTag: "staining_light",
+    primaryLimiterLabel: "Light staining or discoloration",
+    bestAttribute: "Strong centering and color",
+    eyeAppealSummary: "Well preserved with vibrant color and minimal wear.",
+    cardMeta: { estimatedYear: 1968, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners with minor touch wear.",
+      edges: "Light edge wear only.",
+      surface: "Clean surface; light back toning only.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "staining_light"));
+  assert.ok(Math.min(analysis.categoryScores.corners, analysis.categoryScores.surface) >= 8);
+});
+
+test("NM/GEM guard does not lift PSA 4-style poor-band presentation", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5, edges: 5, surface: 4.5, centering: 6.5 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "medium" },
+      { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "medium" },
+      { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "medium" },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Fair eye appeal",
+    eyeAppealSummary: "Heavy wear visible across the card.",
+    cardMeta: { estimatedYear: 1962, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Rounded corners with moderate wear.",
+      edges: "Heavy edge wear and chipping.",
+      surface: "Heavy surface wear throughout.",
+      centering: "Off center.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(analysis.categoryScores.corners <= 6);
+  assert.ok(analysis.categoryScores.surface <= 5.5);
+});
+
+test("NM/GEM guard does not lift EX-band PSA 7 presentation (Mantle-style)", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 7.5, edges: 7, surface: 7, centering: 8 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "high" },
+    ],
+    primaryLimiterTag: "corner_wear_light",
+    primaryLimiterLabel: "Light corner wear",
+    bestAttribute: "Good color",
+    eyeAppealSummary: "Well preserved with good color.",
+    cardMeta: { estimatedYear: 1962, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Minor corner touch.",
+      edges: "Light edge wear.",
+      surface: "Clean with minor scratches.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(analysis.categoryScores.corners <= 7.5);
+  assert.ok(analysis.categoryScores.edges <= 7.5);
+  assert.ok(analysis.categoryScores.surface <= 7.5);
+  assert.ok(analysis.categoryScores.corners < 8);
+  assert.ok(analysis.categoryScores.surface < 8);
+});
+
+test("NM/GEM recovery does not lift PSA 1-3 low-grade vintage presentation", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 4, edges: 4, surface: 3.5, centering: 7 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "medium" },
+      { tag: "edge_wear_light", severity: "minor", location: "front", confidence: "medium" },
+      { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "medium" },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Fair eye appeal",
+    eyeAppealSummary: "Poor condition with heavy wear visible.",
+    cardMeta: { estimatedYear: 1952, isReflective: false, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Rounded corners with heavy wear.",
+      edges: "Heavy edge wear.",
+      surface: "Heavy surface wear throughout.",
+      centering: "Off center.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(analysis.categoryScores.corners <= 5.5);
+  assert.ok(analysis.categoryScores.surface <= 5.5);
+});
+
+test("NM/GEM recovery allows pillar lift on gem-mint collapsed presentation", () => {
+  const raw = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5.5, edges: 5.5, surface: 5.5, centering: 9 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "staining_light", severity: "minor", location: "front", confidence: "high" },
+    ],
+    primaryLimiterTag: "staining_light",
+    primaryLimiterLabel: "Light staining",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Gem mint presentation with sharp corners.",
+    cardMeta: { estimatedYear: 1975, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Light edge wear.",
+      surface: "Light front staining visible.",
+      centering: "Excellent centering.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "vintage");
+  assert.ok(Math.min(analysis.categoryScores.corners, analysis.categoryScores.surface) >= 8);
+});
+
+test("gem-mint slab profile lifts Robinson-style PSA 10 above mint PSA 9 path", () => {
+  const robinson = {
+    scanQuality: { level: "good", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 5.5, edges: 5.5, surface: 5.5, centering: 9 },
+    defects: [
+      { tag: "corner_wear_light", severity: "minor", location: "front", confidence: "high" },
+      { tag: "surface_scratch_light", severity: "minor", location: "front", confidence: "medium" },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    eyeAppealSummary: "Well preserved with sharp corners and minimal wear.",
+    categoryNotes: {
+      corners: "Corners appear sharp with minor touch wear.",
+      edges: "Light edge wear only.",
+      surface: "Clean surface; light scratches under inspection.",
+      centering: "Excellent centering.",
+    },
+    cardMeta: { estimatedYear: 1968 },
+  };
+  const bench = {
+    ...robinson,
+    categoryScores: { corners: 7.5, edges: 7.5, surface: 7, centering: 8 },
+    categoryNotes: {
+      corners: "Slight softening observed but otherwise fair corners.",
+      edges: "Good edges with minor wear noted.",
+      surface: "Minor scratches present, primarily on the lower section.",
+      centering: "Well-centered presentation indicative of higher grade potential.",
+    },
+    eyeAppealSummary: "The card maintains a bright and clear image with only minor visible flaws.",
+  };
+
+  const gemAnalysis = normalizeAnalysis(robinson, "vintage");
+  const mintAnalysis = normalizeAnalysis(bench, "vintage");
+  assert.ok(
+    Math.min(
+      gemAnalysis.categoryScores.corners,
+      gemAnalysis.categoryScores.surface
+    ) >= 8.5
+  );
+  assert.ok(
+    Math.min(mintAnalysis.categoryScores.corners, mintAnalysis.categoryScores.surface) <= 8
+  );
+});
+
+test("modern single corner_wear_light is not crushed by vintage Ryan optimism ceiling", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 8.5, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "corner_wear_light",
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2018, isReflective: false, isDarkBorder: true },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade >= 8);
+  assert.ok(
+    !result.capAudit.some(
+      (entry) => entry.source === "ex_band:uniform_light_optimism_ceiling"
+    )
+  );
+});
+
+test("vintage Ryan optimism ceiling still caps single corner_wear_light inflation", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 8.5, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "corner_wear_light",
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 1951, isReflective: false, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "vintage");
+  assert.ok(
+    result.capAudit.some(
+      (entry) =>
+        entry.source === "ex_band:uniform_light_optimism_ceiling" && entry.cap === 4
+    )
+  );
+});
+test("modern surface_scratch_light uses 8.5 cap when NM recovery does not qualify", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 7.5, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.equal(result.internalGrade, 7.5);
+  assert.ok(
+    result.capAudit.some(
+      (entry) =>
+        entry.source === "primaryLimiter:surface_scratch_light" && entry.cap === 8.5
+    )
+  );
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("nm_modern:"))
+  );
+});
+
+test("modern NM recovery lifts light scratch presentation to PSA 9 when pillars allow", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners with no handling wear.",
+      edges: "Clean crisp edges.",
+      surface: "Light factory refractor artifact under close inspection.",
+      centering: "Well centered.",
+    },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.equal(result.internalGrade, 9);
+  assert.equal(result.psaGrade, 9);
+  assert.ok(
+    result.capAudit.some(
+      (entry) =>
+        entry.source === "nm_modern:primary:surface_scratch_light" && entry.cap === 9
+    )
+  );
+});
+
+test("modern NM recovery does not apply when wearFloor is below 8", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 7.5, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("nm_modern:"))
+  );
+});
+
+test("vintage light scratch cap is unchanged by modern NM recovery", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 1968, isReflective: true, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners",
+      edges: "Clean edges",
+      surface: "Minor scratch under inspection",
+      centering: "Well centered",
+    },
+  });
+
+  const normalized = normalizeAnalysis(
+    {
+      ...analysis,
+      scanQuality: analysis.scanQuality,
+    },
+    "vintage"
+  );
+  assert.ok(
+    normalized.defects.some((defect) => defect.tag === "surface_scratch_light")
+  );
+  assert.ok(
+    !normalized.visionReconciliationAudit?.some(
+      (entry) => entry.source === "modern_reflective_artifact_reclass"
+    )
+  );
+
+  const result = computeGrade(normalized, "vintage");
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("nm_modern:"))
+  );
+});
+
+test("modern reflective cosmetic scratch reclassifies to print_line with audit", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9, edges: 9, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Centering",
+    eyeAppealSummary: "Mostly clean reflective presentation",
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Sharp",
+      edges: "Clean",
+      surface: "Light scratch noted but does not detract from display value.",
+      centering: "Well centered",
+    },
+  };
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.ok(normalized.defects.some((defect) => defect.tag === "print_line"));
+  assert.ok(
+    !normalized.defects.some((defect) => defect.tag === "surface_scratch_light")
+  );
+  assert.ok(
+    normalized.visionReconciliationAudit?.some(
+      (entry) =>
+        entry.source === "modern_reflective_artifact_reclass" &&
+        entry.originalTag === "surface_scratch_light" &&
+        entry.newTag === "print_line"
+    )
+  );
+});
+
+test("modern reflective deep scratch language skips reflective reclass", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9, edges: 9, surface: 7, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Centering",
+    eyeAppealSummary: "Reflective card",
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Sharp",
+      edges: "Clean",
+      surface: "Multiple scratches with deep scratch visible on the front.",
+      centering: "Well centered",
+    },
+  };
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.ok(normalized.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.ok(!normalized.visionReconciliationAudit?.length);
+});
+
+test("modern non-reflective scratch is not reclassified", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9, edges: 9, surface: 8, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Centering",
+    eyeAppealSummary: "Clean paper stock",
+    cardMeta: { estimatedYear: 2023, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp",
+      edges: "Clean",
+      surface: "Light scratch present on an otherwise mostly clean surface.",
+      centering: "Well centered",
+    },
+  };
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.ok(normalized.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.ok(!normalized.visionReconciliationAudit?.length);
+});
+
+test("modern cosmetic print_line cap lifts to 9 when pillars and notes qualify", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      corners: "Sharp corners with no visible wear.",
+      edges: "Clean edges.",
+      surface: "Minor factory print line under close inspection; does not detract.",
+      centering: "Well centered.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.equal(result.internalGrade, 9);
+  assert.equal(result.psaGrade, 9);
+  assert.ok(
+    result.capAudit.some(
+      (entry) =>
+        entry.source === "modern_cosmetic:primary:print_line" && entry.cap === 9
+    )
+  );
+});
+
+test("modern cosmetic print_line cap does not apply when pillars below 9", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      surface: "Minor factory print line; does not detract.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8.5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("modern_cosmetic:"))
+  );
+});
+
+test("modern cosmetic print_line cap blocked by eye appeal detracting language", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9.5 },
+    defects: [
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      surface: "Minor scratch detracting slightly from overall appeal.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2025, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8.5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("modern_cosmetic:"))
+  );
+});
+
+test("vintage print_line cap remains unchanged by modern cosmetic relief", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      surface: "Minor factory print line; does not detract.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 1980, isReflective: false, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "vintage");
+  assert.ok(result.internalGrade <= 8);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("modern_cosmetic:"))
+  );
+});
+
+test("modern nm recovery does not apply to corner_wear_light", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "corner_wear_light",
+    categoryNotes: {
+      corners: "Minor touch wear on a couple corners.",
+      edges: "Clean edges.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: false, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8.5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("nm_modern:"))
+  );
+});
+
+test("modern cosmetic print_line cap blocked by handling wear language", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      corners: "Slight touch wear on one corner.",
+      edges: "Clean edges.",
+      surface: "Minor factory print line under close inspection.",
+      centering: "Well centered.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8.5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("modern_cosmetic:"))
+  );
+});
+
+test("modern cosmetic print_line cap blocked by wear tag vs no-wear note contradiction", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "medium",
+      },
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      corners: "Sharp corners with no visible wear.",
+      edges: "Clean edges with no noticeable wear.",
+      surface: "Minor factory print line; does not detract.",
+      centering: "Well centered.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8.5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("modern_cosmetic:"))
+  );
 });

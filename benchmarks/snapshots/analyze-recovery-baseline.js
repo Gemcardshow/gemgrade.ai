@@ -1,4 +1,9 @@
-import { GRADING_PHILOSOPHY, MODERN_GRADING_PHILOSOPHY } from "./philosophy.js";
+/**
+ * Frozen snapshot: recovery gating baseline (primary grading path).
+ * Tag: recovery-gating-baseline-v1
+ * Do not edit — update only after PSA 9/10 validation.
+ */
+import { GRADING_PHILOSOPHY } from "../../api/grading/philosophy.js";
 import {
   getDefectDefinition,
   getDefectLabel,
@@ -6,15 +11,15 @@ import {
   normalizeDefectObservation,
   resolveEffectiveDefectTag,
   escalateLightWearObservation,
-} from "./defects.js";
+} from "../../api/grading/defects.js";
 import {
   ANALYSIS_JSON_SCHEMA,
   buildAnalysisInstruction,
   ERA_JSON_SCHEMA,
-} from "./prompts/core.js";
-import { MODERN_RUBRIC } from "./prompts/modern.js";
-import { VINTAGE_RUBRIC } from "./prompts/vintage.js";
-import { clampGrade, roundToHalf } from "./types.js";
+} from "../../api/grading/prompts/core.js";
+import { MODERN_RUBRIC } from "../../api/grading/prompts/modern.js";
+import { VINTAGE_RUBRIC } from "../../api/grading/prompts/vintage.js";
+import { clampGrade, roundToHalf } from "../../api/grading/types.js";
 
 function parseJsonResponse(outputText) {
   try {
@@ -840,14 +845,8 @@ function dedupeDefects(defects, categoryScores, era, options = {}) {
   return deduped;
 }
 
-function ensurePrimaryLimiterDefect(defects, primaryLimiterTag, raw = null) {
+function ensurePrimaryLimiterDefect(defects, primaryLimiterTag) {
   if (!primaryLimiterTag) return defects;
-  if (primaryLimiterTag === "surface_scratch_light") {
-    const scratchDefect = defects.find((defect) => defect.tag === "surface_scratch_light");
-    if (!scratchDefect || (raw && !hasConfirmedSurfaceScratchEvidence(raw, scratchDefect))) {
-      return defects;
-    }
-  }
   if (defects.some((defect) => defect.tag === primaryLimiterTag)) {
     return defects;
   }
@@ -876,8 +875,8 @@ function ensurePrimaryLimiterDefect(defects, primaryLimiterTag, raw = null) {
 function resolvePrimaryLimiter(defects, era, primaryLimiterTag, primaryLimiterLabel) {
   if (!defects.length) {
     return {
-      primaryLimiterTag: null,
-      primaryLimiterLabel: "None visible",
+      primaryLimiterTag: primaryLimiterTag || "corner_wear_light",
+      primaryLimiterLabel: primaryLimiterLabel || "Visible wear",
     };
   }
 
@@ -914,97 +913,6 @@ const SURFACE_WEAR_TAGS = new Set([
   "back_wear",
   "back_damage_severe",
 ]);
-
-const SURFACE_SCRATCH_EVIDENCE = [
-  /\b(light|minor|small|visible|faint|surface|hairline) scratch/i,
-  /\bscratch(ed|es|ing)?\b/i,
-  /\bscuff/i,
-  /\babrasion/i,
-  /\bscrape/i,
-];
-
-const SURFACE_SCRATCH_DENIAL = [
-  /\bno scratches?\b/i,
-  /\bscratch.?free\b/i,
-  /\bfree of (marks|scratches)\b/i,
-  /\bwithout scratches?\b/i,
-  /\bno (significant )?marks\b/i,
-  /\bflawless\b/i,
-  /\b(no scratches or marks|no marks or scratches)\b/i,
-];
-
-function collectSurfaceScratchText(raw, defect = null) {
-  const notes = raw?.categoryNotes || {};
-  return [
-    notes.surface,
-    defect ? raw?.primaryLimiterLabel : null,
-    raw?.eyeAppealSummary,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-}
-
-function hasConfirmedSurfaceScratchEvidence(raw, defect) {
-  const text = collectSurfaceScratchText(raw, defect);
-  if (!text) {
-    return false;
-  }
-  if (SURFACE_SCRATCH_DENIAL.some((pattern) => pattern.test(text))) {
-    return false;
-  }
-  if (!SURFACE_SCRATCH_EVIDENCE.some((pattern) => pattern.test(text))) {
-    return false;
-  }
-  if (
-    /\b(print line|roller mark|factory line|refractor artifact|chrome artifact)\b/i.test(
-      text
-    ) &&
-    !/\bscratch/i.test(text)
-  ) {
-    return false;
-  }
-  return true;
-}
-
-function filterUnconfirmedSurfaceScratchDefects(defects, raw, era) {
-  if (era !== "modern") {
-    return defects;
-  }
-  return defects.filter((defect) => {
-    if (defect.tag !== "surface_scratch_light") {
-      return true;
-    }
-    return hasConfirmedSurfaceScratchEvidence(raw, defect);
-  });
-}
-
-function finalizeSurfaceScratchAndLimiter(defects, categoryScores, era, raw, finalLimiter) {
-  let nextDefects = filterUnconfirmedSurfaceScratchDefects(defects, raw, era);
-  let nextLimiter = resolvePrimaryLimiter(
-    nextDefects,
-    era,
-    finalLimiter.primaryLimiterTag,
-    finalLimiter.primaryLimiterLabel
-  );
-
-  if (nextLimiter.primaryLimiterTag) {
-    nextDefects = dedupeDefects(
-      ensurePrimaryLimiterDefect(nextDefects, nextLimiter.primaryLimiterTag, raw),
-      categoryScores,
-      era,
-      { skipEscalation: true, raw }
-    );
-    nextLimiter = resolvePrimaryLimiter(
-      nextDefects,
-      era,
-      nextLimiter.primaryLimiterTag,
-      nextLimiter.primaryLimiterLabel
-    );
-  }
-
-  return { defects: nextDefects, finalLimiter: nextLimiter };
-}
 
 const CORNER_WEAR_TAGS = new Set([
   "corner_wear_light",
@@ -1915,123 +1823,6 @@ function shouldReclassifyCornerWearAsPrintArtifact(defect, raw, categoryScores) 
     (noteIndicatesSharpCornerPresentation(raw) &&
       (hasNmGemPresentationAppeal(raw) || isNmVintagePresentationCandidate(categoryScores, raw)))
   );
-}
-
-const MODERN_REFLECTIVE_SCRATCH_DAMAGE_BLOCKERS = [
-  /\bmultiple scratches\b/,
-  /\bseveral scratches\b/,
-  /\bnumerous scratches\b/,
-  /\bdeep scratch/,
-  /\bheavy scratch/,
-  /\bsevere scratch/,
-  /\bobvious wear\b/,
-  /\bheavy scuff/,
-  /\bsevere scuff/,
-  /\bdistracting defect/,
-  /\bhighly distracting\b/,
-  /\bsignificant surface loss\b/,
-  /\bdetract(s|ing)? significantly\b/,
-  /\bimpacts visibility\b/,
-  /\bcontinuous scratch/,
-  /\bgouge\b/,
-  /\bindentation\b/,
-];
-
-const MODERN_REFLECTIVE_SCRATCH_COSMETIC_SIGNALS = [
-  /\bminor scratch/,
-  /\blight scratch/,
-  /\bminor surface mark/,
-  /\bdoes not detract\b/,
-  /\bdoesn't detract\b/,
-  /\bdo not detract\b/,
-  /\bdon't detract\b/,
-  /\botherwise excellent\b/,
-  /\bmostly clean\b/,
-  /\bclean surface\b/,
-  /\bgenerally clean\b/,
-  /\blargely clean\b/,
-  /\bglossy\b/,
-  /\bfactory line\b/,
-  /\bprint line\b/,
-  /\broller mark/,
-  /\bminor imperfection/,
-  /\bslight wear\b/,
-  /\bnot easily noticeable\b/,
-  /\bunder (close )?inspection\b/,
-  /\bsuperficial\b/,
-  /\bhairline\b/,
-  /\bfaint scratch/,
-  /\bsmall scratch/,
-  /\bvery clean\b/,
-  /\bno significant scratch/,
-  /\bshiny\b/,
-  /\breflective\b/,
-  /\bvibrant\b/,
-  /\bexcellent surface\b/,
-  /\bminor blemish/,
-  /\bminimal scratch/,
-];
-
-function collectModernReflectiveSurfaceText(raw) {
-  const notes = raw.categoryNotes || {};
-  return [
-    notes.surface,
-    raw.eyeAppealSummary,
-    raw.bestAttribute,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-}
-
-function hasModernReflectiveScratchDamageLanguage(raw) {
-  const text = collectModernReflectiveSurfaceText(raw);
-  return MODERN_REFLECTIVE_SCRATCH_DAMAGE_BLOCKERS.some((pattern) => pattern.test(text));
-}
-
-function hasModernReflectiveScratchCosmeticLanguage(raw) {
-  const text = collectModernReflectiveSurfaceText(raw);
-  return MODERN_REFLECTIVE_SCRATCH_COSMETIC_SIGNALS.some((pattern) => pattern.test(text));
-}
-
-function reconcileModernReflectiveScratchArtifacts(defects, raw, era) {
-  if (era !== "modern" || raw?.cardMeta?.isReflective !== true) {
-    return { defects, audit: [], reconciled: false };
-  }
-  if (!defects.some((defect) => defect.tag === "surface_scratch_light")) {
-    return { defects, audit: [], reconciled: false };
-  }
-  if (hasModernReflectiveScratchDamageLanguage(raw)) {
-    return { defects, audit: [], reconciled: false };
-  }
-  if (!hasModernReflectiveScratchCosmeticLanguage(raw)) {
-    return { defects, audit: [], reconciled: false };
-  }
-
-  let adjusted = false;
-  const audit = [];
-  const reconciled = defects.map((defect) => {
-    if (defect.tag !== "surface_scratch_light") {
-      return defect;
-    }
-    adjusted = true;
-    audit.push({
-      source: "modern_reflective_artifact_reclass",
-      originalTag: "surface_scratch_light",
-      newTag: "print_line",
-    });
-    return normalizeDefectObservation({
-      ...defect,
-      tag: "print_line",
-      severity: "minor",
-    });
-  });
-
-  if (!adjusted) {
-    return { defects, audit: [], reconciled: false };
-  }
-
-  return { defects: reconciled, audit, reconciled: true };
 }
 
 function qualifiesForNmGemStrongPresentation(categoryScores, raw, defects) {
@@ -4034,33 +3825,6 @@ function normalizeAnalysis(raw, era) {
     }
   }
 
-  let visionReconciliationAudit = [];
-  const reflectiveScratch = reconcileModernReflectiveScratchArtifacts(defects, raw, era);
-  if (reflectiveScratch.reconciled) {
-    defects = reflectiveScratch.defects;
-    visionReconciliationAudit = reflectiveScratch.audit;
-    finalLimiter = resolvePrimaryLimiter(
-      defects,
-      era,
-      raw.primaryLimiterTag === "surface_scratch_light" ? null : raw.primaryLimiterTag,
-      raw.primaryLimiterLabel
-    );
-    defects = dedupeDefects(
-      ensurePrimaryLimiterDefect(defects, finalLimiter.primaryLimiterTag, raw),
-      categoryScores,
-      era,
-      { skipEscalation: true, raw }
-    );
-  }
-
-  ({ defects, finalLimiter } = finalizeSurfaceScratchAndLimiter(
-    defects,
-    categoryScores,
-    era,
-    raw,
-    finalLimiter
-  ));
-
   return {
     scanQuality: {
       level: raw.scanQuality.level,
@@ -4076,7 +3840,6 @@ function normalizeAnalysis(raw, era) {
     eyeAppealSummary: raw.eyeAppealSummary,
     cardMeta: raw.cardMeta,
     categoryNotes,
-    visionReconciliationAudit,
   };
 }
 
@@ -4087,7 +3850,7 @@ function normalizeAnalysis(raw, era) {
 export async function analyzeCard(client, { frontImage, backImage, era }) {
   const pathRubric = era === "vintage" ? VINTAGE_RUBRIC : MODERN_RUBRIC;
   const instruction = buildAnalysisInstruction({
-    philosophy: era === "modern" ? MODERN_GRADING_PHILOSOPHY : GRADING_PHILOSOPHY,
+    philosophy: GRADING_PHILOSOPHY,
     pathRubric,
   });
 
@@ -4118,3 +3881,4 @@ Return estimatedYear as a 4-digit year when possible, otherwise null.
 }
 
 export { callStructuredVision, normalizeAnalysis, parseJsonResponse, reconcileFairCardOverTags };
+

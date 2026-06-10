@@ -54,7 +54,7 @@ export const DEFECT_REGISTRY = {
     label: "Light surface scratch",
     severityClass: "minor",
     capVintage: 7.5,
-    capModern: 8.0,
+    capModern: 8.5,
   },
   surface_scratch_moderate: {
     label: "Moderate surface scratching",
@@ -285,7 +285,75 @@ export function normalizeDefectObservation(defect) {
 
 export function isStructuralDefect(defect) {
   const effectiveTag = resolveEffectiveDefectTag(defect.tag, defect.severity);
-  return STRUCTURAL_DEFECT_TAGS.has(effectiveTag);
+  if (!STRUCTURAL_DEFECT_TAGS.has(effectiveTag)) {
+    return false;
+  }
+
+  // Light edge wear must not stack as structural compound damage.
+  if (effectiveTag === "edge_fraying_major") {
+    if (defect.severity === "minor") {
+      return false;
+    }
+    if (defect.confidence === "low") {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Structural defects that count toward compound:3plus_structural_* caps.
+ * Excludes light edge fraying; severe crease, paper loss, stains, writing, etc. still count.
+ *
+ * @param {import("./types.js").VisionDefect} defect
+ * @param {{ categoryNotes?: Record<string, string>, eyeAppealSummary?: string, bestAttribute?: string } | null} [analysis]
+ */
+export function countsForCompoundStructural(defect, analysis = null) {
+  if (!isStructuralDefect(defect)) {
+    return false;
+  }
+
+  const effectiveTag = resolveEffectiveDefectTag(defect.tag, defect.severity);
+  if (effectiveTag !== "edge_fraying_major") {
+    return true;
+  }
+
+  const text = analysis
+    ? [
+        analysis.eyeAppealSummary,
+        analysis.bestAttribute,
+        ...Object.values(analysis.categoryNotes || {}),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+    : "";
+
+  if (
+    /\b(major edge|heavy edge|severe edge|heavy chipping|major chipping|heavy fray|severe fray|significant fray|paper loss|cardstock loss)\b/.test(
+      text
+    )
+  ) {
+    return true;
+  }
+
+  if (
+    /\b(light edge|minor edge|slight edge|light edge wear|minor edge wear|light fray|slight fray|light roughness|light factory roughness)\b/.test(
+      text
+    )
+  ) {
+    return false;
+  }
+
+  if (
+    /\b(light|minor|slight|minimal)\b/.test(text) &&
+    /\b(edge|fray|chipping)\b/.test(text)
+  ) {
+    return false;
+  }
+
+  return defect.severity === "severe";
 }
 
 export function countWearDefects(defects) {

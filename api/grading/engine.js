@@ -1,16 +1,23 @@
+import { getDefectCap, getDefectDefinition, getDefectLabel, getEffectiveDefectCap, isStructuralDefect } from "./defects.js";
 import {
-  getDefectCap,
-  getDefectDefinition,
-  getDefectLabel,
-  getEffectiveDefectCap,
-} from "./defects.js";
-import {
+  applyBackOnlyWritingCategoryRelief,
+  applyBackOnlyWritingOverallFloor,
   applyCenteringGemCap,
   applyCompoundHarshness,
+  applyExBandOptimismCeiling,
+  applyExCategoryImpactRelief,
   applyIsolatedPillarFloor,
+  applyNmGemVintageBandRules,
   applyPsa1Calibration,
   applyVintageMultiPillarWearCap,
+  countPillarsAtOrBelow,
   finalizeInternalGrade,
+  getOverallCategoryFloor,
+  qualifiesForExSingleCreaseCap,
+  resolveBackOnlyWritingCap,
+  resolveNmModernDefectCap,
+  resolveNmVintageDefectCap,
+  resolveModernCosmeticPrintLineCap,
 } from "./psa-calibration.js";
 import {
   clampGrade,
@@ -85,7 +92,29 @@ function getScanCeiling(scanQuality) {
   return ceiling;
 }
 
-function getDefectCeiling(defects, era, categoryScores, capAudit) {
+function resolveExBandEdgeFrayingCap(defect, era, bandScores, categoryScores, defects, capAudit) {
+  if (defect.tag !== "edge_fraying_major") {
+    return null;
+  }
+
+  const structuralCount = defects.filter((entry) => isStructuralDefect(entry)).length;
+  const sideStrength = Math.min(bandScores.corners, categoryScores.corners);
+  const surfaceStrength = Math.min(bandScores.surface, categoryScores.surface);
+
+  if (structuralCount > 1) {
+    return null;
+  }
+  if (sideStrength < 5.5 || surfaceStrength < 5.5) {
+    return null;
+  }
+
+  const isolatedEdgeCap = era === "vintage" ? 5.5 : 6.0;
+  capAudit.push({ source: `isolatedEdge:${defect.tag}`, cap: isolatedEdgeCap });
+  return isolatedEdgeCap;
+}
+
+function getDefectCeiling(defects, era, categoryScores, capAudit, analysis = null) {
+  const bandScores = analysis?.visionCategoryScores || categoryScores;
   if (!defects.length) return 10;
 
   let ceiling = 10;
@@ -93,29 +122,104 @@ function getDefectCeiling(defects, era, categoryScores, capAudit) {
   for (const defect of defects) {
     let cap = getEffectiveDefectCap(defect, era);
 
+    const isolatedEdgeCap = resolveExBandEdgeFrayingCap(
+      defect,
+      era,
+      bandScores,
+      categoryScores,
+      defects,
+      capAudit
+    );
+    if (isolatedEdgeCap !== null && isolatedEdgeCap > cap) {
+      cap = isolatedEdgeCap;
+    }
+
     if (
-      defect.tag === "edge_fraying_major" &&
-      categoryScores.corners >= 6 &&
-      categoryScores.surface >= 6
+      era === "vintage" &&
+      defect.tag === "moderate_crease" &&
+      qualifiesForExSingleCreaseCap(categoryScores, defects, analysis, era)
     ) {
-      const isolatedEdgeCap = era === "vintage" ? 5.5 : 6.0;
-      if (isolatedEdgeCap > cap) {
-        cap = isolatedEdgeCap;
-        capAudit.push({ source: `isolatedEdge:${defect.tag}`, cap });
+      const exCreaseCap = 5.0;
+      if (exCreaseCap > cap) {
+        cap = exCreaseCap;
+        capAudit.push({ source: `exBandCrease:${defect.tag}`, cap: exCreaseCap });
       }
     }
 
     if (
-      categoryScores.surface <= 4 &&
-      categoryScores.corners <= 5 &&
-      categoryScores.edges <= 5 &&
-      (defect.tag === "surface_wear" || defect.tag === "surface_scratch_moderate")
+      era === "vintage" &&
+      (defect.tag === "surface_wear" || defect.tag === "surface_scratch_moderate") &&
+      countPillarsAtOrBelow(bandScores, 4) >= 3 &&
+      countPillarsAtOrBelow(bandScores, 5) >= 3
     ) {
-      const surfaceBound = era === "vintage" ? 2.0 : 2.5;
+      const surfaceBound = 2.0;
       if (surfaceBound < cap) {
         cap = surfaceBound;
         capAudit.push({ source: `categoryBound:${defect.tag}`, cap });
       }
+    }
+
+    if (
+      era === "vintage" &&
+      defect.tag === "surface_wear" &&
+      bandScores.corners >= 6 &&
+      bandScores.edges >= 6
+    ) {
+      const exSurfaceCap = 5.5;
+      if (exSurfaceCap > cap) {
+        cap = exSurfaceCap;
+        capAudit.push({ source: `exBandSurface:${defect.tag}`, cap });
+      }
+    }
+
+    const backWritingCap = resolveBackOnlyWritingCap(
+      defect,
+      categoryScores,
+      defects,
+      analysis,
+      capAudit
+    );
+    if (backWritingCap !== null && backWritingCap > cap) {
+      cap = backWritingCap;
+    }
+
+    const nmVintageCap = resolveNmVintageDefectCap(
+      defect,
+      era,
+      categoryScores,
+      defects,
+      analysis
+    );
+    if (nmVintageCap !== null && nmVintageCap > cap) {
+      cap = nmVintageCap;
+      capAudit.push({ source: `nm_band:defect:${defect.tag}`, cap: nmVintageCap });
+    }
+
+    const nmModernCap = resolveNmModernDefectCap(
+      defect,
+      era,
+      categoryScores,
+      defects,
+      analysis
+    );
+    if (nmModernCap !== null && nmModernCap > cap) {
+      cap = nmModernCap;
+      capAudit.push({ source: `nm_modern:defect:${defect.tag}`, cap: nmModernCap });
+    }
+
+    const modernPrintLineCap = resolveModernCosmeticPrintLineCap(
+      defect,
+      era,
+      categoryScores,
+      defects,
+      analysis
+    );
+    if (modernPrintLineCap !== null && modernPrintLineCap > cap) {
+      cap = modernPrintLineCap;
+      capAudit.push({
+        source: `modern_cosmetic:defect:${defect.tag}`,
+        cap: modernPrintLineCap,
+      });
     }
 
     if (cap < ceiling) {
@@ -132,25 +236,132 @@ function getPrimaryLimiterCap(
   defects,
   era,
   categoryScores,
-  capAudit
+  capAudit,
+  analysis = null
 ) {
   if (!primaryLimiterTag) return 10;
 
+  const bandScores = analysis?.visionCategoryScores || categoryScores;
   const matchingDefect = defects.find((defect) => defect.tag === primaryLimiterTag);
   let cap = matchingDefect
     ? getEffectiveDefectCap(matchingDefect, era)
     : getDefectCap(primaryLimiterTag, era);
 
-  if (
-    primaryLimiterTag === "edge_fraying_major" &&
-    categoryScores.corners >= 6 &&
-    categoryScores.surface >= 6
-  ) {
-    const isolatedEdgeCap = era === "vintage" ? 5.5 : 6.0;
-    if (isolatedEdgeCap > cap) {
+  if (matchingDefect) {
+    const isolatedEdgeCap = resolveExBandEdgeFrayingCap(
+      matchingDefect,
+      era,
+      bandScores,
+      categoryScores,
+      defects,
+      capAudit
+    );
+    if (isolatedEdgeCap !== null && isolatedEdgeCap > cap) {
       cap = isolatedEdgeCap;
-      capAudit.push({ source: `isolatedEdge:${primaryLimiterTag}`, cap });
     }
+  }
+
+  if (
+    era === "vintage" &&
+    primaryLimiterTag === "moderate_crease" &&
+    qualifiesForExSingleCreaseCap(categoryScores, defects, analysis, era)
+  ) {
+    const exCreaseCap = 5.0;
+    if (exCreaseCap > cap) {
+      cap = exCreaseCap;
+      capAudit.push({ source: `exBandCrease:${primaryLimiterTag}`, cap: exCreaseCap });
+    }
+  }
+
+  if (
+    matchingDefect &&
+    (primaryLimiterTag === "writing_mark" || primaryLimiterTag === "writing_mark_severe")
+  ) {
+    const backWritingCap = resolveBackOnlyWritingCap(
+      matchingDefect,
+      categoryScores,
+      defects,
+      analysis,
+      capAudit
+    );
+    if (backWritingCap !== null && backWritingCap > cap) {
+      cap = backWritingCap;
+    }
+  }
+
+  const nmVintageCap = matchingDefect
+    ? resolveNmVintageDefectCap(
+        matchingDefect,
+        era,
+        categoryScores,
+        defects,
+        analysis
+      )
+    : resolveNmVintageDefectCap(
+        { tag: primaryLimiterTag, severity: "minor", location: "front", confidence: "high" },
+        era,
+        categoryScores,
+        defects,
+        analysis
+      );
+  if (nmVintageCap !== null && nmVintageCap > cap) {
+    cap = nmVintageCap;
+    capAudit.push({ source: `nm_band:primary:${primaryLimiterTag}`, cap: nmVintageCap });
+  }
+
+  const nmModernCap = matchingDefect
+    ? resolveNmModernDefectCap(
+        matchingDefect,
+        era,
+        categoryScores,
+        defects,
+        analysis
+      )
+    : resolveNmModernDefectCap(
+        {
+          tag: primaryLimiterTag,
+          severity: "minor",
+          location: "front",
+          confidence: "high",
+        },
+        era,
+        categoryScores,
+        defects,
+        analysis
+      );
+  if (nmModernCap !== null && nmModernCap > cap) {
+    cap = nmModernCap;
+    capAudit.push({ source: `nm_modern:primary:${primaryLimiterTag}`, cap: nmModernCap });
+  }
+
+  const modernPrintLineCap = matchingDefect
+    ? resolveModernCosmeticPrintLineCap(
+        matchingDefect,
+        era,
+        categoryScores,
+        defects,
+        analysis
+      )
+    : primaryLimiterTag === "print_line"
+      ? resolveModernCosmeticPrintLineCap(
+          {
+            tag: "print_line",
+            severity: "minor",
+            location: "front",
+            confidence: "high",
+          },
+          era,
+          categoryScores,
+          defects,
+          analysis
+        )
+      : null;
+  if (modernPrintLineCap !== null && modernPrintLineCap > cap) {
+    cap = modernPrintLineCap;
+    capAudit.push({
+      source: `modern_cosmetic:primary:${primaryLimiterTag}`,
+      cap: modernPrintLineCap,
+    });
   }
 
   if (cap < 10) {
@@ -174,20 +385,46 @@ function deriveConfidence(scanQuality, defects) {
  */
 export function computeGrade(analysis, era) {
   const capAudit = [];
-  const categoryScores = applyCategoryImpactScores(
-    analysis.categoryScores,
+  const visionCategoryScores = { ...analysis.categoryScores };
+  analysis.visionCategoryScores = visionCategoryScores;
+
+  let categoryScores = applyCategoryImpactScores(
+    visionCategoryScores,
     analysis.defects,
     capAudit
   );
 
-  const categoryFloor = Math.min(
-    categoryScores.corners,
-    categoryScores.edges,
-    categoryScores.surface
+  categoryScores = applyExCategoryImpactRelief(
+    categoryScores,
+    analysis.defects,
+    analysis,
+    capAudit,
+    era
+  );
+
+  categoryScores = applyBackOnlyWritingCategoryRelief(
+    categoryScores,
+    analysis.defects,
+    analysis,
+    capAudit,
+    era
+  );
+
+  const categoryFloor = getOverallCategoryFloor(
+    categoryScores,
+    era,
+    analysis.defects,
+    analysis
   );
   capAudit.push({ source: "categoryFloor", value: categoryFloor });
 
-  const defectCeiling = getDefectCeiling(analysis.defects, era, categoryScores, capAudit);
+  const defectCeiling = getDefectCeiling(
+    analysis.defects,
+    era,
+    categoryScores,
+    capAudit,
+    analysis
+  );
   const scanCeiling = getScanCeiling(analysis.scanQuality);
   capAudit.push({ source: "scanQuality", cap: scanCeiling });
 
@@ -201,19 +438,26 @@ export function computeGrade(analysis, era) {
     categoryScores,
     analysis
   );
-  rawOverall = applyPsa1Calibration(rawOverall, analysis.defects, capAudit);
+  rawOverall = applyPsa1Calibration(
+    rawOverall,
+    analysis.defects,
+    capAudit,
+    categoryScores,
+    analysis
+  );
 
-  const primaryLimiterCap = analysis.defects.some(
-    (defect) => defect.tag === analysis.primaryLimiterTag
-  )
-    ? getPrimaryLimiterCap(
-        analysis.primaryLimiterTag,
-        analysis.defects,
-        era,
-        categoryScores,
-        capAudit
-      )
-    : 10;
+  const primaryLimiterCap =
+    analysis.primaryLimiterTag &&
+    analysis.defects.some((defect) => defect.tag === analysis.primaryLimiterTag)
+      ? getPrimaryLimiterCap(
+          analysis.primaryLimiterTag,
+          analysis.defects,
+          era,
+          categoryScores,
+          capAudit,
+          analysis
+        )
+      : 10;
   rawOverall = Math.min(rawOverall, primaryLimiterCap);
 
   rawOverall = applyCenteringGemCap(
@@ -238,6 +482,32 @@ export function computeGrade(analysis, era) {
     capAudit
   );
 
+  rawOverall = applyExBandOptimismCeiling(
+    rawOverall,
+    categoryScores,
+    analysis.defects,
+    capAudit,
+    analysis,
+    era
+  );
+
+  rawOverall = applyNmGemVintageBandRules(
+    rawOverall,
+    categoryScores,
+    analysis.defects,
+    capAudit,
+    analysis,
+    era
+  );
+
+  rawOverall = applyBackOnlyWritingOverallFloor(
+    rawOverall,
+    categoryScores,
+    analysis.defects,
+    analysis,
+    capAudit
+  );
+
   const internalGrade = finalizeInternalGrade(rawOverall);
   capAudit.push({ source: "overall_derivation", value: internalGrade });
 
@@ -254,8 +524,9 @@ export function computeGrade(analysis, era) {
       tag: analysis.primaryLimiterTag,
       label:
         analysis.primaryLimiterLabel ||
-        getDefectLabel(analysis.primaryLimiterTag) ||
-        "Visible wear",
+        (analysis.primaryLimiterTag
+          ? getDefectLabel(analysis.primaryLimiterTag)
+          : "None visible"),
     },
     scanQuality: {
       ...analysis.scanQuality,

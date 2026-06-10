@@ -1,4 +1,4 @@
-import { GRADING_PHILOSOPHY, MODERN_GRADING_PHILOSOPHY } from "./philosophy.js";
+import { GRADING_PHILOSOPHY } from "../../api/grading/philosophy.js";
 import {
   getDefectDefinition,
   getDefectLabel,
@@ -6,15 +6,15 @@ import {
   normalizeDefectObservation,
   resolveEffectiveDefectTag,
   escalateLightWearObservation,
-} from "./defects.js";
+} from "../../api/grading/defects.js";
 import {
   ANALYSIS_JSON_SCHEMA,
   buildAnalysisInstruction,
   ERA_JSON_SCHEMA,
-} from "./prompts/core.js";
-import { MODERN_RUBRIC } from "./prompts/modern.js";
-import { VINTAGE_RUBRIC } from "./prompts/vintage.js";
-import { clampGrade, roundToHalf } from "./types.js";
+} from "../../api/grading/prompts/core.js";
+import { MODERN_RUBRIC } from "../../api/grading/prompts/modern.js";
+import { VINTAGE_RUBRIC } from "../../api/grading/prompts/vintage.js";
+import { clampGrade, roundToHalf } from "../../api/grading/types.js";
 
 function parseJsonResponse(outputText) {
   try {
@@ -840,14 +840,8 @@ function dedupeDefects(defects, categoryScores, era, options = {}) {
   return deduped;
 }
 
-function ensurePrimaryLimiterDefect(defects, primaryLimiterTag, raw = null) {
+function ensurePrimaryLimiterDefect(defects, primaryLimiterTag) {
   if (!primaryLimiterTag) return defects;
-  if (primaryLimiterTag === "surface_scratch_light") {
-    const scratchDefect = defects.find((defect) => defect.tag === "surface_scratch_light");
-    if (!scratchDefect || (raw && !hasConfirmedSurfaceScratchEvidence(raw, scratchDefect))) {
-      return defects;
-    }
-  }
   if (defects.some((defect) => defect.tag === primaryLimiterTag)) {
     return defects;
   }
@@ -876,8 +870,8 @@ function ensurePrimaryLimiterDefect(defects, primaryLimiterTag, raw = null) {
 function resolvePrimaryLimiter(defects, era, primaryLimiterTag, primaryLimiterLabel) {
   if (!defects.length) {
     return {
-      primaryLimiterTag: null,
-      primaryLimiterLabel: "None visible",
+      primaryLimiterTag: primaryLimiterTag || "corner_wear_light",
+      primaryLimiterLabel: primaryLimiterLabel || "Visible wear",
     };
   }
 
@@ -914,97 +908,6 @@ const SURFACE_WEAR_TAGS = new Set([
   "back_wear",
   "back_damage_severe",
 ]);
-
-const SURFACE_SCRATCH_EVIDENCE = [
-  /\b(light|minor|small|visible|faint|surface|hairline) scratch/i,
-  /\bscratch(ed|es|ing)?\b/i,
-  /\bscuff/i,
-  /\babrasion/i,
-  /\bscrape/i,
-];
-
-const SURFACE_SCRATCH_DENIAL = [
-  /\bno scratches?\b/i,
-  /\bscratch.?free\b/i,
-  /\bfree of (marks|scratches)\b/i,
-  /\bwithout scratches?\b/i,
-  /\bno (significant )?marks\b/i,
-  /\bflawless\b/i,
-  /\b(no scratches or marks|no marks or scratches)\b/i,
-];
-
-function collectSurfaceScratchText(raw, defect = null) {
-  const notes = raw?.categoryNotes || {};
-  return [
-    notes.surface,
-    defect ? raw?.primaryLimiterLabel : null,
-    raw?.eyeAppealSummary,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-}
-
-function hasConfirmedSurfaceScratchEvidence(raw, defect) {
-  const text = collectSurfaceScratchText(raw, defect);
-  if (!text) {
-    return false;
-  }
-  if (SURFACE_SCRATCH_DENIAL.some((pattern) => pattern.test(text))) {
-    return false;
-  }
-  if (!SURFACE_SCRATCH_EVIDENCE.some((pattern) => pattern.test(text))) {
-    return false;
-  }
-  if (
-    /\b(print line|roller mark|factory line|refractor artifact|chrome artifact)\b/i.test(
-      text
-    ) &&
-    !/\bscratch/i.test(text)
-  ) {
-    return false;
-  }
-  return true;
-}
-
-function filterUnconfirmedSurfaceScratchDefects(defects, raw, era) {
-  if (era !== "modern") {
-    return defects;
-  }
-  return defects.filter((defect) => {
-    if (defect.tag !== "surface_scratch_light") {
-      return true;
-    }
-    return hasConfirmedSurfaceScratchEvidence(raw, defect);
-  });
-}
-
-function finalizeSurfaceScratchAndLimiter(defects, categoryScores, era, raw, finalLimiter) {
-  let nextDefects = filterUnconfirmedSurfaceScratchDefects(defects, raw, era);
-  let nextLimiter = resolvePrimaryLimiter(
-    nextDefects,
-    era,
-    finalLimiter.primaryLimiterTag,
-    finalLimiter.primaryLimiterLabel
-  );
-
-  if (nextLimiter.primaryLimiterTag) {
-    nextDefects = dedupeDefects(
-      ensurePrimaryLimiterDefect(nextDefects, nextLimiter.primaryLimiterTag, raw),
-      categoryScores,
-      era,
-      { skipEscalation: true, raw }
-    );
-    nextLimiter = resolvePrimaryLimiter(
-      nextDefects,
-      era,
-      nextLimiter.primaryLimiterTag,
-      nextLimiter.primaryLimiterLabel
-    );
-  }
-
-  return { defects: nextDefects, finalLimiter: nextLimiter };
-}
 
 const CORNER_WEAR_TAGS = new Set([
   "corner_wear_light",
@@ -1402,13 +1305,6 @@ function hasNmGemPresentationAppeal(raw) {
   );
 }
 
-function hasGemMintPresentationAppeal(raw) {
-  const appeal = collectAppealText(raw).toLowerCase();
-  return /\b(gem mint|gem.?mint|pristine|virtually flawless|pack fresh|flawless|razor sharp|museum quality|exceptionally sharp|nm-mt|nm\/mt)\b/.test(
-    appeal
-  );
-}
-
 function hasNmPresentationBlockers(raw) {
   const defects = raw.defects || [];
   if (
@@ -1710,151 +1606,9 @@ function noteIndicatesSharpCornerPresentation(raw) {
   const cornersNote = String(raw.categoryNotes?.corners || "").toLowerCase();
   const appeal = collectAppealText(raw).toLowerCase();
   return (
-    /\b(sharp|primarily sharp|intact|clean corners|strong corners|minimal corner|nice shape|generally sharp)\b/.test(
+    /\b(sharp|primarily sharp|intact|clean corners|strong corners|minimal corner)\b/.test(
       `${cornersNote} ${appeal}`
     ) && !noteIndicatesModerateCornerEvidence(cornersNote)
-  );
-}
-
-function noteIndicatesEdgeMicroChipping(raw) {
-  const edgesNote = String(raw.categoryNotes?.edges || "").toLowerCase();
-  if (!edgesNote) {
-    return false;
-  }
-  return (
-    /\b(chipping|chipped|micro.?chip|notched|rough edge|edge break)\b/.test(edgesNote) &&
-    !/\b(no|not|without|minimal|light)\s+(chipping|chip|fray)/.test(edgesNote)
-  );
-}
-
-function noteIndicatesCornerSoftening(raw) {
-  const cornersNote = String(raw.categoryNotes?.corners || "").toLowerCase();
-  if (!cornersNote) {
-    return false;
-  }
-  if (noteIndicatesSharpCornerPresentation(raw)) {
-    return false;
-  }
-  return /\b(softening|rounded|rounding|not sharp|fair corners|moderate wear)\b/.test(
-    cornersNote
-  );
-}
-
-function noteIndicatesSurfaceLimitingWear(raw) {
-  const surfaceNote = String(raw.categoryNotes?.surface || "").toLowerCase();
-  if (!surfaceNote) {
-    return false;
-  }
-  if (/\b(minor|light|slight|small|few|little)\b/.test(surfaceNote)) {
-    return false;
-  }
-  return /\b(moderate|heavy|severe|extensive|deep|multiple|visible wear|limits grade)\b/.test(
-    surfaceNote
-  );
-}
-
-function noteIndicatesCenteringPrecision(categoryScores, raw) {
-  if (categoryScores.centering >= 8.5) {
-    return true;
-  }
-  if (categoryScores.centering < 8) {
-    return false;
-  }
-  const centeringNote = String(raw.categoryNotes?.centering || "").toLowerCase();
-  const appeal = collectAppealText(raw).toLowerCase();
-  return /\b(strong centering|excellent centering|well.?centered|well centered|good centering)\b/.test(
-    `${centeringNote} ${appeal}`
-  );
-}
-
-function noteIndicatesCleanSurfaceProfile(raw) {
-  const surfaceNote = String(raw.categoryNotes?.surface || "").toLowerCase();
-  const appeal = collectAppealText(raw).toLowerCase();
-  if (noteIndicatesSurfaceLimitingWear(raw)) {
-    return false;
-  }
-  return (
-    /\b(clean surface|minimal wear|presents well|retains gloss|good color|bright|clear image|minor scratch)\b/.test(
-      `${surfaceNote} ${appeal}`
-    ) || (/\b(minor|light|slight)\b/.test(surfaceNote) && !/\bmoderate|heavy|severe\b/.test(surfaceNote))
-  );
-}
-
-function isCosmeticPrintDefect(defect, raw) {
-  if (!["print_line", "registration_issue", "gloss_loss"].includes(defect.tag)) {
-    return false;
-  }
-  const surfaceNote = String(raw.categoryNotes?.surface || "").toLowerCase();
-  return (
-    !/\b(severe|heavy|extensive|misregister|off.?center print)\b/.test(surfaceNote) &&
-    (hasVintageStockOrPrintTextureSignals(raw) ||
-      hasPrintLineOrArtifactSignals(raw, [defect]) ||
-      defect.tag === "gloss_loss")
-  );
-}
-
-function qualifiesForGemMintSlabProfile(defects, categoryScores, raw) {
-  if (!defectsAreHighGradeLightWearOnly(defects)) {
-    return false;
-  }
-  if (hasHighGradeMajorDefect(defects)) {
-    return false;
-  }
-  if (!noteIndicatesCenteringPrecision(categoryScores, raw)) {
-    return false;
-  }
-  if (noteIndicatesCornerSoftening(raw)) {
-    return false;
-  }
-  if (noteIndicatesEdgeMicroChipping(raw)) {
-    return false;
-  }
-  if (!noteIndicatesSharpCornerPresentation(raw)) {
-    return false;
-  }
-  if (!noteIndicatesCleanSurfaceProfile(raw)) {
-    return false;
-  }
-  if (countNotesPillarsWithPoorWear(raw) >= 1) {
-    return false;
-  }
-  const appeal = collectAppealText(raw).toLowerCase();
-  if (
-    /\b(heavy wear|severe wear|poor condition|fair eye appeal|significant wear)\b/.test(
-      appeal
-    )
-  ) {
-    return false;
-  }
-  return true;
-}
-
-function qualifiesForMintSlabProfile(defects, categoryScores, raw) {
-  if (qualifiesForGemMintSlabProfile(defects, categoryScores, raw)) {
-    return false;
-  }
-  if (!defectsAreHighGradeLightWearOnly(defects)) {
-    return false;
-  }
-  if (hasHighGradeMajorDefect(defects)) {
-    return false;
-  }
-  if (categoryScores.centering < PILLAR_LIFT_RECOVERY_MIN_CENTERING) {
-    return false;
-  }
-  if (noteIndicatesEdgeMicroChipping(raw)) {
-    return false;
-  }
-  if (noteIndicatesSurfaceLimitingWear(raw)) {
-    return false;
-  }
-  if (countNotesPillarsWithPoorWear(raw) >= 2) {
-    return false;
-  }
-  return (
-    hasNmGemPresentationAppeal(raw) ||
-    isNmVintageCleanPresentation(categoryScores, raw) ||
-    isNmVintagePresentationCandidate(categoryScores, raw)
   );
 }
 
@@ -1917,125 +1671,31 @@ function shouldReclassifyCornerWearAsPrintArtifact(defect, raw, categoryScores) 
   );
 }
 
-const MODERN_REFLECTIVE_SCRATCH_DAMAGE_BLOCKERS = [
-  /\bmultiple scratches\b/,
-  /\bseveral scratches\b/,
-  /\bnumerous scratches\b/,
-  /\bdeep scratch/,
-  /\bheavy scratch/,
-  /\bsevere scratch/,
-  /\bobvious wear\b/,
-  /\bheavy scuff/,
-  /\bsevere scuff/,
-  /\bdistracting defect/,
-  /\bhighly distracting\b/,
-  /\bsignificant surface loss\b/,
-  /\bdetract(s|ing)? significantly\b/,
-  /\bimpacts visibility\b/,
-  /\bcontinuous scratch/,
-  /\bgouge\b/,
-  /\bindentation\b/,
-];
-
-const MODERN_REFLECTIVE_SCRATCH_COSMETIC_SIGNALS = [
-  /\bminor scratch/,
-  /\blight scratch/,
-  /\bminor surface mark/,
-  /\bdoes not detract\b/,
-  /\bdoesn't detract\b/,
-  /\bdo not detract\b/,
-  /\bdon't detract\b/,
-  /\botherwise excellent\b/,
-  /\bmostly clean\b/,
-  /\bclean surface\b/,
-  /\bgenerally clean\b/,
-  /\blargely clean\b/,
-  /\bglossy\b/,
-  /\bfactory line\b/,
-  /\bprint line\b/,
-  /\broller mark/,
-  /\bminor imperfection/,
-  /\bslight wear\b/,
-  /\bnot easily noticeable\b/,
-  /\bunder (close )?inspection\b/,
-  /\bsuperficial\b/,
-  /\bhairline\b/,
-  /\bfaint scratch/,
-  /\bsmall scratch/,
-  /\bvery clean\b/,
-  /\bno significant scratch/,
-  /\bshiny\b/,
-  /\breflective\b/,
-  /\bvibrant\b/,
-  /\bexcellent surface\b/,
-  /\bminor blemish/,
-  /\bminimal scratch/,
-];
-
-function collectModernReflectiveSurfaceText(raw) {
-  const notes = raw.categoryNotes || {};
-  return [
-    notes.surface,
-    raw.eyeAppealSummary,
-    raw.bestAttribute,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-}
-
-function hasModernReflectiveScratchDamageLanguage(raw) {
-  const text = collectModernReflectiveSurfaceText(raw);
-  return MODERN_REFLECTIVE_SCRATCH_DAMAGE_BLOCKERS.some((pattern) => pattern.test(text));
-}
-
-function hasModernReflectiveScratchCosmeticLanguage(raw) {
-  const text = collectModernReflectiveSurfaceText(raw);
-  return MODERN_REFLECTIVE_SCRATCH_COSMETIC_SIGNALS.some((pattern) => pattern.test(text));
-}
-
-function reconcileModernReflectiveScratchArtifacts(defects, raw, era) {
-  if (era !== "modern" || raw?.cardMeta?.isReflective !== true) {
-    return { defects, audit: [], reconciled: false };
-  }
-  if (!defects.some((defect) => defect.tag === "surface_scratch_light")) {
-    return { defects, audit: [], reconciled: false };
-  }
-  if (hasModernReflectiveScratchDamageLanguage(raw)) {
-    return { defects, audit: [], reconciled: false };
-  }
-  if (!hasModernReflectiveScratchCosmeticLanguage(raw)) {
-    return { defects, audit: [], reconciled: false };
-  }
-
-  let adjusted = false;
-  const audit = [];
-  const reconciled = defects.map((defect) => {
-    if (defect.tag !== "surface_scratch_light") {
-      return defect;
-    }
-    adjusted = true;
-    audit.push({
-      source: "modern_reflective_artifact_reclass",
-      originalTag: "surface_scratch_light",
-      newTag: "print_line",
-    });
-    return normalizeDefectObservation({
-      ...defect,
-      tag: "print_line",
-      severity: "minor",
-    });
-  });
-
-  if (!adjusted) {
-    return { defects, audit: [], reconciled: false };
-  }
-
-  return { defects: reconciled, audit, reconciled: true };
-}
-
 function qualifiesForNmGemStrongPresentation(categoryScores, raw, defects) {
-  return qualifiesForGemMintSlabProfile(defects, categoryScores, raw);
+  if (hasHighGradeMajorDefect(defects)) {
+    return false;
+  }
+  if (!defectsAreHighGradeLightWearOnly(defects)) {
+    return false;
+  }
+  if (categoryScores.centering < 8.5) {
+    return false;
+  }
+  if (countNotesPillarsWithPoorWear(raw) >= 2) {
+    return false;
+  }
+  const appeal = collectAppealText(raw).toLowerCase();
+  if (/\b(heavy wear|severe wear|poor condition|heavy crease|paper loss|rounded heavily)\b/.test(appeal)) {
+    return false;
+  }
+  return (
+    hasNmGemPresentationAppeal(raw) ||
+    isNmVintageCleanPresentation(categoryScores, raw) ||
+    (noteIndicatesSharpCornerPresentation(raw) &&
+      /\b(strong centering|well centered|clean borders|strong gloss|vibrant|minimal wear)\b/.test(
+        appeal
+      ))
+  );
 }
 
 function computeHighGradePillarFloors(defects, categoryScores, raw) {
@@ -2061,31 +1721,25 @@ function computeHighGradePillarFloors(defects, categoryScores, raw) {
     return null;
   }
 
-  const minPillar = Math.min(
-    categoryScores.corners,
-    categoryScores.edges,
-    categoryScores.surface
-  );
-
-  if (qualifiesForGemMintSlabProfile(defects, categoryScores, raw)) {
-    return { corners: 8.5, edges: 8.5, surface: 8.5 };
-  }
-
   const nmGemAppeal =
     hasNmGemPresentationAppeal(raw) || isNmVintageCleanPresentation(categoryScores, raw);
 
-  if (
-    categoryScores.centering >= PILLAR_LIFT_STRONG_CENTERING &&
-    nmGemAppeal &&
-    minPillar <= PILLAR_LIFT_COLLAPSE_MAX
-  ) {
-    return { corners: 7.5, edges: 7.5, surface: 7.5 };
+  if (qualifiesForNmGemStrongPresentation(categoryScores, raw, defects)) {
+    return { corners: 8.5, edges: 8.5, surface: 8.5 };
   }
 
-  if (
-    minPillar <= PILLAR_LIFT_COLLAPSE_MAX &&
-    qualifiesForMintSlabProfile(defects, categoryScores, raw)
-  ) {
+  if (categoryScores.centering >= 8.5 && nmGemAppeal) {
+    const floor = Math.min(
+      categoryScores.corners,
+      categoryScores.edges,
+      categoryScores.surface
+    );
+    if (floor <= 6.5) {
+      return { corners: 7.5, edges: 7.5, surface: 7.5 };
+    }
+  }
+
+  if (categoryScores.centering >= 8 && nmGemAppeal) {
     return { corners: 8, edges: 8, surface: 8 };
   }
 
@@ -2093,16 +1747,13 @@ function computeHighGradePillarFloors(defects, categoryScores, raw) {
 }
 
 function qualifiesForHighGradeTriadSkip(categoryScores, raw, defects) {
-  if (qualifiesForGemMintSlabProfile(defects, categoryScores, raw)) {
-    return true;
-  }
   if (!defectsAreHighGradeLightWearOnly(defects)) {
     return false;
   }
   if (hasHighGradeMajorDefect(defects)) {
     return false;
   }
-  if (categoryScores.centering < PILLAR_LIFT_STRONG_CENTERING) {
+  if (categoryScores.centering < 8.5) {
     return false;
   }
   if (countNotesPillarsWithPoorWear(raw) >= 2) {
@@ -2112,7 +1763,6 @@ function qualifiesForHighGradeTriadSkip(categoryScores, raw, defects) {
     return false;
   }
   return (
-    qualifiesForMintSlabProfile(defects, categoryScores, raw) ||
     hasNmGemPresentationAppeal(raw) ||
     isNmVintageCleanPresentation(categoryScores, raw)
   );
@@ -2164,23 +1814,13 @@ function reconcileHighGradeNmGemVisionCalibration(defects, categoryScores, raw) 
     if (
       defect.tag === "gloss_loss" &&
       categoryScores.centering >= 8 &&
-      (qualifiesForGemMintSlabProfile(defects, categoryScores, raw) ||
-        hasNmGemPresentationAppeal(raw) ||
-        isNmVintageCleanPresentation(categoryScores, raw)) &&
+      (hasNmGemPresentationAppeal(raw) || isNmVintageCleanPresentation(categoryScores, raw)) &&
       !/\b(severe|heavy|extensive)\b/.test(
         String(raw.categoryNotes?.surface || "").toLowerCase()
       )
     ) {
       adjusted = true;
       return [{ ...defect, tag: "print_line", severity: "minor" }];
-    }
-
-    if (
-      qualifiesForGemMintSlabProfile(defects, categoryScores, raw) &&
-      isCosmeticPrintDefect(defect, raw)
-    ) {
-      adjusted = true;
-      return [];
     }
 
     return [defect];
@@ -4034,33 +3674,6 @@ function normalizeAnalysis(raw, era) {
     }
   }
 
-  let visionReconciliationAudit = [];
-  const reflectiveScratch = reconcileModernReflectiveScratchArtifacts(defects, raw, era);
-  if (reflectiveScratch.reconciled) {
-    defects = reflectiveScratch.defects;
-    visionReconciliationAudit = reflectiveScratch.audit;
-    finalLimiter = resolvePrimaryLimiter(
-      defects,
-      era,
-      raw.primaryLimiterTag === "surface_scratch_light" ? null : raw.primaryLimiterTag,
-      raw.primaryLimiterLabel
-    );
-    defects = dedupeDefects(
-      ensurePrimaryLimiterDefect(defects, finalLimiter.primaryLimiterTag, raw),
-      categoryScores,
-      era,
-      { skipEscalation: true, raw }
-    );
-  }
-
-  ({ defects, finalLimiter } = finalizeSurfaceScratchAndLimiter(
-    defects,
-    categoryScores,
-    era,
-    raw,
-    finalLimiter
-  ));
-
   return {
     scanQuality: {
       level: raw.scanQuality.level,
@@ -4076,7 +3689,6 @@ function normalizeAnalysis(raw, era) {
     eyeAppealSummary: raw.eyeAppealSummary,
     cardMeta: raw.cardMeta,
     categoryNotes,
-    visionReconciliationAudit,
   };
 }
 
@@ -4087,7 +3699,7 @@ function normalizeAnalysis(raw, era) {
 export async function analyzeCard(client, { frontImage, backImage, era }) {
   const pathRubric = era === "vintage" ? VINTAGE_RUBRIC : MODERN_RUBRIC;
   const instruction = buildAnalysisInstruction({
-    philosophy: era === "modern" ? MODERN_GRADING_PHILOSOPHY : GRADING_PHILOSOPHY,
+    philosophy: GRADING_PHILOSOPHY,
     pathRubric,
   });
 

@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "generatedAt": "TEMPLATE — run npm run benchmark:scan after adding cards",
+  "root": "benchmarks",
+  "suites": [
+    {
+      "id": "psa7-8",
+      "label": "PSA 7-8",
+      "cardCount": 1,
+      "cards": [
+        {
+          "id": "1972-topps-seaver-psa7",
+          "slug": "1972-topps-seaver",
+          "cardName": "1972 Topps Tom Seaver",
+          "fileLabel": "1972 Topps Tom Seaver PSA 7",
+          "year": 1972,
+          "set": "1972 Topps",
+          "psaGrade": 7,
+          "suiteId": "psa7-8",
+          "relativeDir": "psa7-8/1972-topps-seaver-psa7",
+          "images": {
+            "front": "psa7-8/1972-topps-seaver-psa7/front.jpg",
+            "back": "psa7-8/1972-topps-seaver-psa7/back.jpg"
+          },
+          "notes": "Replace with real slab scans. Document cert # and limiting factor in card.meta.json."
+        }
+      ]
+    }
+  ]
+}

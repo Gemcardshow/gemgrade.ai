@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "generatedAt": "TEMPLATE — run npm run benchmark:scan after adding cards",
+  "root": "benchmarks",
+  "suites": [
+    {
+      "id": "psa10",
+      "label": "PSA 10",
+      "cardCount": 1,
+      "cards": [
+        {
+          "id": "2018-topps-trout-psa10",
+          "slug": "2018-topps-trout",
+          "cardName": "2018 Topps Mike Trout",
+          "fileLabel": "2018 Topps Mike Trout PSA 10",
+          "year": 2018,
+          "set": "2018 Topps",
+          "psaGrade": 10,
+          "suiteId": "psa10",
+          "relativeDir": "psa10/2018-topps-trout-psa10",
+          "images": {
+            "front": "psa10/2018-topps-trout-psa10/front.jpg",
+            "back": "psa10/2018-topps-trout-psa10/back.jpg"
+          },
+          "notes": "Replace with real slab scans. Document cert # and verification source in card.meta.json."
+        }
+      ]
+    }
+  ]
+}
