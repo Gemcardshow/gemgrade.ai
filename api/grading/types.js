@@ -37,6 +37,7 @@
  * @property {string} eyeAppealSummary
  * @property {CardMeta} cardMeta
  * @property {Record<string, string>} categoryNotes
+ * @property {{ source: string, originalTag: string, newTag: string }[]} [visionReconciliationAudit]
  *
  * @typedef {Object} EraDetectionResult
  * @property {Era} era
@@ -67,6 +68,7 @@
  * @property {string} likelyRange
  * @property {string} verdict
  * @property {CardMeta} cardMeta
+ * @property {{ source: string, originalTag: string, newTag: string }[]} [visionReconciliationAudit]
  *
  * @typedef {Object} GradeResult
  * @property {number} psaGrade

@@ -1,4 +1,5 @@
 import { buildVerdict } from "./narrative.js";
+import { getDefectLabel } from "./defects.js";
 
 /**
  * @param {import("./types.js").VisionAnalysis} analysis
@@ -30,9 +31,19 @@ export function formatGradeResponse({
   estimatedYear,
 }) {
   const primaryLimiter = {
-    tag: gradeResult.primaryLimiter?.tag ?? analysis.primaryLimiterTag,
-    label: gradeResult.primaryLimiter?.label ?? analysis.primaryLimiterLabel,
+    tag: gradeResult.primaryLimiter?.tag ?? analysis.primaryLimiterTag ?? null,
+    label:
+      gradeResult.primaryLimiter?.label ??
+      analysis.primaryLimiterLabel ??
+      (analysis.primaryLimiterTag
+        ? undefined
+        : "None visible"),
   };
+  if (!primaryLimiter.label) {
+    primaryLimiter.label = primaryLimiter.tag
+      ? getDefectLabel(primaryLimiter.tag)
+      : "None visible";
+  }
 
   return {
     psaGrade: gradeResult.psaGrade,
@@ -57,5 +68,6 @@ export function formatGradeResponse({
       analysis
     ),
     cardMeta: analysis.cardMeta,
+    visionReconciliationAudit: analysis.visionReconciliationAudit || [],
   };
 }

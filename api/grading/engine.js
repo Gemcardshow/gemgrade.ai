@@ -15,7 +15,9 @@ import {
   getOverallCategoryFloor,
   qualifiesForExSingleCreaseCap,
   resolveBackOnlyWritingCap,
+  resolveNmModernDefectCap,
   resolveNmVintageDefectCap,
+  resolveModernCosmeticPrintLineCap,
 } from "./psa-calibration.js";
 import {
   clampGrade,
@@ -193,6 +195,33 @@ function getDefectCeiling(defects, era, categoryScores, capAudit, analysis = nul
       capAudit.push({ source: `nm_band:defect:${defect.tag}`, cap: nmVintageCap });
     }
 
+    const nmModernCap = resolveNmModernDefectCap(
+      defect,
+      era,
+      categoryScores,
+      defects,
+      analysis
+    );
+    if (nmModernCap !== null && nmModernCap > cap) {
+      cap = nmModernCap;
+      capAudit.push({ source: `nm_modern:defect:${defect.tag}`, cap: nmModernCap });
+    }
+
+    const modernPrintLineCap = resolveModernCosmeticPrintLineCap(
+      defect,
+      era,
+      categoryScores,
+      defects,
+      analysis
+    );
+    if (modernPrintLineCap !== null && modernPrintLineCap > cap) {
+      cap = modernPrintLineCap;
+      capAudit.push({
+        source: `modern_cosmetic:defect:${defect.tag}`,
+        cap: modernPrintLineCap,
+      });
+    }
+
     if (cap < ceiling) {
       ceiling = cap;
       capAudit.push({ source: `defect:${defect.tag}`, cap });
@@ -280,6 +309,61 @@ function getPrimaryLimiterCap(
     capAudit.push({ source: `nm_band:primary:${primaryLimiterTag}`, cap: nmVintageCap });
   }
 
+  const nmModernCap = matchingDefect
+    ? resolveNmModernDefectCap(
+        matchingDefect,
+        era,
+        categoryScores,
+        defects,
+        analysis
+      )
+    : resolveNmModernDefectCap(
+        {
+          tag: primaryLimiterTag,
+          severity: "minor",
+          location: "front",
+          confidence: "high",
+        },
+        era,
+        categoryScores,
+        defects,
+        analysis
+      );
+  if (nmModernCap !== null && nmModernCap > cap) {
+    cap = nmModernCap;
+    capAudit.push({ source: `nm_modern:primary:${primaryLimiterTag}`, cap: nmModernCap });
+  }
+
+  const modernPrintLineCap = matchingDefect
+    ? resolveModernCosmeticPrintLineCap(
+        matchingDefect,
+        era,
+        categoryScores,
+        defects,
+        analysis
+      )
+    : primaryLimiterTag === "print_line"
+      ? resolveModernCosmeticPrintLineCap(
+          {
+            tag: "print_line",
+            severity: "minor",
+            location: "front",
+            confidence: "high",
+          },
+          era,
+          categoryScores,
+          defects,
+          analysis
+        )
+      : null;
+  if (modernPrintLineCap !== null && modernPrintLineCap > cap) {
+    cap = modernPrintLineCap;
+    capAudit.push({
+      source: `modern_cosmetic:primary:${primaryLimiterTag}`,
+      cap: modernPrintLineCap,
+    });
+  }
+
   if (cap < 10) {
     capAudit.push({ source: `primaryLimiter:${primaryLimiterTag}`, cap });
   }
@@ -362,18 +446,18 @@ export function computeGrade(analysis, era) {
     analysis
   );
 
-  const primaryLimiterCap = analysis.defects.some(
-    (defect) => defect.tag === analysis.primaryLimiterTag
-  )
-    ? getPrimaryLimiterCap(
-        analysis.primaryLimiterTag,
-        analysis.defects,
-        era,
-        categoryScores,
-        capAudit,
-        analysis
-      )
-    : 10;
+  const primaryLimiterCap =
+    analysis.primaryLimiterTag &&
+    analysis.defects.some((defect) => defect.tag === analysis.primaryLimiterTag)
+      ? getPrimaryLimiterCap(
+          analysis.primaryLimiterTag,
+          analysis.defects,
+          era,
+          categoryScores,
+          capAudit,
+          analysis
+        )
+      : 10;
   rawOverall = Math.min(rawOverall, primaryLimiterCap);
 
   rawOverall = applyCenteringGemCap(
@@ -403,7 +487,8 @@ export function computeGrade(analysis, era) {
     categoryScores,
     analysis.defects,
     capAudit,
-    analysis
+    analysis,
+    era
   );
 
   rawOverall = applyNmGemVintageBandRules(
@@ -439,8 +524,9 @@ export function computeGrade(analysis, era) {
       tag: analysis.primaryLimiterTag,
       label:
         analysis.primaryLimiterLabel ||
-        getDefectLabel(analysis.primaryLimiterTag) ||
-        "Visible wear",
+        (analysis.primaryLimiterTag
+          ? getDefectLabel(analysis.primaryLimiterTag)
+          : "None visible"),
     },
     scanQuality: {
       ...analysis.scanQuality,

@@ -54,7 +54,7 @@ export const DEFECT_REGISTRY = {
     label: "Light surface scratch",
     severityClass: "minor",
     capVintage: 7.5,
-    capModern: 8.0,
+    capModern: 8.5,
   },
   surface_scratch_moderate: {
     label: "Moderate surface scratching",

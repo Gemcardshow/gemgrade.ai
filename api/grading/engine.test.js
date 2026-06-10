@@ -123,6 +123,70 @@ test("modern clean card can reach PSA 9-10", () => {
   assert.equal(result.psaGrade, 10);
 });
 
+test("clean modern card with all 9s rejects unconfirmed surface_scratch_light limiter", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Sharp corners and clean surface",
+    eyeAppealSummary: "Clean presentation with strong eye appeal.",
+    cardMeta: { estimatedYear: 2023, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners with no visible wear.",
+      edges: "Clean crisp edges.",
+      surface: "Clean surface with no scratches or marks.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "modern");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.equal(analysis.primaryLimiterTag, null);
+  assert.equal(analysis.primaryLimiterLabel, "None visible");
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade >= 9);
+  assert.ok(result.psaGrade >= 9);
+  assert.ok(
+    !result.capAudit.some((entry) =>
+      String(entry.source || "").includes("surface_scratch_light")
+    )
+  );
+  assert.equal(result.primaryLimiter.label, "None visible");
+});
+
+test("confirmed surface_scratch_light remains when surface notes support it", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9, edges: 9, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch on front",
+    bestAttribute: "Strong centering",
+    eyeAppealSummary: "Minor scratch under close inspection.",
+    cardMeta: { estimatedYear: 2023, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Clean edges.",
+      surface: "Light scratch visible on front under close inspection.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "modern");
+  assert.ok(analysis.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.equal(analysis.primaryLimiterTag, "surface_scratch_light");
+});
+
 test("overall grade follows lowest severe category", () => {
   const analysis = baseAnalysis({
     categoryScores: { corners: 7, edges: 6.5, surface: 3, centering: 9 },
@@ -2817,5 +2881,487 @@ test("gem-mint slab profile lifts Robinson-style PSA 10 above mint PSA 9 path", 
   );
   assert.ok(
     Math.min(mintAnalysis.categoryScores.corners, mintAnalysis.categoryScores.surface) <= 8
+  );
+});
+
+test("modern single corner_wear_light is not crushed by vintage Ryan optimism ceiling", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 8.5, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "corner_wear_light",
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2018, isReflective: false, isDarkBorder: true },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade >= 8);
+  assert.ok(
+    !result.capAudit.some(
+      (entry) => entry.source === "ex_band:uniform_light_optimism_ceiling"
+    )
+  );
+});
+
+test("vintage Ryan optimism ceiling still caps single corner_wear_light inflation", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 8.5, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "corner_wear_light",
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 1951, isReflective: false, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "vintage");
+  assert.ok(
+    result.capAudit.some(
+      (entry) =>
+        entry.source === "ex_band:uniform_light_optimism_ceiling" && entry.cap === 4
+    )
+  );
+});
+test("modern surface_scratch_light uses 8.5 cap when NM recovery does not qualify", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 7.5, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.equal(result.internalGrade, 7.5);
+  assert.ok(
+    result.capAudit.some(
+      (entry) =>
+        entry.source === "primaryLimiter:surface_scratch_light" && entry.cap === 8.5
+    )
+  );
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("nm_modern:"))
+  );
+});
+
+test("modern NM recovery lifts light scratch presentation to PSA 9 when pillars allow", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners with no handling wear.",
+      edges: "Clean crisp edges.",
+      surface: "Light factory refractor artifact under close inspection.",
+      centering: "Well centered.",
+    },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.equal(result.internalGrade, 9);
+  assert.equal(result.psaGrade, 9);
+  assert.ok(
+    result.capAudit.some(
+      (entry) =>
+        entry.source === "nm_modern:primary:surface_scratch_light" && entry.cap === 9
+    )
+  );
+});
+
+test("modern NM recovery does not apply when wearFloor is below 8", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 7.5, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("nm_modern:"))
+  );
+});
+
+test("vintage light scratch cap is unchanged by modern NM recovery", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 1968, isReflective: true, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners",
+      edges: "Clean edges",
+      surface: "Minor scratch under inspection",
+      centering: "Well centered",
+    },
+  });
+
+  const normalized = normalizeAnalysis(
+    {
+      ...analysis,
+      scanQuality: analysis.scanQuality,
+    },
+    "vintage"
+  );
+  assert.ok(
+    normalized.defects.some((defect) => defect.tag === "surface_scratch_light")
+  );
+  assert.ok(
+    !normalized.visionReconciliationAudit?.some(
+      (entry) => entry.source === "modern_reflective_artifact_reclass"
+    )
+  );
+
+  const result = computeGrade(normalized, "vintage");
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("nm_modern:"))
+  );
+});
+
+test("modern reflective cosmetic scratch reclassifies to print_line with audit", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9, edges: 9, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Centering",
+    eyeAppealSummary: "Mostly clean reflective presentation",
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Sharp",
+      edges: "Clean",
+      surface: "Light scratch noted but does not detract from display value.",
+      centering: "Well centered",
+    },
+  };
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.ok(normalized.defects.some((defect) => defect.tag === "print_line"));
+  assert.ok(
+    !normalized.defects.some((defect) => defect.tag === "surface_scratch_light")
+  );
+  assert.ok(
+    normalized.visionReconciliationAudit?.some(
+      (entry) =>
+        entry.source === "modern_reflective_artifact_reclass" &&
+        entry.originalTag === "surface_scratch_light" &&
+        entry.newTag === "print_line"
+    )
+  );
+});
+
+test("modern reflective deep scratch language skips reflective reclass", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9, edges: 9, surface: 7, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Centering",
+    eyeAppealSummary: "Reflective card",
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Sharp",
+      edges: "Clean",
+      surface: "Multiple scratches with deep scratch visible on the front.",
+      centering: "Well centered",
+    },
+  };
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.ok(normalized.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.ok(!normalized.visionReconciliationAudit?.length);
+});
+
+test("modern non-reflective scratch is not reclassified", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9, edges: 9, surface: 8, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Centering",
+    eyeAppealSummary: "Clean paper stock",
+    cardMeta: { estimatedYear: 2023, isReflective: false, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp",
+      edges: "Clean",
+      surface: "Light scratch present on an otherwise mostly clean surface.",
+      centering: "Well centered",
+    },
+  };
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.ok(normalized.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.ok(!normalized.visionReconciliationAudit?.length);
+});
+
+test("modern cosmetic print_line cap lifts to 9 when pillars and notes qualify", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      corners: "Sharp corners with no visible wear.",
+      edges: "Clean edges.",
+      surface: "Minor factory print line under close inspection; does not detract.",
+      centering: "Well centered.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.equal(result.internalGrade, 9);
+  assert.equal(result.psaGrade, 9);
+  assert.ok(
+    result.capAudit.some(
+      (entry) =>
+        entry.source === "modern_cosmetic:primary:print_line" && entry.cap === 9
+    )
+  );
+});
+
+test("modern cosmetic print_line cap does not apply when pillars below 9", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      surface: "Minor factory print line; does not detract.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8.5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("modern_cosmetic:"))
+  );
+});
+
+test("modern cosmetic print_line cap blocked by eye appeal detracting language", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9.5 },
+    defects: [
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      surface: "Minor scratch detracting slightly from overall appeal.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2025, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8.5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("modern_cosmetic:"))
+  );
+});
+
+test("vintage print_line cap remains unchanged by modern cosmetic relief", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      surface: "Minor factory print line; does not detract.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 1980, isReflective: false, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "vintage");
+  assert.ok(result.internalGrade <= 8);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("modern_cosmetic:"))
+  );
+});
+
+test("modern nm recovery does not apply to corner_wear_light", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "corner_wear_light",
+    categoryNotes: {
+      corners: "Minor touch wear on a couple corners.",
+      edges: "Clean edges.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: false, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8.5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("nm_modern:"))
+  );
+});
+
+test("modern cosmetic print_line cap blocked by handling wear language", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      corners: "Slight touch wear on one corner.",
+      edges: "Clean edges.",
+      surface: "Minor factory print line under close inspection.",
+      centering: "Well centered.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8.5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("modern_cosmetic:"))
+  );
+});
+
+test("modern cosmetic print_line cap blocked by wear tag vs no-wear note contradiction", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "medium",
+      },
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      corners: "Sharp corners with no visible wear.",
+      edges: "Clean edges with no noticeable wear.",
+      surface: "Minor factory print line; does not detract.",
+      centering: "Well centered.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8.5);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source?.startsWith("modern_cosmetic:"))
   );
 });

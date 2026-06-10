@@ -42,7 +42,9 @@ export const ANALYSIS_JSON_SCHEMA = {
           required: ["tag", "severity", "location", "confidence"],
         },
       },
-      primaryLimiterTag: { type: "string", enum: DEFECT_TAGS },
+      primaryLimiterTag: {
+        anyOf: [{ type: "string", enum: DEFECT_TAGS }, { type: "null" }],
+      },
       primaryLimiterLabel: { type: "string" },
       bestAttribute: { type: "string" },
       eyeAppealSummary: { type: "string" },
@@ -113,8 +115,10 @@ DEFECT DETECTION REQUIREMENTS:
 - Pen, ink, pencil, marker, scribbles, or names written on the back must use writing_mark or writing_mark_severe, not back_wear.
 - Tag corner, edge, surface, staining, and print issues separately when present.
 - Set defect severity to match visible damage, not eye appeal.
-- Set primaryLimiterTag to the single most severe detected defect tag.
-- If a flaw limits the card, it must appear in the defects array.
+- Set primaryLimiterTag to the single most severe confirmed defect tag present in the defects array.
+- If no visible flaw limits the card, set primaryLimiterTag to null and primaryLimiterLabel to "None visible".
+- Use surface_scratch_light only when surface notes explicitly describe a visible scratch, scuff, or abrasion — not as a default limiter.
+- If a flaw limits the card, it must appear in the defects array with supporting note evidence.
 - For slab or holder photos, grade only the card inside the case. Do not treat holder seams, case edges, or scan glare as card edge fraying.
 - When centering is 7.5+ and corners/surface look clean aside from minor touch wear, category subgrades for corners/edges/surface should generally stay in the 7+ band.
 

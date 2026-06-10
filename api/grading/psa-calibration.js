@@ -1643,7 +1643,8 @@ export function applyExBandOptimismCeiling(
   categoryScores,
   defects,
   capAudit,
-  analysis = null
+  analysis = null,
+  era = "vintage"
 ) {
   if (analysis && isExBackStainOnlyPresentation(categoryScores, defects, analysis)) {
     const bandScores = getWearBandScores(categoryScores, analysis);
@@ -1669,6 +1670,10 @@ export function applyExBandOptimismCeiling(
     defects.length === 1 && defects[0]?.tag === "corner_wear_light";
 
   if (!ryanStyleInflation) {
+    return overall;
+  }
+
+  if (era !== "vintage") {
     return overall;
   }
 
@@ -1841,6 +1846,358 @@ export function applyNmGemVintageBandRules(
   }
 
   return adjusted;
+}
+
+const MODERN_NM_RELIEF_DEFECT_TAGS = new Set(["surface_scratch_light"]);
+
+const MODERN_HANDLING_WEAR_BLOCKERS = [
+  /\btouch wear\b/i,
+  /\bcorner touch\b/i,
+  /\btouched corners?\b/i,
+  /\bwear on (one or more|multiple|a couple|several) corners?\b/i,
+  /\bminimal wear\b/i,
+  /\bslight wear\b/i,
+  /\bedge roughness\b/i,
+  /\broughness noted\b/i,
+  /\bhandling wear\b/i,
+  /\bwear detected\b/i,
+  /\bwhitening\b/i,
+  /\bchipping\b/i,
+  /\bfraying\b/i,
+  /\brounding\b/i,
+  /\bminor touch\b/i,
+  /\bvery minor touch/i,
+  /\bslight touch/i,
+  /\btouches may be noted\b/i,
+  /\broughness\b/i,
+];
+
+const MODERN_FACTORY_COSMETIC_QUALIFIERS = [
+  /\bfactory print line\b/i,
+  /\bprint line\b/i,
+  /\bprint dot\b/i,
+  /\broller mark/i,
+  /\bchrome artifact/i,
+  /\brefractor artifact/i,
+  /\bcosmetic manufacturing\b/i,
+  /\bmanufacturing mark/i,
+  /\bfactory (line|dot|mark|artifact)\b/i,
+  /\bcosmetic (line|mark|artifact)\b/i,
+];
+
+const MODERN_WEAR_NOTE_DENIAL = [
+  /\bno visible wear\b/i,
+  /\bno noticeable wear\b/i,
+  /\bno evidence of wear\b/i,
+  /\bno wear detected\b/i,
+  /\bsharp with no wear\b/i,
+  /\bno significant wear\b/i,
+];
+
+const MODERN_WEAR_TAG_FALSE_POSITIVE_EXPLANATION = [
+  /\b(slab|holder|case) (artifact|glare|reflection)\b/i,
+  /\b(photo|scan|scanner) artifact\b/i,
+  /\bfalse positive\b/i,
+  /\bglare (artifact|misread)\b/i,
+  /\bnot (on|from) the card\b/i,
+];
+
+function qualifiesForNmModernDefectCapRelief(
+  categoryScores,
+  defects,
+  analysis,
+  era
+) {
+  if (era !== "modern" || !analysis) {
+    return false;
+  }
+  if (triggersPsa1Calibration(defects)) {
+    return false;
+  }
+  if (hasClearlySevereStructuralTrigger(defects)) {
+    return false;
+  }
+  if (hasModerateOrMajorStructuralDefect(defects)) {
+    return false;
+  }
+  if (countModeratePlusDefects(defects) > 0) {
+    return false;
+  }
+  if (!defects.length || !hasLightWearOnlyDefects(defects)) {
+    return false;
+  }
+
+  const bandScores = getWearBandScores(categoryScores, analysis);
+  if (getWearFloor(bandScores) < 8) {
+    return false;
+  }
+  if (categoryScores.centering < 8) {
+    return false;
+  }
+
+  if (hasModernMintReliefBlockers(defects, analysis)) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Modern-only NM defect cap relief for mint-style light-wear presentations.
+ */
+export function resolveNmModernDefectCap(
+  defect,
+  era,
+  categoryScores,
+  defects,
+  analysis
+) {
+  if (!qualifiesForNmModernDefectCapRelief(categoryScores, defects, analysis, era)) {
+    return null;
+  }
+
+  const effectiveTag = resolveEffectiveDefectTag(defect.tag, defect.severity);
+  if (!MODERN_NM_RELIEF_DEFECT_TAGS.has(effectiveTag)) {
+    return null;
+  }
+
+  return 9.0;
+}
+
+const MODERN_COSMETIC_PRINT_LINE_BLOCKED_TAGS = new Set([
+  "print_line_severe",
+  "surface_wear",
+  "surface_scratch_moderate",
+  "moderate_crease",
+  "severe_crease",
+  "paper_loss",
+  "hole_tear",
+  "heavy_staining",
+  "back_damage_severe",
+  "edge_fraying_major",
+  "corner_wear_moderate",
+  "rounded_corners_all",
+  "writing_mark_severe",
+  "dent",
+  "indentation",
+]);
+
+const MODERN_COSMETIC_NOTE_BLOCKERS = [
+  /\bdeep scratch/i,
+  /\bheavy scratch/i,
+  /\bsevere scratch/i,
+  /\bsurface loss\b/i,
+  /\bheavy whitening\b/i,
+  /\b(significant|heavy|obvious|material) whitening\b/i,
+  /\bstaining\b/i,
+  /\bcreasing\b/i,
+  /\b(severe|heavy) (crease|print line)\b/i,
+  /\baffects eye appeal\b/i,
+  /\bimpacts visibility\b/i,
+  /\bimpacts (eye appeal|presentation)\b/i,
+  /\bdetract(s|ing)? significantly\b/i,
+  /\bhighly distracting\b/i,
+  /\bmaterial(ly)? (chipping|damage|wear)\b/i,
+  /\bgouge\b/i,
+  /\bpaper loss\b/i,
+  {
+    re: /\bdetract(s|ing)? (slightly |significantly |)(from )?(overall )?(appeal|presentation|eye appeal)/i,
+    unless: /\b(does not|doesn't|do not) detract\b/i,
+  },
+];
+
+const MODERN_COSMETIC_NOTE_QUALIFIERS = [
+  /\bminor\b/i,
+  /\bslight\b/i,
+  /\bcosmetic\b/i,
+  /\bfactory\b/i,
+  /\bmanufacturing\b/i,
+  /\blight\b/i,
+  /\bnon-distracting\b/i,
+  /\bdoes not detract\b/i,
+  /\bdoesn't detract\b/i,
+  /\bdo not detract\b/i,
+  /\bnot (significant|significantly|major|overly distracting)\b/i,
+  /\bnot affecting eye appeal\b/i,
+  /\bunder (close )?inspection\b/i,
+  /\bmostly clean\b/i,
+  /\bgenerally clean\b/i,
+  /\blargely clean\b/i,
+  /\bglossy\b/i,
+  /\breflective\b/i,
+  /\bchrome\b/i,
+  /\brefractor\b/i,
+  /\broller mark/i,
+  /\bprint line\b/i,
+  /\bhairline\b/i,
+  /\bsuperficial\b/i,
+  /\bfaint scratch/i,
+  /\blight scratch/i,
+  /\bminor scratch/i,
+  /\bclean\b/i,
+  /\bsharp\b/i,
+  /\bcrisp\b/i,
+  /\bwell-defined\b/i,
+];
+
+function collectModernPresentationText(analysis) {
+  const notes = analysis?.categoryNotes || {};
+  return [
+    notes.surface,
+    notes.corners,
+    notes.edges,
+    analysis?.eyeAppealSummary,
+    analysis?.bestAttribute,
+  ]
+    .filter(Boolean)
+    .join(" | ");
+}
+
+function hasModernHandlingWearLanguage(text) {
+  const stripped = text
+    .replace(/\b(no|without|free of|lack of) handling wear\b/gi, "")
+    .replace(/\b(no|without) (visible|noticeable|significant) wear\b/gi, "")
+    .replace(/\b(no|without) (touch wear|corner touch|minimal wear|slight wear)\b/gi, "");
+  return MODERN_HANDLING_WEAR_BLOCKERS.some((pattern) => pattern.test(stripped));
+}
+
+function hasModernFactoryCosmeticLanguage(text) {
+  return MODERN_FACTORY_COSMETIC_QUALIFIERS.some((pattern) => pattern.test(text));
+}
+
+function hasModernWearTagNoteContradiction(defects, analysis) {
+  const wearTags = new Set(["corner_wear_light", "edge_wear_light"]);
+  if (!defects.some((defect) => wearTags.has(defect.tag))) {
+    return false;
+  }
+
+  const notes = analysis?.categoryNotes || {};
+  const cornerEdgeText = [notes.corners, notes.edges].filter(Boolean).join(" | ");
+  const fullText = collectModernPresentationText(analysis);
+  const deniesWear = MODERN_WEAR_NOTE_DENIAL.some((pattern) => pattern.test(cornerEdgeText));
+  const explainsFalsePositive = MODERN_WEAR_TAG_FALSE_POSITIVE_EXPLANATION.some((pattern) =>
+    pattern.test(fullText)
+  );
+
+  return deniesWear && !explainsFalsePositive;
+}
+
+function hasModernMintReliefBlockers(defects, analysis) {
+  const text = collectModernPresentationText(analysis);
+  if (text && hasModernHandlingWearLanguage(text)) {
+    return true;
+  }
+  if (hasModernWearTagNoteContradiction(defects, analysis)) {
+    return true;
+  }
+  if (
+    defects.some((defect) =>
+      ["corner_wear_light", "edge_wear_light"].includes(defect.tag)
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function matchesModernCosmeticBlocker(text) {
+  return MODERN_COSMETIC_NOTE_BLOCKERS.some((pattern) => {
+    if (pattern instanceof RegExp) {
+      return pattern.test(text);
+    }
+    if (!pattern.re.test(text)) {
+      return false;
+    }
+    if (pattern.unless && pattern.unless.test(text)) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function hasModernCosmeticQualifier(text) {
+  return MODERN_COSMETIC_NOTE_QUALIFIERS.some((pattern) => pattern.test(text));
+}
+
+function allModernMajorPillarsNinePlus(categoryScores) {
+  return (
+    categoryScores.corners >= 9 &&
+    categoryScores.edges >= 9 &&
+    categoryScores.surface >= 9 &&
+    categoryScores.centering >= 9
+  );
+}
+
+/**
+ * Modern-only cosmetic print_line cap relief when mint pillars and notes qualify.
+ */
+export function qualifiesForModernCosmeticPrintLineCapRelief(
+  categoryScores,
+  defects,
+  analysis,
+  era
+) {
+  if (era !== "modern" || !analysis) {
+    return false;
+  }
+  if (triggersPsa1Calibration(defects)) {
+    return false;
+  }
+  if (hasClearlySevereStructuralTrigger(defects)) {
+    return false;
+  }
+  if (hasModerateOrMajorStructuralDefect(defects)) {
+    return false;
+  }
+  if (countModeratePlusDefects(defects) > 0) {
+    return false;
+  }
+  if (defects.some((defect) => MODERN_COSMETIC_PRINT_LINE_BLOCKED_TAGS.has(defect.tag))) {
+    return false;
+  }
+  if (!allModernMajorPillarsNinePlus(categoryScores)) {
+    return false;
+  }
+
+  const text = collectModernPresentationText(analysis);
+  if (!text || matchesModernCosmeticBlocker(text)) {
+    return false;
+  }
+  if (hasModernMintReliefBlockers(defects, analysis)) {
+    return false;
+  }
+  if (!hasModernFactoryCosmeticLanguage(text)) {
+    return false;
+  }
+
+  return hasModernCosmeticQualifier(text);
+}
+
+/**
+ * Raise modern cosmetic print_line cap from 8.5 to 9.0 when presentation qualifies.
+ */
+export function resolveModernCosmeticPrintLineCap(
+  defect,
+  era,
+  categoryScores,
+  defects,
+  analysis
+) {
+  const effectiveTag = resolveEffectiveDefectTag(defect.tag, defect.severity);
+  if (effectiveTag !== "print_line") {
+    return null;
+  }
+  if (
+    !qualifiesForModernCosmeticPrintLineCapRelief(
+      categoryScores,
+      defects,
+      analysis,
+      era
+    )
+  ) {
+    return null;
+  }
+  return 9.0;
 }
 
 export function finalizeInternalGrade(value) {
