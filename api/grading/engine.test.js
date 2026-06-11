@@ -3062,7 +3062,7 @@ test("vintage light scratch cap is unchanged by modern NM recovery", () => {
   );
 });
 
-test("modern reflective cosmetic scratch reclassifies to print_line with audit", () => {
+test("modern reflective false scratch strip removes unconfirmed chrome artifact tag", () => {
   const raw = {
     scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
     categoryScores: { corners: 9, edges: 9, surface: 8.5, centering: 9 },
@@ -3082,24 +3082,16 @@ test("modern reflective cosmetic scratch reclassifies to print_line with audit",
     categoryNotes: {
       corners: "Sharp",
       edges: "Clean",
-      surface: "Light scratch noted but does not detract from display value.",
+      surface: "Minor factory print line under the light; does not detract from display value.",
       centering: "Well centered",
     },
   };
 
   const normalized = normalizeAnalysis(raw, "modern");
-  assert.ok(normalized.defects.some((defect) => defect.tag === "print_line"));
   assert.ok(
     !normalized.defects.some((defect) => defect.tag === "surface_scratch_light")
   );
-  assert.ok(
-    normalized.visionReconciliationAudit?.some(
-      (entry) =>
-        entry.source === "modern_reflective_artifact_reclass" &&
-        entry.originalTag === "surface_scratch_light" &&
-        entry.newTag === "print_line"
-    )
-  );
+  assert.equal(normalized.primaryLimiterTag, null);
 });
 
 test("modern reflective deep scratch language skips reflective reclass", () => {
@@ -3750,4 +3742,146 @@ test("modern clean note reconciliation does not apply to vintage cards", () => {
       (entry) => entry.source === "modern_clean_note_pillar_reconcile"
     )
   );
+});
+
+test("modern chromium false scratch strips tag when notes describe chrome finish only", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9.5, edges: 9, surface: 8, centering: 9.5 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Sharp corners and vibrant chrome presentation",
+    eyeAppealSummary: "Strong Bowman Chrome refractor presentation.",
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: true },
+    categoryNotes: {
+      corners: "All corners sharp with no visible wear.",
+      edges: "Edges clean and well-defined.",
+      surface:
+        "Bowman Chrome refractor finish shows reflective pattern and holographic background sparkle; surface appears clean with no significant surface issues.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "modern");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.equal(analysis.primaryLimiterTag, null);
+  assert.ok(analysis.categoryScores.surface >= 9);
+  assert.ok(
+    analysis.visionReconciliationAudit?.some(
+      (entry) => entry.source === "modern_chromium_false_scratch_strip"
+    )
+  );
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade >= 9);
+  assert.ok(result.psaGrade >= 9);
+  assert.ok(
+    !result.capAudit.some((entry) =>
+      String(entry.source || "").includes("surface_scratch_light")
+    )
+  );
+});
+
+test("2023 G WEMBY Bowman Chrome false-positive scratch vision normalizes cleanly", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9.5, edges: 9, surface: 8, centering: 9.5 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Clean geometry with sharp corners",
+    eyeAppealSummary: "Vibrant chrome refractor texture with strong eye appeal.",
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: true },
+    categoryNotes: {
+      corners: "All corners appear sharp with no visible wear or damage.",
+      edges: "Edges are clean, sharp, and well-defined with no fraying or wear.",
+      surface:
+        "Chrome finish shows a lighting streak and refractor texture across the portrait; otherwise clean with no visible scratch crossing the artwork.",
+      centering: "Centering is excellent.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "modern");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.equal(analysis.primaryLimiterTag, null);
+  assert.ok(analysis.categoryScores.surface >= 9);
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade >= 9);
+  assert.ok(result.psaGrade >= 9);
+  assert.equal(result.primaryLimiter.label, "None visible");
+});
+
+test("modern chromium scratch requires explicit note evidence not limiter label alone", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9, edges: 9, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Light surface scratch",
+    bestAttribute: "Centering",
+    eyeAppealSummary: "Reflective Topps Chrome presentation.",
+    cardMeta: { estimatedYear: 2024, isReflective: true, isDarkBorder: false },
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Clean edges.",
+      surface: "Surface otherwise clean with chrome effect and glare under the light box.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "modern");
+  assert.ok(!analysis.defects.some((defect) => defect.tag === "surface_scratch_light"));
+});
+
+test("modern chromium confirmed hairline scratch remains with high confidence", () => {
+  const raw = {
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    categoryScores: { corners: 9, edges: 9, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "surface_scratch_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "surface_scratch_light",
+    primaryLimiterLabel: "Hairline scratch on front",
+    bestAttribute: "Centering",
+    eyeAppealSummary: "Minor hairline scratch visible on chrome surface.",
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: true },
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Clean edges.",
+      surface: "Hairline scratch visible crossing the background on the front.",
+      centering: "Well centered.",
+    },
+  };
+
+  const analysis = normalizeAnalysis(raw, "modern");
+  assert.ok(analysis.defects.some((defect) => defect.tag === "surface_scratch_light"));
+  assert.equal(analysis.primaryLimiterTag, "surface_scratch_light");
 });

@@ -915,12 +915,45 @@ const SURFACE_WEAR_TAGS = new Set([
   "back_damage_severe",
 ]);
 
-const SURFACE_SCRATCH_EVIDENCE = [
-  /\b(light|minor|small|visible|faint|surface|hairline) scratch/i,
-  /\bscratch(ed|es|ing)?\b/i,
-  /\bscuff/i,
+const SURFACE_SCRATCH_EXPLICIT_EVIDENCE = [
+  /\b(linear|hairline) scratch/i,
+  /\bscratch(es)? visible (at|from) (multiple )?angles/i,
+  /\bscratch(es)? crossing (the )?(artwork|background|image|portrait|surface)/i,
+  /\b(visible|clear|minor|light|small|faint|surface) scratch(es)?\b/i,
+  /\bscratch(ed|es|ing)\b/i,
+  /\bscuff(s|ed|ing)?\b/i,
   /\babrasion/i,
-  /\bscrape/i,
+  /\bscrape(d|s|ing)?\b/i,
+];
+
+const CHROME_ARTIFACT_FALSE_SCRATCH = [
+  /\breflective pattern/i,
+  /\bsparkle/i,
+  /\bchrome effect/i,
+  /\brefractor texture/i,
+  /\bglare\b/i,
+  /\blighting streak/i,
+  /\bholographic background/i,
+  /\bchrome artifact/i,
+  /\brefractor artifact/i,
+  /\bholographic (finish|effect|pattern|background|sheen)/i,
+  /\bprizm (silver|finish|pattern|refractor)/i,
+  /\bmosaic (finish|pattern|refractor)/i,
+  /\boptic holo/i,
+  /\bbowman chrome/i,
+  /\btopps chrome/i,
+  /\bselect chrome/i,
+];
+
+const SURFACE_CLEAN_SCRATCH_CONTRADICTION = [
+  /\botherwise clean\b/i,
+  /\bno significant surface (issues|flaws|problems|damage)\b/i,
+  /\bsurface appears clean\b/i,
+  /\bsurface is (clean|pristine|flawless)\b/i,
+  /\boverall clean surface\b/i,
+  /\bno surface issues\b/i,
+  /\b(no visible scratches?|no scratches?( or marks)?|without scratches?)\b/i,
+  /\bpristine (surface|presentation)\b/i,
 ];
 
 const SURFACE_SCRATCH_DENIAL = [
@@ -933,37 +966,112 @@ const SURFACE_SCRATCH_DENIAL = [
   /\b(no scratches or marks|no marks or scratches)\b/i,
 ];
 
-function collectSurfaceScratchText(raw, defect = null) {
-  const notes = raw?.categoryNotes || {};
-  return [
-    notes.surface,
-    defect ? raw?.primaryLimiterLabel : null,
+const CHROMIUM_STRONG_SCRATCH_EVIDENCE = [
+  /\b(linear|hairline) scratch/i,
+  /\bscratch(es)? (visible|crossing|on the)/i,
+  /\b(visible|clear) scratch/i,
+  /\b(light|minor|small|faint) scratch/i,
+  /\bscratch visible (on|across|in)/i,
+];
+
+const CHROMIUM_FINISH_SIGNALS =
+  /\b(bowman chrome|topps chrome|panini prizm|prizm silver|mosaic|select chrome|optic holo|refractor|chrome refractor|holo finish|chrome finish)\b/i;
+
+function surfaceNoteText(raw) {
+  return String(raw?.categoryNotes?.surface || "");
+}
+
+function isChromiumFinishCard(raw) {
+  if (raw?.cardMeta?.isReflective === true) {
+    return true;
+  }
+  const text = [
+    raw?.cardMeta?.productLine,
+    raw?.bestAttribute,
     raw?.eyeAppealSummary,
+    raw?.categoryNotes?.surface,
   ]
+    .filter(Boolean)
+    .join(" ");
+  return CHROMIUM_FINISH_SIGNALS.test(text);
+}
+
+function stripNegatedScratchLanguage(note) {
+  if (!note) {
+    return "";
+  }
+  return note
+    .replace(
+      /\b(no|without|free of|lack of)\s+[\w\s]{0,30}?scratch(es|ing)?[\w\s]{0,30}?\b/gi,
+      ""
+    )
+    .replace(/\bno visible scratch[\w\s]{0,40}\b/gi, "")
+    .replace(/\bscratch.?free\b/gi, "");
+}
+
+function hasExplicitSurfaceScratchInNotes(raw) {
+  const surfaceNote = stripNegatedScratchLanguage(surfaceNoteText(raw));
+  if (!surfaceNote) {
+    return false;
+  }
+  return SURFACE_SCRATCH_EXPLICIT_EVIDENCE.some((pattern) => pattern.test(surfaceNote));
+}
+
+function collectSurfaceScratchText(raw) {
+  const notes = raw?.categoryNotes || {};
+  return [notes.surface, raw?.eyeAppealSummary, raw?.bestAttribute]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
 }
 
 function hasConfirmedSurfaceScratchEvidence(raw, defect) {
-  const text = collectSurfaceScratchText(raw, defect);
-  if (!text) {
+  const surfaceNote = surfaceNoteText(raw);
+  const presentationText = collectSurfaceScratchText(raw);
+  if (!surfaceNote && !presentationText) {
     return false;
   }
-  if (SURFACE_SCRATCH_DENIAL.some((pattern) => pattern.test(text))) {
+
+  if (SURFACE_SCRATCH_DENIAL.some((pattern) => pattern.test(presentationText))) {
     return false;
   }
-  if (!SURFACE_SCRATCH_EVIDENCE.some((pattern) => pattern.test(text))) {
-    return false;
-  }
+
   if (
-    /\b(print line|roller mark|factory line|refractor artifact|chrome artifact)\b/i.test(
-      text
-    ) &&
-    !/\bscratch/i.test(text)
+    CHROME_ARTIFACT_FALSE_SCRATCH.some((pattern) => pattern.test(presentationText)) &&
+    !hasExplicitSurfaceScratchInNotes(raw)
   ) {
     return false;
   }
+
+  if (
+    SURFACE_CLEAN_SCRATCH_CONTRADICTION.some((pattern) => pattern.test(presentationText)) &&
+    !hasExplicitSurfaceScratchInNotes(raw)
+  ) {
+    return false;
+  }
+
+  if (!hasExplicitSurfaceScratchInNotes(raw)) {
+    return false;
+  }
+
+  if (
+    /\b(print line|roller mark|factory line|refractor artifact|chrome artifact)\b/i.test(
+      surfaceNote
+    ) &&
+    !/\bscratch/i.test(surfaceNote)
+  ) {
+    return false;
+  }
+
+  if (isChromiumFinishCard(raw)) {
+    const strongEvidence = CHROMIUM_STRONG_SCRATCH_EVIDENCE.some((pattern) =>
+      pattern.test(surfaceNote)
+    );
+    if (!strongEvidence && defect?.confidence !== "high") {
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -1358,11 +1466,70 @@ function hasModernCornerReconcileBlockers(note) {
   return MODERN_POSITIVE_HANDLING_WEAR.some((pattern) => pattern.test(wearStripped));
 }
 
+const MODERN_SURFACE_RECONCILE_BLOCKERS = [
+  /\bstain(ing|ed|s)?\b/i,
+  /\bcrease\b/i,
+  /\bdent\b/i,
+  /\bgouge\b/i,
+  /\bpaper loss\b/i,
+  /\bsurface wear\b/i,
+  /\bprint defect\b/i,
+  /\bheavy\b/i,
+  /\bmoderate\b/i,
+  /\bdistracting\b/i,
+  /\bdetrat(es|ing|ion)\b/i,
+];
+
+function hasModernCleanSurfaceNote(note) {
+  if (!note) {
+    return false;
+  }
+  const stripped = stripNegatedScratchLanguage(note);
+  if (SURFACE_CLEAN_SCRATCH_CONTRADICTION.some((pattern) => pattern.test(stripped))) {
+    return true;
+  }
+  return (
+    /\b(clean|pristine|flawless|excellent|strong) surface\b/i.test(stripped) ||
+    /\bsurface (is )?(clean|pristine|flawless)\b/i.test(stripped) ||
+    /\bno (visible )?(surface issues|surface flaws|scratches)\b/i.test(stripped)
+  );
+}
+
+function hasModernSurfaceReconcileBlockers(note) {
+  if (!note) {
+    return false;
+  }
+  const scratchStripped = stripNegatedScratchLanguage(note);
+  if (SURFACE_SCRATCH_EXPLICIT_EVIDENCE.some((pattern) => pattern.test(scratchStripped))) {
+    return true;
+  }
+  return MODERN_SURFACE_RECONCILE_BLOCKERS.some((pattern) => pattern.test(scratchStripped));
+}
+
+const SURFACE_STRUCTURAL_DEFECT_TAGS = new Set([
+  "surface_scratch_light",
+  "surface_scratch_moderate",
+  "surface_wear",
+  "staining_light",
+  "heavy_staining",
+  "moderate_crease",
+  "severe_crease",
+  "dent",
+  "indentation",
+  "paper_loss",
+  "hole_tear",
+  "gloss_loss",
+]);
+
 function isReconcilableLowPillarScore(score) {
   return score === 8 || score === 8.5;
 }
 
-function reconcileModernCleanNotePillarScores(categoryScores, raw, era) {
+function hasSurfaceStructuralDefect(defects) {
+  return (defects || []).some((defect) => SURFACE_STRUCTURAL_DEFECT_TAGS.has(defect.tag));
+}
+
+function reconcileModernCleanNotePillarScores(categoryScores, raw, era, defects = []) {
   if (era !== "modern") {
     return { categoryScores, reconciled: false, audit: [] };
   }
@@ -1371,6 +1538,7 @@ function reconcileModernCleanNotePillarScores(categoryScores, raw, era) {
   const audit = [];
   let nextCorners = categoryScores.corners;
   let nextEdges = categoryScores.edges;
+  let nextSurface = categoryScores.surface;
 
   if (
     isReconcilableLowPillarScore(nextEdges) &&
@@ -1400,6 +1568,21 @@ function reconcileModernCleanNotePillarScores(categoryScores, raw, era) {
     nextCorners = 9.0;
   }
 
+  if (
+    isReconcilableLowPillarScore(nextSurface) &&
+    hasModernCleanSurfaceNote(notes.surface) &&
+    !hasModernSurfaceReconcileBlockers(notes.surface) &&
+    !hasSurfaceStructuralDefect(defects)
+  ) {
+    audit.push({
+      source: "modern_clean_note_pillar_reconcile",
+      pillar: "surface",
+      originalScore: nextSurface,
+      newScore: 9.0,
+    });
+    nextSurface = 9.0;
+  }
+
   if (!audit.length) {
     return { categoryScores, reconciled: false, audit: [] };
   }
@@ -1409,6 +1592,7 @@ function reconcileModernCleanNotePillarScores(categoryScores, raw, era) {
       ...categoryScores,
       corners: nextCorners,
       edges: nextEdges,
+      surface: nextSurface,
     }),
     reconciled: true,
     audit,
@@ -2432,16 +2616,56 @@ function hasModernReflectiveScratchCosmeticLanguage(raw) {
 }
 
 function reconcileModernReflectiveScratchArtifacts(defects, raw, era) {
-  if (era !== "modern" || raw?.cardMeta?.isReflective !== true) {
+  if (era !== "modern" || !isChromiumFinishCard(raw)) {
     return { defects, audit: [], reconciled: false };
   }
   if (!defects.some((defect) => defect.tag === "surface_scratch_light")) {
     return { defects, audit: [], reconciled: false };
   }
+
+  const presentationText = collectModernReflectiveSurfaceText(raw);
+  const chromeArtifactOnly =
+    CHROME_ARTIFACT_FALSE_SCRATCH.some((pattern) => pattern.test(presentationText)) &&
+    !hasExplicitSurfaceScratchInNotes(raw);
+  const cleanSurfaceContradiction =
+    SURFACE_CLEAN_SCRATCH_CONTRADICTION.some((pattern) => pattern.test(presentationText)) &&
+    !hasExplicitSurfaceScratchInNotes(raw);
+
+  if (chromeArtifactOnly || cleanSurfaceContradiction) {
+    const audit = [];
+    const reconciled = defects.filter((defect) => {
+      if (defect.tag !== "surface_scratch_light") {
+        return true;
+      }
+      audit.push({
+        source: "modern_chromium_false_scratch_strip",
+        originalTag: "surface_scratch_light",
+        newTag: null,
+      });
+      return false;
+    });
+    if (!audit.length) {
+      return { defects, audit: [], reconciled: false };
+    }
+    return { defects: reconciled, audit, reconciled: true };
+  }
+
   if (hasModernReflectiveScratchDamageLanguage(raw)) {
     return { defects, audit: [], reconciled: false };
   }
+
+  const strippedSurfaceNote = stripNegatedScratchLanguage(surfaceNoteText(raw));
+  if (
+    hasExplicitSurfaceScratchInNotes(raw) &&
+    CHROMIUM_STRONG_SCRATCH_EVIDENCE.some((pattern) => pattern.test(strippedSurfaceNote))
+  ) {
+    return { defects, audit: [], reconciled: false };
+  }
+
   if (!hasModernReflectiveScratchCosmeticLanguage(raw)) {
+    return { defects, audit: [], reconciled: false };
+  }
+  if (!hasExplicitSurfaceScratchInNotes(raw)) {
     return { defects, audit: [], reconciled: false };
   }
 
@@ -4511,7 +4735,8 @@ function normalizeAnalysis(raw, era) {
   const cleanNotePillars = reconcileModernCleanNotePillarScores(
     categoryScores,
     raw,
-    era
+    era,
+    defects
   );
   if (cleanNotePillars.reconciled) {
     categoryScores = cleanNotePillars.categoryScores;

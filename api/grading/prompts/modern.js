@@ -134,6 +134,12 @@ DEFECT TAGGING:
 
 - Use surface_scratch_light only for light marks that appear to be actual surface contact with explicit scratch/scuff evidence in surface notes — not factory lines, not by default.
 
+- Tag surface_scratch_light ONLY when surface notes explicitly describe a linear scratch, hairline scratch, visible scratch crossing artwork/background, or scratch visible at multiple angles.
+
+- Do NOT tag surface_scratch_light for reflective pattern, sparkle, chrome effect, refractor texture, glare, lighting streak, holographic background, or similar finish artifacts.
+
+- On Bowman Chrome, Topps Chrome, Optic holo, Prizm silver, Mosaic, refractors, and similar chromium finishes: require stronger scratch evidence than on paper stock; when surface notes say otherwise clean or no significant surface issues, do not tag scratch without explicit scratch language.
+
 - Use corner_wear_light / edge_wear_light only when whitening, rounding, fraying, chipping, or clear
 
   touch wear is visible — not from vague wear language alone.
@@ -168,7 +174,9 @@ REFLECTIVE / CHROME:
 
 - Inspect chrome, refractor, prism, and reflective cards closely.
 
-- Do not confuse factory print lines, roller marks, or reflector artifacts with scratches or wear.
+- Do not confuse factory print lines, roller marks, reflector artifacts, glare, lighting streaks, or holographic background texture with scratches or wear.
+
+- If the surface notes describe a clean or pristine card aside from finish sparkle/reflection, do not assign surface_scratch_light.
 
 
 
