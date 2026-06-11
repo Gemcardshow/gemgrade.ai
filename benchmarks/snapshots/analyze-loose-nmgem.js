@@ -1,4 +1,4 @@
-import { GRADING_PHILOSOPHY } from "../../api/grading/philosophy.js";
+import { GRADING_PHILOSOPHY } from "../../lib/grading/philosophy.js";
 import {
   getDefectDefinition,
   getDefectLabel,
@@ -6,15 +6,15 @@ import {
   normalizeDefectObservation,
   resolveEffectiveDefectTag,
   escalateLightWearObservation,
-} from "../../api/grading/defects.js";
+} from "../../lib/grading/defects.js";
 import {
   ANALYSIS_JSON_SCHEMA,
   buildAnalysisInstruction,
   ERA_JSON_SCHEMA,
-} from "../../api/grading/prompts/core.js";
-import { MODERN_RUBRIC } from "../../api/grading/prompts/modern.js";
-import { VINTAGE_RUBRIC } from "../../api/grading/prompts/vintage.js";
-import { clampGrade, roundToHalf } from "../../api/grading/types.js";
+} from "../../lib/grading/prompts/core.js";
+import { MODERN_RUBRIC } from "../../lib/grading/prompts/modern.js";
+import { VINTAGE_RUBRIC } from "../../lib/grading/prompts/vintage.js";
+import { clampGrade, roundToHalf } from "../../lib/grading/types.js";
 
 function parseJsonResponse(outputText) {
   try {

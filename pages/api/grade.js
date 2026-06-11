@@ -1,4 +1,4 @@
-export { default } from "../../api/grade.js";
+export { default } from "../../lib/gradeHandler.js";
 
 export const config = {
   api: {

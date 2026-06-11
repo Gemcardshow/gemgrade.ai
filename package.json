@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test:api": "npm --prefix api test",
+    "test:api": "node --test lib/grading/engine.test.js",
     "benchmark:scan": "node benchmarks/scan-manifest.js",
     "benchmark:run": "node benchmarks/run-benchmark.js",
     "benchmark": "npm run benchmark:scan && npm run benchmark:run",

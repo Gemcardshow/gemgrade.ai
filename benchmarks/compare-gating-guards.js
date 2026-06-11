@@ -6,9 +6,9 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeAnalysis } from "../api/grading/analyze.js";
-import { computeGrade } from "../api/grading/engine.js";
-import { getWearFloor } from "../api/grading/psa-calibration.js";
+import { normalizeAnalysis } from "../lib/grading/analyze.js";
+import { computeGrade } from "../lib/grading/engine.js";
+import { getWearFloor } from "../lib/grading/psa-calibration.js";
 import { resolveBenchmarkPath } from "./lib/paths.js";
 
 function inferRawCategoryScores(grade) {
