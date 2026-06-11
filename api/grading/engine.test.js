@@ -3195,9 +3195,42 @@ test("modern cosmetic print_line cap lifts to 9 when pillars and notes qualify",
   );
 });
 
-test("modern cosmetic print_line cap does not apply when pillars below 9", () => {
+test("modern cosmetic print_line cap lifts to 9 when surface pillar is 8.5", () => {
   const analysis = baseAnalysis({
     categoryScores: { corners: 9, edges: 9, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      corners: "Sharp corners with no visible wear.",
+      edges: "Clean edges.",
+      surface: "Minor factory print line under close inspection; does not detract.",
+      centering: "Well centered.",
+    },
+    scanQuality: { level: "excellent", visibilityIssues: [], inspectionLimits: [] },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.equal(result.internalGrade, 8.5);
+  assert.ok(result.psaGrade >= 8);
+  assert.ok(
+    result.capAudit.some(
+      (entry) =>
+        entry.source === "modern_cosmetic:primary:print_line" && entry.cap === 9
+    )
+  );
+});
+
+test("modern cosmetic print_line cap does not apply when surface below 8.5", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 8, centering: 9 },
     defects: [
       {
         tag: "print_line",
@@ -3363,5 +3396,358 @@ test("modern cosmetic print_line cap blocked by wear tag vs no-wear note contrad
   assert.ok(result.internalGrade <= 8.5);
   assert.ok(
     !result.capAudit.some((entry) => entry.source?.startsWith("modern_cosmetic:"))
+  );
+});
+
+test("modern normalize strips corner_wear_light from vague wear language only", () => {
+  const raw = baseAnalysis({
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "medium",
+      },
+    ],
+    primaryLimiterTag: "corner_wear_light",
+    primaryLimiterLabel: "Light corner wear",
+    categoryNotes: {
+      corners: "Corners appear sharp with slight wear consistent with handling.",
+      edges: "Clean edges.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 2024, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.ok(!normalized.defects.some((defect) => defect.tag === "corner_wear_light"));
+});
+
+test("modern normalize keeps corner_wear_light when whitening is documented", () => {
+  const raw = baseAnalysis({
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "corner_wear_light",
+    categoryNotes: {
+      corners: "Minor corner whitening visible on bottom left.",
+      edges: "Clean edges.",
+      surface: "Clean surface.",
+    },
+    cardMeta: { estimatedYear: 2024, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.ok(normalized.defects.some((defect) => defect.tag === "corner_wear_light"));
+});
+
+test("modern psa7 light wear stack caps stacked wear at 7.5", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 8, edges: 8, surface: 8.5, centering: 9 },
+    defects: [
+      {
+        tag: "corner_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "high",
+      },
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "corner_wear_light",
+    categoryNotes: {
+      corners: "Minor corner whitening on two corners.",
+      edges: "Light edge fraying visible under close inspection.",
+      surface: "Clean surface.",
+    },
+    cardMeta: { estimatedYear: 2022, isReflective: false, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 7.5);
+  assert.ok(
+    result.capAudit.some((entry) => entry.source === "modern:psa7_light_wear_stack")
+  );
+});
+
+test("modern psa7 stack cap skipped for factory print_line only presentation", () => {
+  const analysis = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "print_line",
+        severity: "minor",
+        location: "front",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "print_line",
+    categoryNotes: {
+      corners: "Sharp corners with no visible wear.",
+      edges: "Clean edges.",
+      surface: "Minor factory print line under close inspection; does not detract.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 2023, isReflective: true, isDarkBorder: false },
+  });
+
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade >= 9);
+  assert.ok(
+    !result.capAudit.some((entry) => entry.source === "modern:psa7_light_wear_stack")
+  );
+});
+
+test("modern normalize caps corner pillar when notes have vague handling wear only", () => {
+  const raw = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [],
+    primaryLimiterTag: null,
+    primaryLimiterLabel: null,
+    categoryNotes: {
+      corners: "Corners appear sharp with slight wear consistent with handling.",
+      edges: "Clean edges with no visible wear.",
+      surface: "Clean factory surface.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 2020, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.ok(normalized.categoryScores.corners <= 8.5);
+  assert.equal(normalized.categoryScores.edges, 9);
+  assert.ok(!normalized.defects.some((defect) => defect.tag === "corner_wear_light"));
+});
+
+test("modern normalize caps corner pillar to 8 for confirmed whitening without wear tag", () => {
+  const raw = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9 },
+    defects: [],
+    primaryLimiterTag: null,
+    primaryLimiterLabel: null,
+    categoryNotes: {
+      corners: "Minor corner whitening visible on bottom left.",
+      edges: "Clean edges.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 2024, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.ok(normalized.categoryScores.corners <= 8.5);
+  assert.ok(!normalized.defects.some((defect) => defect.tag === "corner_wear_light"));
+});
+
+test("modern handling wear pillar cap prevents inflated grade on vague wear notes", () => {
+  const raw = baseAnalysis({
+    categoryScores: { corners: 9, edges: 9, surface: 9, centering: 9.5 },
+    defects: [],
+    primaryLimiterTag: null,
+    categoryNotes: {
+      corners: "Minor corner wear detected, appears consistent with handling.",
+      edges: "Edges appear clean with no visible wear.",
+      surface: "Surface is well-maintained with no notable issues.",
+      centering: "Centering is visually appealing.",
+    },
+    cardMeta: { estimatedYear: 2020, isReflective: false, isDarkBorder: false },
+  });
+
+  const analysis = normalizeAnalysis(raw, "modern");
+  const result = computeGrade(analysis, "modern");
+  assert.ok(result.internalGrade <= 8.5);
+  assert.ok(result.psaGrade <= 8);
+});
+
+test("modern clean note reconciliation raises edges 8 to 9 without changing defects", () => {
+  const raw = baseAnalysis({
+    categoryScores: { corners: 9, edges: 8, surface: 9, centering: 9 },
+    defects: [],
+    primaryLimiterTag: null,
+    primaryLimiterLabel: null,
+    categoryNotes: {
+      corners: "Sharp corners with no visible wear.",
+      edges: "Clean edges with no visible fraying or wear.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 2020, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.equal(normalized.categoryScores.edges, 9);
+  assert.equal(normalized.defects.length, 0);
+  assert.ok(
+    normalized.visionReconciliationAudit?.some(
+      (entry) =>
+        entry.source === "modern_clean_note_pillar_reconcile" &&
+        entry.pillar === "edges" &&
+        entry.newScore === 9
+    )
+  );
+});
+
+test("modern clean note reconciliation raises edges 8 to 9 for well-defined language", () => {
+  const raw = baseAnalysis({
+    categoryScores: { corners: 9, edges: 8, surface: 9, centering: 9 },
+    defects: [],
+    primaryLimiterTag: null,
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Edges are smooth and well-defined with no visible issues.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 2020, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.equal(normalized.categoryScores.edges, 9);
+});
+
+test("modern clean note reconciliation caps raise at 9.0 from 8.5 only", () => {
+  const raw = baseAnalysis({
+    categoryScores: { corners: 9, edges: 8.5, surface: 9, centering: 9 },
+    defects: [],
+    primaryLimiterTag: null,
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Intact edges with uniform appearance.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 2020, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.equal(normalized.categoryScores.edges, 9);
+});
+
+test("modern clean note reconciliation skips edges below 8", () => {
+  const raw = baseAnalysis({
+    categoryScores: { corners: 9, edges: 7, surface: 9, centering: 9 },
+    defects: [],
+    primaryLimiterTag: null,
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Smooth well-defined edges with no visible issues.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 2020, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.equal(normalized.categoryScores.edges, 7);
+});
+
+test("modern clean note reconciliation handles no chipping or fraying phrasing", () => {
+  const raw = baseAnalysis({
+    categoryScores: { corners: 9, edges: 8, surface: 9, centering: 9 },
+    defects: [],
+    primaryLimiterTag: null,
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Clean edges, well-defined with no chipping or fraying.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 2018, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.equal(normalized.categoryScores.edges, 9);
+});
+
+test("modern clean note reconciliation skips edges when touched language is present", () => {
+  const raw = baseAnalysis({
+    categoryScores: { corners: 9, edges: 8, surface: 9, centering: 9 },
+    defects: [],
+    primaryLimiterTag: null,
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Smooth edges with touched corners visible on the left.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 2020, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.equal(normalized.categoryScores.edges, 8);
+});
+
+test("modern clean note reconciliation skips edges when damage language is present", () => {
+  const raw = baseAnalysis({
+    categoryScores: { corners: 9, edges: 8, surface: 9, centering: 9 },
+    defects: [
+      {
+        tag: "edge_wear_light",
+        severity: "minor",
+        location: "both",
+        confidence: "high",
+      },
+    ],
+    primaryLimiterTag: "edge_wear_light",
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Clean edges with minor edge fraying visible under close inspection.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 2020, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.equal(normalized.categoryScores.edges, 8);
+});
+
+test("modern clean note reconciliation raises corners 8 to 9 cautiously", () => {
+  const raw = baseAnalysis({
+    categoryScores: { corners: 8, edges: 9, surface: 9, centering: 9 },
+    defects: [],
+    primaryLimiterTag: null,
+    categoryNotes: {
+      corners: "Corners appear sharp and clean with no visible wear.",
+      edges: "Clean edges.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 2020, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "modern");
+  assert.equal(normalized.categoryScores.corners, 9);
+});
+
+test("modern clean note reconciliation does not apply to vintage cards", () => {
+  const raw = baseAnalysis({
+    categoryScores: { corners: 9, edges: 8, surface: 9, centering: 9 },
+    defects: [],
+    categoryNotes: {
+      corners: "Sharp corners.",
+      edges: "Clean edges with no visible wear.",
+      surface: "Clean surface.",
+      centering: "Well centered.",
+    },
+    cardMeta: { estimatedYear: 1968, isReflective: false, isDarkBorder: false },
+  });
+
+  const normalized = normalizeAnalysis(raw, "vintage");
+  assert.ok(normalized.categoryScores.edges < 9);
+  assert.ok(
+    !normalized.visionReconciliationAudit?.some(
+      (entry) => entry.source === "modern_clean_note_pillar_reconcile"
+    )
   );
 });

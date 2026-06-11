@@ -1967,7 +1967,11 @@ export function resolveNmModernDefectCap(
 const MODERN_COSMETIC_PRINT_LINE_BLOCKED_TAGS = new Set([
   "print_line_severe",
   "surface_wear",
+  "surface_scratch_light",
   "surface_scratch_moderate",
+  "corner_wear_light",
+  "edge_wear_light",
+  "staining_light",
   "moderate_crease",
   "severe_crease",
   "paper_loss",
@@ -2128,6 +2132,113 @@ function allModernMajorPillarsNinePlus(categoryScores) {
   );
 }
 
+function qualifiesModernPrintLineReliefPillars(categoryScores) {
+  return (
+    categoryScores.corners >= 9 &&
+    categoryScores.edges >= 9 &&
+    categoryScores.surface >= 8.5 &&
+    categoryScores.centering >= 9
+  );
+}
+
+const MODERN_PSA7_STACK_WEAR_TAGS = new Set([
+  "corner_wear_light",
+  "edge_wear_light",
+  "surface_scratch_light",
+  "surface_wear",
+  "gloss_loss",
+  "staining_light",
+]);
+
+const MODERN_FACTORY_ONLY_DEFECT_TAGS = new Set([
+  "print_line",
+  "registration_issue",
+  "centering_off_minor",
+]);
+
+function countModernWearStackTags(defects) {
+  return defects.filter((defect) => MODERN_PSA7_STACK_WEAR_TAGS.has(defect.tag)).length;
+}
+
+function isModernFactoryCosmeticOnlyPresentation(defects, analysis) {
+  if (!defects.length) {
+    return false;
+  }
+  if (!defects.every((defect) => MODERN_FACTORY_ONLY_DEFECT_TAGS.has(defect.tag))) {
+    return false;
+  }
+  const text = collectModernPresentationText(analysis);
+  return (
+    hasModernFactoryCosmeticLanguage(text) &&
+    !hasModernHandlingWearLanguage(text)
+  );
+}
+
+function hasModernPsa7LightWearStack(defects, analysis, categoryScores) {
+  const wearTagCount = countModernWearStackTags(defects);
+  const handlingWear = hasModernHandlingWearLanguage(
+    collectModernPresentationText(analysis)
+  );
+  if (wearTagCount >= 2) {
+    return true;
+  }
+  if (wearTagCount >= 1 && handlingWear) {
+    return true;
+  }
+  if (
+    handlingWear &&
+    defects.some((defect) => defect.tag === "print_line") &&
+    wearTagCount === 0
+  ) {
+    const bandScores = getWearBandScores(categoryScores, analysis);
+    return getWearFloor(bandScores) <= 8;
+  }
+  return false;
+}
+
+/**
+ * Cap modern cards with stacked light-wear signals at NM (7.5) unless factory/cosmetic only.
+ */
+export function applyModernPsa7LightWearStackCap(
+  rawOverall,
+  defects,
+  analysis,
+  era,
+  capAudit,
+  categoryScores
+) {
+  if (era !== "modern" || !analysis) {
+    return rawOverall;
+  }
+  if (triggersPsa1Calibration(defects)) {
+    return rawOverall;
+  }
+  if (hasModerateOrMajorStructuralDefect(defects)) {
+    return rawOverall;
+  }
+  if (countModeratePlusDefects(defects) > 0) {
+    return rawOverall;
+  }
+  if (isModernFactoryCosmeticOnlyPresentation(defects, analysis)) {
+    return rawOverall;
+  }
+  if (!hasModernPsa7LightWearStack(defects, analysis, categoryScores)) {
+    return rawOverall;
+  }
+
+  const bandScores = getWearBandScores(categoryScores, analysis);
+  if (getWearFloor(bandScores) > 8) {
+    return rawOverall;
+  }
+
+  const cap = 7.5;
+  if (rawOverall > cap) {
+    capAudit.push({ source: "modern:psa7_light_wear_stack", cap });
+    return cap;
+  }
+  return rawOverall;
+}
+
 /**
  * Modern-only cosmetic print_line cap relief when mint pillars and notes qualify.
  */
@@ -2155,7 +2266,7 @@ export function qualifiesForModernCosmeticPrintLineCapRelief(
   if (defects.some((defect) => MODERN_COSMETIC_PRINT_LINE_BLOCKED_TAGS.has(defect.tag))) {
     return false;
   }
-  if (!allModernMajorPillarsNinePlus(categoryScores)) {
+  if (!qualifiesModernPrintLineReliefPillars(categoryScores)) {
     return false;
   }
 

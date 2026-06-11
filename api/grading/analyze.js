@@ -979,8 +979,445 @@ function filterUnconfirmedSurfaceScratchDefects(defects, raw, era) {
   });
 }
 
+const MODERN_WEAR_POSITIVE_EVIDENCE = [
+  /\bwhitening\b/i,
+  /\b(rounding|rounded corners?)\b/i,
+  /\bfraying\b/i,
+  /\bchipping\b/i,
+  /\btouch wear\b/i,
+  /\bcorner touch\b/i,
+  /\btouched corners?\b/i,
+  /\bwear on (one or more|multiple|a couple|several) corners?\b/i,
+  /\bedge roughness\b/i,
+  /\brough edges?\b/i,
+  /\bhandling wear\b/i,
+  /\b(visible|clear|noticeable|obvious|material) (wear|rounding|whitening|chipping|fraying)\b/i,
+  /\bminor touch wear\b/i,
+  /\bslight touch wear\b/i,
+];
+
+const MODERN_WEAR_ARTIFACT_SIGNALS = [
+  /\b(slab|holder|case) (artifact|glare|reflection)\b/i,
+  /\b(photo|scan|scanner) artifact\b/i,
+  /\bglare (artifact|misread)\b/i,
+  /\bfalse positive\b/i,
+  /\bcould be (holder|scan|glare|artifact)/i,
+  /\bambiguous\b/i,
+  /\bmay not be immediately visible\b/i,
+  /\bdifficult to (see|confirm|verify)\b/i,
+];
+
+function collectModernWearText(raw, defectTag) {
+  const notes = raw?.categoryNotes || {};
+  const pillarNote =
+    defectTag === "corner_wear_light"
+      ? notes.corners
+      : defectTag === "edge_wear_light"
+        ? notes.edges
+        : null;
+  return [pillarNote, raw?.primaryLimiterLabel, raw?.eyeAppealSummary]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function hasConfirmedModernWearEvidence(raw, defectTag) {
+  const text = collectModernWearText(raw, defectTag);
+  if (!text) {
+    return false;
+  }
+  if (MODERN_WEAR_ARTIFACT_SIGNALS.some((pattern) => pattern.test(text))) {
+    return false;
+  }
+  return MODERN_WEAR_POSITIVE_EVIDENCE.some((pattern) => pattern.test(text));
+}
+
+function filterUnconfirmedModernWearDefects(defects, raw, era) {
+  if (era !== "modern") {
+    return defects;
+  }
+  return defects.filter((defect) => {
+    if (defect.tag !== "corner_wear_light" && defect.tag !== "edge_wear_light") {
+      return true;
+    }
+    return hasConfirmedModernWearEvidence(raw, defect.tag);
+  });
+}
+
+const MODERN_HANDLING_WEAR_PILLAR_LANGUAGE = [
+  /\bhandling wear\b/i,
+  /\bhandling\b/i,
+  /\bslight wear\b/i,
+  /\bminor wear\b/i,
+  /\bminimal wear\b/i,
+  /\blight wear\b/i,
+  /\btouch wear\b/i,
+  /\bsoftening\b/i,
+  /\bwhitening\b/i,
+  /\bfraying\b/i,
+  /\broughness\b/i,
+  /\bchipping\b/i,
+  /\bcorner touch\b/i,
+  /\btouched corners?\b/i,
+  /\bconsistent with handling\b/i,
+  /\bwear detected\b/i,
+  /\bminor touch\b/i,
+  /\bslight touch\b/i,
+  /\bedge wear\b/i,
+  /\brough edges?\b/i,
+  /\brounding\b/i,
+  /\brounded corners?\b/i,
+  /\bwear on (one or more|multiple|a couple|several) corners?\b/i,
+  /\bminor signs of handling\b/i,
+  /\bsigns of handling\b/i,
+];
+
+const MODERN_PILLAR_CLEAN_WEAR_DENIAL = [
+  /\bno visible wear\b/i,
+  /\bno noticeable wear\b/i,
+  /\bno evidence of wear\b/i,
+  /\bno wear detected\b/i,
+  /\bno significant wear\b/i,
+  /\bsharp with no wear\b/i,
+  /\b(no|without) (visible |noticeable |significant )?wear\b/i,
+  /\b(no|without) (touch wear|handling wear)\b/i,
+  /\bclean with no (visible )?wear\b/i,
+];
+
+function stripModernPillarWearDenials(note) {
+  return note
+    .replace(/\b(no|without|free of|lack of) handling wear\b/gi, "")
+    .replace(/\b(no|without) (visible|noticeable|significant) wear\b/gi, "")
+    .replace(/\b(no|without) (touch wear|corner touch|minimal wear|slight wear)\b/gi, "");
+}
+
+function hasModernHandlingWearPillarLanguage(note) {
+  if (!note) {
+    return false;
+  }
+  const stripped = stripModernPillarWearDenials(note);
+  if (
+    MODERN_PILLAR_CLEAN_WEAR_DENIAL.some((pattern) => pattern.test(note)) &&
+    !MODERN_HANDLING_WEAR_PILLAR_LANGUAGE.some((pattern) => pattern.test(stripped))
+  ) {
+    return false;
+  }
+  return MODERN_HANDLING_WEAR_PILLAR_LANGUAGE.some((pattern) => pattern.test(stripped));
+}
+
+function hasModernConfirmedVisibleWearInNote(note) {
+  if (!note) {
+    return false;
+  }
+  return MODERN_WEAR_POSITIVE_EVIDENCE.some((pattern) => pattern.test(note));
+}
+
+const MODERN_PILLAR_WEAR_CAP_SKIP = [
+  /\bnot significant enough\b/i,
+  /\bdoes not detract\b/i,
+  /\bdoesn't detract\b/i,
+  /\bdoes not significantly detract\b/i,
+  /\bdoesn't significantly detract\b/i,
+  /\b(still|remaining|mostly) (sharp|rounded|clean)\b/i,
+  /\b(sharp|clean|well-defined) with no (visible |significant )?wear\b/i,
+  /\bno visible wear\b/i,
+  /\bno significant wear\b/i,
+  /\bno noticeable wear\b/i,
+  /\b(clean|sharp|well-defined).{0,40}\b(only |just )?(minimal|minor|light) wear\b/i,
+];
+
+const MODERN_CORNER_ISOLATED_WEAR_SKIP = [
+  /\b(excellent|strong|very good).{0,50}(minor|minimal|light) wear.{0,40}(one corner|single corner|a corner)\b/i,
+  /\b(minimal|minor|light) wear.{0,30}(remaining|still|mostly) (sharp|rounded|clean)\b/i,
+  /\b(minimal|minor|light) wear noted on one corner\b/i,
+  /\b(one|single|a) corner.{0,30}(minor|minimal|light) (wear|touch)\b/i,
+];
+
+function shouldSkipModernPillarWearCap(note, pillar = null) {
+  if (!note) {
+    return true;
+  }
+  if (
+    pillar === "corners" &&
+    MODERN_CORNER_ISOLATED_WEAR_SKIP.some((pattern) => pattern.test(note))
+  ) {
+    return true;
+  }
+  const stripped = stripModernPillarWearDenials(note);
+  const hasWearLanguage = MODERN_HANDLING_WEAR_PILLAR_LANGUAGE.some((pattern) =>
+    pattern.test(stripped)
+  );
+  if (!hasWearLanguage) {
+    return true;
+  }
+  if (
+    /\b(no visible wear|no significant wear|no noticeable wear)\b/i.test(note) &&
+    !/\b(minimal|slight|minor|light|touch) wear\b/i.test(note)
+  ) {
+    return true;
+  }
+  if (MODERN_PILLAR_WEAR_CAP_SKIP.some((pattern) => pattern.test(note)) &&
+    !/\b(whitening|chipping|fraying|softening)\b/i.test(note)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function capModernPillarForHandlingWear(score, note, defects, pillar) {
+  if (shouldSkipModernPillarWearCap(note, pillar)) {
+    return score;
+  }
+  const stripped = stripModernPillarWearDenials(note);
+  const hasHandlingLanguage = MODERN_HANDLING_WEAR_PILLAR_LANGUAGE.some((pattern) =>
+    pattern.test(stripped)
+  );
+  if (!hasHandlingLanguage) {
+    return score;
+  }
+
+  const materialWear = /\b(whitening|chipping|fraying|softening|rough edges?|edge roughness)\b/i.test(
+    note
+  );
+  if (pillar === "edges" && !materialWear) {
+    const hasEdgeWearTag = defects.some((defect) => defect.tag === "edge_wear_light");
+    if (!hasEdgeWearTag) {
+      return score;
+    }
+  }
+
+  if (materialWear) {
+    return Math.min(score, 8.0);
+  }
+
+  if (hasModernConfirmedVisibleWearInNote(note)) {
+    return Math.min(score, 8.5);
+  }
+
+  const hasAnyWearTag = defects.some((defect) =>
+    ["corner_wear_light", "edge_wear_light"].includes(defect.tag)
+  );
+  if (!hasAnyWearTag) {
+    return Math.min(score, 8.5);
+  }
+
+  return score;
+}
+
+function reconcileModernHandlingWearPillarScores(categoryScores, raw, era, defects) {
+  if (era !== "modern") {
+    return { categoryScores, reconciled: false };
+  }
+
+  const notes = raw?.categoryNotes || {};
+  const nextCorners = capModernPillarForHandlingWear(
+    categoryScores.corners,
+    notes.corners,
+    defects,
+    "corners"
+  );
+  const nextEdges = capModernPillarForHandlingWear(
+    categoryScores.edges,
+    notes.edges,
+    defects,
+    "edges"
+  );
+
+  if (nextCorners === categoryScores.corners && nextEdges === categoryScores.edges) {
+    return { categoryScores, reconciled: false };
+  }
+
+  return {
+    categoryScores: normalizeCategoryScores({
+      ...categoryScores,
+      corners: nextCorners,
+      edges: nextEdges,
+    }),
+    reconciled: true,
+  };
+}
+
+const MODERN_CLEAN_CORNER_NOTE_LANGUAGE = [
+  /\bclean\b/i,
+  /\bcrisp\b/i,
+  /\bsharp\b/i,
+  /\bno visible wear\b/i,
+  /\bno fraying\b/i,
+  /\bno chipping\b/i,
+  /\bno whitening\b/i,
+  /\bno edge damage\b/i,
+  /\bno corner damage\b/i,
+];
+
+const MODERN_CLEAN_EDGE_NOTE_LANGUAGE = [
+  ...MODERN_CLEAN_CORNER_NOTE_LANGUAGE,
+  /\bwell-defined\b/i,
+  /\bsmooth\b/i,
+  /\bintact\b/i,
+  /\buniform\b/i,
+  /\beven\b/i,
+  /\bsharp-looking\b/i,
+  /\bno obvious flaws\b/i,
+  /\bno notable damage\b/i,
+  /\bno visible issues\b/i,
+  /\bconsistent (edge|edges|finish|appearance|throughout)\b/i,
+  /\bedges? (are |appear )?(well-defined|smooth|intact|uniform|even|consistent)\b/i,
+];
+
+const MODERN_EDGE_RECONCILE_BLOCKERS = [
+  /\bwhitening\b/i,
+  /\bchipping\b/i,
+  /\bfraying\b/i,
+  /\broughness\b/i,
+  /\blayering\b/i,
+  /\bpeeling\b/i,
+  /\bnick\b/i,
+  /\bding\b/i,
+  /\bvisible wear\b/i,
+  /\bedge damage\b/i,
+  /\btouched\b/i,
+  /\bsoftened\b/i,
+  /\blifted foil\b/i,
+  /\bseparation\b/i,
+  /\bdamage\b/i,
+];
+
+function stripNegatedPillarDamageLanguage(note) {
+  if (!note) {
+    return "";
+  }
+  return note
+    .replace(
+      /\b(no|without|free of|lack of)\s+[\w\s]{0,24}?(whitening|chipping|fraying|roughness|layering|peeling|nicks?|dings?|damage|wear|issues|flaws)\b/gi,
+      ""
+    )
+    .replace(
+      /\b(no|without)\s+(chipping|fraying|whitening|damage|wear)\s+or\s+(chipping|fraying|whitening|damage|wear)\b/gi,
+      ""
+    )
+    .replace(
+      /\b(no|without)\s+(visible|noticeable|significant|obvious|notable)\s+(wear|fraying|chipping|whitening|damage|issues|flaws)\b/gi,
+      ""
+    )
+    .replace(/\b(no|without)\s+edge damage\b/gi, "")
+    .replace(/\s+\bor\s+(chipping|fraying|whitening|damage|wear)\b/gi, "");
+}
+
+function hasModernCleanCornerNote(note) {
+  if (!note) {
+    return false;
+  }
+  return MODERN_CLEAN_CORNER_NOTE_LANGUAGE.some((pattern) => pattern.test(note));
+}
+
+function hasModernCleanEdgeNote(note) {
+  if (!note) {
+    return false;
+  }
+  if (MODERN_CLEAN_EDGE_NOTE_LANGUAGE.some((pattern) => pattern.test(note))) {
+    return true;
+  }
+  return (
+    /\bconsistent\b/i.test(note) && !/\bconsistent with handling\b/i.test(note)
+  );
+}
+
+const MODERN_POSITIVE_HANDLING_WEAR = [
+  /\bhandling wear\b/i,
+  /\btouch wear\b/i,
+  /\bedge wear\b/i,
+  /\b(light|slight|minor|minimal|some|visible)\s+wear\b/i,
+  /\bwear (present|detected|noted|visible)\b/i,
+  /\bconsistent with handling\b/i,
+  /\brounding\b/i,
+  /\bsoftening\b/i,
+  /\brough edges?\b/i,
+  /\bedge roughness\b/i,
+];
+
+function hasModernEdgeReconcileBlockers(note) {
+  if (!note) {
+    return false;
+  }
+  const stripped = stripNegatedPillarDamageLanguage(note);
+  if (MODERN_EDGE_RECONCILE_BLOCKERS.some((pattern) => pattern.test(stripped))) {
+    return true;
+  }
+  const wearStripped = stripModernPillarWearDenials(stripped);
+  return MODERN_POSITIVE_HANDLING_WEAR.some((pattern) => pattern.test(wearStripped));
+}
+
+function hasModernCornerReconcileBlockers(note) {
+  if (!note) {
+    return false;
+  }
+  const stripped = stripNegatedPillarDamageLanguage(note);
+  if (MODERN_EDGE_RECONCILE_BLOCKERS.some((pattern) => pattern.test(stripped))) {
+    return true;
+  }
+  const wearStripped = stripModernPillarWearDenials(stripped);
+  return MODERN_POSITIVE_HANDLING_WEAR.some((pattern) => pattern.test(wearStripped));
+}
+
+function isReconcilableLowPillarScore(score) {
+  return score === 8 || score === 8.5;
+}
+
+function reconcileModernCleanNotePillarScores(categoryScores, raw, era) {
+  if (era !== "modern") {
+    return { categoryScores, reconciled: false, audit: [] };
+  }
+
+  const notes = raw?.categoryNotes || {};
+  const audit = [];
+  let nextCorners = categoryScores.corners;
+  let nextEdges = categoryScores.edges;
+
+  if (
+    isReconcilableLowPillarScore(nextEdges) &&
+    hasModernCleanEdgeNote(notes.edges) &&
+    !hasModernEdgeReconcileBlockers(notes.edges)
+  ) {
+    audit.push({
+      source: "modern_clean_note_pillar_reconcile",
+      pillar: "edges",
+      originalScore: nextEdges,
+      newScore: 9.0,
+    });
+    nextEdges = 9.0;
+  }
+
+  if (
+    isReconcilableLowPillarScore(nextCorners) &&
+    hasModernCleanCornerNote(notes.corners) &&
+    !hasModernCornerReconcileBlockers(notes.corners)
+  ) {
+    audit.push({
+      source: "modern_clean_note_pillar_reconcile",
+      pillar: "corners",
+      originalScore: nextCorners,
+      newScore: 9.0,
+    });
+    nextCorners = 9.0;
+  }
+
+  if (!audit.length) {
+    return { categoryScores, reconciled: false, audit: [] };
+  }
+
+  return {
+    categoryScores: normalizeCategoryScores({
+      ...categoryScores,
+      corners: nextCorners,
+      edges: nextEdges,
+    }),
+    reconciled: true,
+    audit,
+  };
+}
+
 function finalizeSurfaceScratchAndLimiter(defects, categoryScores, era, raw, finalLimiter) {
   let nextDefects = filterUnconfirmedSurfaceScratchDefects(defects, raw, era);
+  nextDefects = filterUnconfirmedModernWearDefects(nextDefects, raw, era);
   let nextLimiter = resolvePrimaryLimiter(
     nextDefects,
     era,
@@ -4060,6 +4497,29 @@ function normalizeAnalysis(raw, era) {
     raw,
     finalLimiter
   ));
+
+  const handlingWearPillars = reconcileModernHandlingWearPillarScores(
+    categoryScores,
+    raw,
+    era,
+    defects
+  );
+  if (handlingWearPillars.reconciled) {
+    categoryScores = handlingWearPillars.categoryScores;
+  }
+
+  const cleanNotePillars = reconcileModernCleanNotePillarScores(
+    categoryScores,
+    raw,
+    era
+  );
+  if (cleanNotePillars.reconciled) {
+    categoryScores = cleanNotePillars.categoryScores;
+    visionReconciliationAudit = [
+      ...visionReconciliationAudit,
+      ...cleanNotePillars.audit,
+    ];
+  }
 
   return {
     scanQuality: {
