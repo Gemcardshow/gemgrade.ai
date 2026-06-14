@@ -1,0 +1,81 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.801Z",
+  "card": {
+    "id": "1959-t-marshall-psa9",
+    "slug": "1959-t-marshall-psa9",
+    "cardName": "1959 T MARSHALL",
+    "fileLabel": "1959 T MARSHALL PSA 9",
+    "year": 1959,
+    "psaGrade": 9,
+    "suiteId": "TEST 9",
+    "relativeDir": "TEST 9",
+    "images": {
+      "front": "TEST 9/1959 T MARSHALL PSA 9 FRONT.jpg",
+      "back": "TEST 9/1959 T MARSHALL PSA 9 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1960,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 7,
+      "edges": 6.5,
+      "surface": 6.5,
+      "centering": 7.5
+    },
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "edge_wear_light",
+      "label": "Minor edge wear affecting eye appeal"
+    },
+    "eyeAppealSummary": "Card presents well with bright colors, though there is light wear visible that affects overall eye appeal.",
+    "bestAttribute": "Strong centering",
+    "categoryNotes": {
+      "corners": "Minor wear evident, slight rounding on edges.",
+      "edges": "Light wear and minor imperfections visible.",
+      "surface": "Slight surface scratches and marks are noticeable, but overall color is vibrant.",
+      "centering": "Well-centered with good alignment of the image and text."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [
+        "Full back surface not fully visible due to angle and lighting"
+      ]
+    },
+    "cardMeta": {
+      "estimatedYear": 1956,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.801Z",
+    "previousCachedAt": "2026-06-06T03:23:53.438Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T14:45:59.953Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.803Z",
+  "card": {
+    "id": "1967-t-hunter-psa9",
+    "slug": "1967-t-hunter-psa9",
+    "cardName": "1967 T HUNTER",
+    "fileLabel": "1967 T HUNTER PSA 9",
+    "year": 1967,
+    "psaGrade": 9,
+    "suiteId": "TEST 9",
+    "relativeDir": "TEST 9",
+    "images": {
+      "front": "TEST 9/1967 T HUNTER PSA 9 FRONT.jpg",
+      "back": "TEST 9/1967 T HUNTER PSA 9 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1967,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 8.5,
+      "edges": 8,
+      "surface": 7.5,
+      "centering": 8.5
+    },
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "surface_scratch_light",
+      "label": "surface scratch"
+    },
+    "eyeAppealSummary": "The card has strong visual appeal with minor wear.",
+    "bestAttribute": "good centering and overall presentation",
+    "categoryNotes": {
+      "corners": "Slight rounding visible, but most corners retain strong shape.",
+      "edges": "Minor edge wear present, not significant.",
+      "surface": "Light scratches detected; otherwise clean surface.",
+      "centering": "Strong centering, excellent presentation overall."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": []
+    },
+    "cardMeta": {
+      "estimatedYear": 1969,
+      "isReflective": false,
+      "isDarkBorder": true
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.803Z",
+    "previousCachedAt": "2026-06-06T03:24:36.014Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T14:47:41.155Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

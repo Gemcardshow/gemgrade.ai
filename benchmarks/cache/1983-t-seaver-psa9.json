@@ -1,0 +1,79 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.808Z",
+  "card": {
+    "id": "1983-t-seaver-psa9",
+    "slug": "1983-t-seaver-psa9",
+    "cardName": "1983 T SEAVER",
+    "fileLabel": "1983 T SEAVER PSA 9",
+    "year": 1983,
+    "psaGrade": 9,
+    "suiteId": "TEST 9",
+    "relativeDir": "TEST 9",
+    "images": {
+      "front": "TEST 9/1983 T SEAVER PSA 9 FRONT.jpg",
+      "back": "TEST 9/1983 T SEAVER PSA 9 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1983,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 7,
+      "edges": 7,
+      "surface": 6.5,
+      "centering": 7.5
+    },
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "corner_wear_light",
+      "label": "corner wear present on multiple corners"
+    },
+    "eyeAppealSummary": "Bright colors with minimal creasing, yet some corner and edge wear visible.",
+    "bestAttribute": "centering appears strong",
+    "categoryNotes": {
+      "corners": "Minor corner wear observed, slight softening present.",
+      "edges": "Light edge wear visible, consistent with age.",
+      "surface": "Surface has minor scratches, not affecting overall presentation significantly.",
+      "centering": "Card is well-centered with a pleasing visual balance."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": []
+    },
+    "cardMeta": {
+      "estimatedYear": 1983,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.808Z",
+    "previousCachedAt": "2026-06-06T02:41:04.642Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T15:04:55.924Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

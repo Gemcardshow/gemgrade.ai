@@ -1,0 +1,85 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.789Z",
+  "card": {
+    "id": "1933-w-brydge-psa8",
+    "slug": "1933-w-brydge-psa8",
+    "cardName": "1933 W BRYDGE",
+    "fileLabel": "1933 W BRYDGE PSA 8",
+    "year": 1933,
+    "psaGrade": 8,
+    "suiteId": "TEST 8",
+    "relativeDir": "TEST 8",
+    "images": {
+      "front": "TEST 8/1933 W BRYDGE PSA 8 FRONT.jpg",
+      "back": "TEST 8/1933 W BRYDGE PSA 8 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1933,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 6.5,
+      "edges": 6.5,
+      "surface": 5.5,
+      "centering": 7
+    },
+    "defects": [
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "moderate_crease",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "corner_wear_moderate",
+      "label": "corner wear moderate"
+    },
+    "eyeAppealSummary": "The card presents with decent centering but exhibits moderate corner wear and noticeable surface creasing.",
+    "bestAttribute": "centering",
+    "categoryNotes": {
+      "corners": "Moderate wear visible on corners, affecting overall sharpness.",
+      "edges": "Light edge wear present, particularly along the bottom edge.",
+      "surface": "Visible crease on front surface and some mild staining, affecting visual appeal.",
+      "centering": "Centering is generally good."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": []
+    },
+    "cardMeta": {
+      "estimatedYear": 1933,
+      "isReflective": false,
+      "isDarkBorder": true
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.789Z",
+    "previousCachedAt": "2026-06-06T03:14:48.963Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T14:22:13.298Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "cachedAt": "2026-06-06T03:04:51.150Z",
+  "card": {
+    "id": "1960-t-starr-psa7",
+    "slug": "1960-t-starr-psa7",
+    "cardName": "1960 T STARR",
+    "fileLabel": "1960 T STARR PSA 7",
+    "year": 1960,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1960 T STARR PSA 7 FRONT.jpg",
+      "back": "TEST 7/1960 T STARR PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 3,
+    "internalGrade": 3.5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1962,
+    "categoryScores": {
+      "corners": 5.5,
+      "edges": 5.5,
+      "surface": 5.5,
+      "centering": 7.5
+    },
+    "primaryLimiter": {
+      "tag": "staining_light",
+      "label": "Light staining or discoloration"
+    },
+    "bestAttribute": "Strong centering and decent overall appeal.",
+    "eyeAppealSummary": "Despite minor surface scratches and light corner wear, the card displays good coloring and centering.",
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Light wear observed, generally well-preserved.",
+      "edges": "Edges show minor wear, consistent with age.",
+      "surface": "Surface bears a few minor scratches but remains appealing.",
+      "centering": "Centering is quite strong, enhancing overall presentation."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryFloor",
+        "value": 5.5
+      },
+      {
+        "source": "defect:corner_wear_light",
+        "cap": 8
+      },
+      {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      {
+        "source": "defect:staining_light",
+        "cap": 7
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "primaryLimiter:staining_light",
+        "cap": 7
+      },
+      {
+        "source": "centering:major",
+        "cap": 8
+      },
+      {
+        "source": "vintage:triad_light_wear_notes",
+        "cap": 3.5
+      },
+      {
+        "source": "overall_derivation",
+        "value": 3.5
+      }
+    ],
+    "likelyRange": "PSA 3–4",
+    "verdict": "## Overall Grade: 3 / 10\nInternal Grade: 3.5\n\n### Category Scores\n- Corners: 5.5\n- Edges: 5.5\n- Surface: 5.5\n- Centering: 7.5\n\n### Primary Grade Limiter\nLight staining or discoloration\n\n### Best Attribute\nStrong centering and decent overall appeal.\n\n### Eye Appeal Summary\nDespite minor surface scratches and light corner wear, the card displays good coloring and centering.\n\n### Likely Grade Range\nPSA 3–4\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nLight wear observed, generally well-preserved.\n\n#### Edges\nEdges show minor wear, consistent with age.\n\n#### Surface\nSurface bears a few minor scratches but remains appealing.\n\n#### Centering\nCentering is quite strong, enhancing overall presentation.\n\n## Professional Verdict\nProjected PSA 3 based on visible condition. The primary limiter is light staining or discoloration.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1961,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}

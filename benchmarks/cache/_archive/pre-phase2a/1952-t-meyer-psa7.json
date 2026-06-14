@@ -1,0 +1,116 @@
+{
+  "cachedAt": "2026-06-06T03:01:51.219Z",
+  "card": {
+    "id": "1952-t-meyer-psa7",
+    "slug": "1952-t-meyer-psa7",
+    "cardName": "1952 T MEYER",
+    "fileLabel": "1952 T MEYER PSA 7",
+    "year": 1952,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1952 T MEYER PSA 7 FRONT.jpg",
+      "back": "TEST 7/1952 T MEYER PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 5,
+    "internalGrade": 5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1952,
+    "categoryScores": {
+      "corners": 5,
+      "edges": 6,
+      "surface": 6,
+      "centering": 7
+    },
+    "primaryLimiter": {
+      "tag": "surface_scratch_moderate",
+      "label": "Moderate surface scratching"
+    },
+    "bestAttribute": "strong centering with acceptable wear",
+    "eyeAppealSummary": "Good eye appeal despite visible wear and staining.",
+    "defects": [
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "both",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Moderate corner wear visible, affecting overall look.",
+      "edges": "Edges show some wear, but no major chipping.",
+      "surface": "Surface scratches present, but color is strong.",
+      "centering": "Strong centering, enhancing visual appeal."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryFloor",
+        "value": 5
+      },
+      {
+        "source": "defect:corner_wear_moderate",
+        "cap": 6
+      },
+      {
+        "source": "defect:surface_scratch_moderate",
+        "cap": 5.5
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "compound:2plus_moderate_defects",
+        "cap": 5.5
+      },
+      {
+        "source": "primaryLimiter:surface_scratch_moderate",
+        "cap": 5.5
+      },
+      {
+        "source": "centering:major",
+        "cap": 8
+      },
+      {
+        "source": "overall_derivation",
+        "value": 5
+      }
+    ],
+    "likelyRange": "PSA 4–5",
+    "verdict": "## Overall Grade: 5 / 10\nInternal Grade: 5\n\n### Category Scores\n- Corners: 5\n- Edges: 6\n- Surface: 6\n- Centering: 7\n\n### Primary Grade Limiter\nModerate surface scratching\n\n### Best Attribute\nstrong centering with acceptable wear\n\n### Eye Appeal Summary\nGood eye appeal despite visible wear and staining.\n\n### Likely Grade Range\nPSA 4–5\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nModerate corner wear visible, affecting overall look.\n\n#### Edges\nEdges show some wear, but no major chipping.\n\n#### Surface\nSurface scratches present, but color is strong.\n\n#### Centering\nStrong centering, enhancing visual appeal.\n\n## Professional Verdict\nProjected PSA 5 based on visible condition. The primary limiter is moderate surface scratching.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1953,
+      "isReflective": false,
+      "isDarkBorder": true
+    }
+  }
+}

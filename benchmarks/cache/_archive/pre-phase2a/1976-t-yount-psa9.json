@@ -1,0 +1,136 @@
+{
+  "cachedAt": "2026-06-06T03:30:56.279Z",
+  "card": {
+    "id": "1976-t-yount-psa9",
+    "slug": "1976-t-yount-psa9",
+    "cardName": "1976 T YOUNT",
+    "fileLabel": "1976 T YOUNT PSA 9",
+    "year": 1976,
+    "psaGrade": 9,
+    "suiteId": "TEST 9",
+    "relativeDir": "TEST 9",
+    "images": {
+      "front": "TEST 9/1976 T YOUNT PSA 9 FRONT.jpg",
+      "back": "TEST 9/1976 T YOUNT PSA 9 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 5,
+    "internalGrade": 5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1974,
+    "categoryScores": {
+      "corners": 6,
+      "edges": 6.5,
+      "surface": 5,
+      "centering": 7.5
+    },
+    "primaryLimiter": {
+      "tag": "moderate_crease",
+      "label": "moderate_crease"
+    },
+    "bestAttribute": "eye appeal is attractive despite minor defects",
+    "eyeAppealSummary": "The card displays good centering, vibrant colors, and overall presence, despite minor corner wear and a crease.",
+    "defects": [
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "moderate_crease",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Corners show some light wear, with minor softening.",
+      "edges": "Edges have light wear without significant chipping.",
+      "surface": "The front surface is generally clean but has a visible crease.",
+      "centering": "Centering is good, with minor variations at the top."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryImpact:corner_wear_moderate:corners",
+        "cap": 6
+      },
+      {
+        "source": "categoryImpact:moderate_crease:surface",
+        "cap": 3.5
+      },
+      {
+        "source": "ex_band:crease_surface_relief",
+        "floor": 5
+      },
+      {
+        "source": "categoryFloor",
+        "value": 5
+      },
+      {
+        "source": "defect:corner_wear_moderate",
+        "cap": 6
+      },
+      {
+        "source": "exBandCrease:moderate_crease",
+        "cap": 5
+      },
+      {
+        "source": "defect:moderate_crease",
+        "cap": 5
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "compound:2plus_moderate_defects",
+        "cap": 5.5
+      },
+      {
+        "source": "exBandCrease:moderate_crease",
+        "cap": 5
+      },
+      {
+        "source": "primaryLimiter:moderate_crease",
+        "cap": 5
+      },
+      {
+        "source": "centering:major",
+        "cap": 8
+      },
+      {
+        "source": "overall_derivation",
+        "value": 5
+      }
+    ],
+    "likelyRange": "PSA 4–5",
+    "verdict": "## Overall Grade: 5 / 10\nInternal Grade: 5\n\n### Category Scores\n- Corners: 6\n- Edges: 6.5\n- Surface: 5\n- Centering: 7.5\n\n### Primary Grade Limiter\nmoderate_crease\n\n### Best Attribute\neye appeal is attractive despite minor defects\n\n### Eye Appeal Summary\nThe card displays good centering, vibrant colors, and overall presence, despite minor corner wear and a crease.\n\n### Likely Grade Range\nPSA 4–5\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nCorners show some light wear, with minor softening.\n\n#### Edges\nEdges have light wear without significant chipping.\n\n#### Surface\nThe front surface is generally clean but has a visible crease.\n\n#### Centering\nCentering is good, with minor variations at the top.\n\n## Professional Verdict\nProjected PSA 5 based on visible condition. The primary limiter is moderate_crease.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1974,
+      "isReflective": false,
+      "isDarkBorder": true
+    }
+  }
+}

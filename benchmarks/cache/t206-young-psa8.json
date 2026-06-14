@@ -1,0 +1,67 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.798Z",
+  "card": {
+    "id": "t206-young-psa8",
+    "slug": "t206-young-psa8",
+    "cardName": "T206 YOUNG",
+    "fileLabel": "T206 YOUNG PSA 8",
+    "year": null,
+    "psaGrade": 8,
+    "suiteId": "TEST 8",
+    "relativeDir": "TEST 8",
+    "images": {
+      "front": "TEST 8/T206 YOUNG PSA 8 FRONT.jpg",
+      "back": "TEST 8/T206 YOUNG PSA 8 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1909,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 8,
+      "edges": 7.5,
+      "surface": 7.5,
+      "centering": 8.5
+    },
+    "defects": [
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "surface_scratch_light",
+      "label": "Surface Scratch"
+    },
+    "eyeAppealSummary": "The card has strong colors and clear imagery with minimal surface imperfections.",
+    "bestAttribute": "Aesthetic appeal of the front design",
+    "categoryNotes": {
+      "corners": "No visible rounding or wear observed, maintaining full shape.",
+      "edges": "Minor edge wear visible, primarily at corners; slight roughness in a few areas.",
+      "surface": "Clean surface with a small surface scratch but otherwise well-preserved.",
+      "centering": "Strong centering, slightly more border on the right side."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": []
+    },
+    "cardMeta": {
+      "estimatedYear": 1909,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.798Z",
+    "previousCachedAt": "2026-06-06T03:22:23.986Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T14:42:37.527Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

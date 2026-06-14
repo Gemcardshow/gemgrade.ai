@@ -1,0 +1,120 @@
+{
+  "cachedAt": "2026-06-06T03:23:08.656Z",
+  "card": {
+    "id": "1950-c-cobb-psa9",
+    "slug": "1950-c-cobb-psa9",
+    "cardName": "1950 C COBB",
+    "fileLabel": "1950 C COBB PSA 9",
+    "year": 1950,
+    "psaGrade": 9,
+    "suiteId": "TEST 9",
+    "relativeDir": "TEST 9",
+    "images": {
+      "front": "TEST 9/1950 C COBB PSA 9 FRONT.jpg",
+      "back": "TEST 9/1950 C COBB PSA 9 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 3,
+    "internalGrade": 3,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1936,
+    "categoryScores": {
+      "corners": 6,
+      "edges": 5.5,
+      "surface": 3,
+      "centering": 7
+    },
+    "primaryLimiter": {
+      "tag": "surface_wear",
+      "label": "General surface wear"
+    },
+    "bestAttribute": "centering",
+    "eyeAppealSummary": "The card exhibits fair centering with notable aging characteristics, alongside minor corner wear and surface imperfections.",
+    "defects": [
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_wear",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "writing_mark",
+        "severity": "moderate",
+        "location": "back",
+        "confidence": "high"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Corners show slight wear but remain intact.",
+      "edges": "Edges exhibit light wear overall.",
+      "surface": "Surface has minor imperfections, consistent with age.",
+      "centering": "Centering is fairly strong, improving visual appeal."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryImpact:surface_wear:surface",
+        "cap": 3
+      },
+      {
+        "source": "categoryFloor",
+        "value": 3
+      },
+      {
+        "source": "defect:corner_wear_moderate",
+        "cap": 6
+      },
+      {
+        "source": "defect:surface_wear",
+        "cap": 3
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "compound:3plus_structural_ex_band",
+        "cap": 5
+      },
+      {
+        "source": "primaryLimiter:surface_wear",
+        "cap": 3
+      },
+      {
+        "source": "centering:major",
+        "cap": 8
+      },
+      {
+        "source": "overall_derivation",
+        "value": 3
+      }
+    ],
+    "likelyRange": "PSA 2–3",
+    "verdict": "## Overall Grade: 3 / 10\nInternal Grade: 3\n\n### Category Scores\n- Corners: 6\n- Edges: 5.5\n- Surface: 3\n- Centering: 7\n\n### Primary Grade Limiter\nGeneral surface wear\n\n### Best Attribute\ncentering\n\n### Eye Appeal Summary\nThe card exhibits fair centering with notable aging characteristics, alongside minor corner wear and surface imperfections.\n\n### Likely Grade Range\nPSA 2–3\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nCorners show slight wear but remain intact.\n\n#### Edges\nEdges exhibit light wear overall.\n\n#### Surface\nSurface has minor imperfections, consistent with age.\n\n#### Centering\nCentering is fairly strong, improving visual appeal.\n\n## Professional Verdict\nProjected PSA 3 based on visible condition. The primary limiter is general surface wear.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1936,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "cachedAt": "2026-06-06T03:01:05.814Z",
+  "card": {
+    "id": "1950-c-cochrane-psa7",
+    "slug": "1950-c-cochrane-psa7",
+    "cardName": "1950 C COCHRANE",
+    "fileLabel": "1950 C COCHRANE PSA 7",
+    "year": 1950,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1950 C COCHRANE PSA 7  FRONT.jpg",
+      "back": "TEST 7/1950 C COCHRANE PSA 7  BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 5,
+    "internalGrade": 5.5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1950,
+    "categoryScores": {
+      "corners": 5.5,
+      "edges": 5.5,
+      "surface": 5.5,
+      "centering": 8
+    },
+    "primaryLimiter": {
+      "tag": "surface_scratch_light",
+      "label": "Minor corner wear visible on front"
+    },
+    "bestAttribute": "Decent centering with vintage aesthetic",
+    "eyeAppealSummary": "Overall good eye appeal with minor corner wear and surface scratches.",
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Light wear with no rounding apparent.",
+      "edges": "Minor wear, clean edges overall with slight chipping.",
+      "surface": "Some light scratches noticeable but does not detract significantly.",
+      "centering": "Centering appears strong, evenly distributed."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [
+        "No severe creases clearly visible",
+        "No stains clearly visible"
+      ],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryFloor",
+        "value": 5.5
+      },
+      {
+        "source": "defect:corner_wear_light",
+        "cap": 8
+      },
+      {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "primaryLimiter:surface_scratch_light",
+        "cap": 7.5
+      },
+      {
+        "source": "centering:minor",
+        "cap": 9
+      },
+      {
+        "source": "overall_derivation",
+        "value": 5.5
+      }
+    ],
+    "likelyRange": "PSA 5–6",
+    "verdict": "## Overall Grade: 5 / 10\nInternal Grade: 5.5\n\n### Category Scores\n- Corners: 5.5\n- Edges: 5.5\n- Surface: 5.5\n- Centering: 8\n\n### Primary Grade Limiter\nMinor corner wear visible on front\n\n### Best Attribute\nDecent centering with vintage aesthetic\n\n### Eye Appeal Summary\nOverall good eye appeal with minor corner wear and surface scratches.\n\n### Likely Grade Range\nPSA 5–6\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nLight wear with no rounding apparent.\n\n#### Edges\nMinor wear, clean edges overall with slight chipping.\n\n#### Surface\nSome light scratches noticeable but does not detract significantly.\n\n#### Centering\nCentering appears strong, evenly distributed.\n\n## Professional Verdict\nProjected PSA 5 based on visible condition. The primary limiter is minor corner wear visible on front.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1950,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}

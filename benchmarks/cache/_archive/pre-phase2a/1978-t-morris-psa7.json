@@ -1,0 +1,102 @@
+{
+  "cachedAt": "2026-06-06T03:10:26.088Z",
+  "card": {
+    "id": "1978-t-morris-psa7",
+    "slug": "1978-t-morris-psa7",
+    "cardName": "1978 T MORRIS",
+    "fileLabel": "1978 T MORRIS PSA 7",
+    "year": 1978,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1978 T MORRIS PSA 7 FRONT.jpg",
+      "back": "TEST 7/1978 T MORRIS PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 5,
+    "internalGrade": 5.5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1978,
+    "categoryScores": {
+      "corners": 5.5,
+      "edges": 5.5,
+      "surface": 5.5,
+      "centering": 9
+    },
+    "primaryLimiter": {
+      "tag": "staining_light",
+      "label": "Light staining or discoloration"
+    },
+    "bestAttribute": "Strong centering and overall good surface quality with minor edge wear.",
+    "eyeAppealSummary": "The card displays vibrant colors and clear images, with only light wear visible on the edges and corners.",
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Minor rounding and wear are present, but overall solid.",
+      "edges": "Light wear noticeable along the edges, consistent with age.",
+      "surface": "Surface is clean with good gloss and no major scratches.",
+      "centering": "Well-centered with balanced borders."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryFloor",
+        "value": 5.5
+      },
+      {
+        "source": "defect:corner_wear_light",
+        "cap": 8
+      },
+      {
+        "source": "defect:staining_light",
+        "cap": 7
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "primaryLimiter:staining_light",
+        "cap": 7
+      },
+      {
+        "source": "overall_derivation",
+        "value": 5.5
+      }
+    ],
+    "likelyRange": "PSA 5–6",
+    "verdict": "## Overall Grade: 5 / 10\nInternal Grade: 5.5\n\n### Category Scores\n- Corners: 5.5\n- Edges: 5.5\n- Surface: 5.5\n- Centering: 9\n\n### Primary Grade Limiter\nLight staining or discoloration\n\n### Best Attribute\nStrong centering and overall good surface quality with minor edge wear.\n\n### Eye Appeal Summary\nThe card displays vibrant colors and clear images, with only light wear visible on the edges and corners.\n\n### Likely Grade Range\nPSA 5–6\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nMinor rounding and wear are present, but overall solid.\n\n#### Edges\nLight wear noticeable along the edges, consistent with age.\n\n#### Surface\nSurface is clean with good gloss and no major scratches.\n\n#### Centering\nWell-centered with balanced borders.\n\n## Professional Verdict\nProjected PSA 5 based on visible condition. The primary limiter is light staining or discoloration.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1978,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}

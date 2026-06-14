@@ -1,0 +1,67 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.791Z",
+  "card": {
+    "id": "1953-t-kennedy-psa8",
+    "slug": "1953-t-kennedy-psa8",
+    "cardName": "1953 T KENNEDY",
+    "fileLabel": "1953 T KENNEDY PSA 8",
+    "year": 1953,
+    "psaGrade": 8,
+    "suiteId": "TEST 8",
+    "relativeDir": "TEST 8",
+    "images": {
+      "front": "TEST 8/1953 T KENNEDY PSA 8 FRONT.jpg",
+      "back": "TEST 8/1953 T KENNEDY PSA 8 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1953,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 7,
+      "edges": 6.5,
+      "surface": 6.5,
+      "centering": 7.5
+    },
+    "defects": [
+      {
+        "tag": "writing_mark_severe",
+        "severity": "moderate",
+        "location": "back",
+        "confidence": "high"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "writing_mark_severe",
+      "label": "Back writing"
+    },
+    "eyeAppealSummary": "Decent visual appeal with some back writing.",
+    "bestAttribute": "Good centering and overall appearance",
+    "categoryNotes": {
+      "corners": "Corners appear sharp with little wear.",
+      "edges": "Minor edge wear apparent.",
+      "surface": "Surface has some scratches and marks but overall fair for age.",
+      "centering": "Well-centered card."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": []
+    },
+    "cardMeta": {
+      "estimatedYear": 1958,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.791Z",
+    "previousCachedAt": "2026-06-06T03:15:17.932Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T14:23:52.850Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

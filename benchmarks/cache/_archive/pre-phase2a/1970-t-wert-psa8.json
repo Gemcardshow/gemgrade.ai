@@ -1,0 +1,100 @@
+{
+  "cachedAt": "2026-06-06T03:18:39.036Z",
+  "card": {
+    "id": "1970-t-wert-psa8",
+    "slug": "1970-t-wert-psa8",
+    "cardName": "1970 T WERT",
+    "fileLabel": "1970 T WERT PSA 8",
+    "year": 1970,
+    "psaGrade": 8,
+    "suiteId": "TEST 8",
+    "relativeDir": "TEST 8",
+    "images": {
+      "front": "TEST 8/1970 T WERT PSA 8 FRONT.jpg",
+      "back": "TEST 8/1970 T WERT PSA 8 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 5,
+    "internalGrade": 5.5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1963,
+    "categoryScores": {
+      "corners": 8,
+      "edges": 5.5,
+      "surface": 7.5,
+      "centering": 8
+    },
+    "primaryLimiter": {
+      "tag": "surface_scratch_light",
+      "label": "Light surface scratch"
+    },
+    "bestAttribute": "Good centering with minimal corner wear",
+    "eyeAppealSummary": "The card has good overall eye appeal with bright colors and clear images despite visible creasing.",
+    "defects": [
+      {
+        "tag": "print_line",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Minor softness in corners but overall acceptable for age.",
+      "edges": "Some edge wear but not severe; retains decent shape.",
+      "surface": "Appears clean but has visible creasing and light scratches.",
+      "centering": "Well-centered for a vintage card."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryFloor",
+        "value": 5.5
+      },
+      {
+        "source": "defect:print_line",
+        "cap": 8
+      },
+      {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "primaryLimiter:surface_scratch_light",
+        "cap": 7.5
+      },
+      {
+        "source": "centering:minor",
+        "cap": 9
+      },
+      {
+        "source": "overall_derivation",
+        "value": 5.5
+      }
+    ],
+    "likelyRange": "PSA 5–6",
+    "verdict": "## Overall Grade: 5 / 10\nInternal Grade: 5.5\n\n### Category Scores\n- Corners: 8\n- Edges: 5.5\n- Surface: 7.5\n- Centering: 8\n\n### Primary Grade Limiter\nLight surface scratch\n\n### Best Attribute\nGood centering with minimal corner wear\n\n### Eye Appeal Summary\nThe card has good overall eye appeal with bright colors and clear images despite visible creasing.\n\n### Likely Grade Range\nPSA 5–6\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nMinor softness in corners but overall acceptable for age.\n\n#### Edges\nSome edge wear but not severe; retains decent shape.\n\n#### Surface\nAppears clean but has visible creasing and light scratches.\n\n#### Centering\nWell-centered for a vintage card.\n\n## Professional Verdict\nProjected PSA 5 based on visible condition. The primary limiter is light surface scratch.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1965,
+      "isReflective": false,
+      "isDarkBorder": true
+    }
+  }
+}

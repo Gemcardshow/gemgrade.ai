@@ -1,0 +1,120 @@
+{
+  "cachedAt": "2026-06-06T03:22:23.986Z",
+  "card": {
+    "id": "t206-young-psa8",
+    "slug": "t206-young-psa8",
+    "cardName": "T206 YOUNG",
+    "fileLabel": "T206 YOUNG PSA 8",
+    "year": null,
+    "psaGrade": 8,
+    "suiteId": "TEST 8",
+    "relativeDir": "TEST 8",
+    "images": {
+      "front": "TEST 8/T206 YOUNG PSA 8 FRONT.jpg",
+      "back": "TEST 8/T206 YOUNG PSA 8 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 3,
+    "internalGrade": 3,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1909,
+    "categoryScores": {
+      "corners": 5,
+      "edges": 6,
+      "surface": 3.5,
+      "centering": 6
+    },
+    "primaryLimiter": {
+      "tag": "moderate_crease",
+      "label": "Visible crease unacceptable on front surface"
+    },
+    "bestAttribute": "Overall vintage character",
+    "eyeAppealSummary": "The card exhibits visible wear and creasing affecting its appeal, despite its solid historical significance.",
+    "defects": [
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "moderate_crease",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Moderate wear visible on corners, particularly rounding and softening.",
+      "edges": "Light edge wear noted on the front with minimal chipping.",
+      "surface": "Visible moderate crease impacts aesthetics, with some light scratches present.",
+      "centering": "Centering appears relatively balanced but predicts potential centering issues."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryImpact:moderate_crease:surface",
+        "cap": 3.5
+      },
+      {
+        "source": "categoryFloor",
+        "value": 3.5
+      },
+      {
+        "source": "defect:corner_wear_moderate",
+        "cap": 6
+      },
+      {
+        "source": "defect:moderate_crease",
+        "cap": 3
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "compound:2plus_moderate_defects",
+        "cap": 4
+      },
+      {
+        "source": "primaryLimiter:moderate_crease",
+        "cap": 3
+      },
+      {
+        "source": "centering:major",
+        "cap": 8
+      },
+      {
+        "source": "overall_derivation",
+        "value": 3
+      }
+    ],
+    "likelyRange": "PSA 2–3",
+    "verdict": "## Overall Grade: 3 / 10\nInternal Grade: 3\n\n### Category Scores\n- Corners: 5\n- Edges: 6\n- Surface: 3.5\n- Centering: 6\n\n### Primary Grade Limiter\nVisible crease unacceptable on front surface\n\n### Best Attribute\nOverall vintage character\n\n### Eye Appeal Summary\nThe card exhibits visible wear and creasing affecting its appeal, despite its solid historical significance.\n\n### Likely Grade Range\nPSA 2–3\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nModerate wear visible on corners, particularly rounding and softening.\n\n#### Edges\nLight edge wear noted on the front with minimal chipping.\n\n#### Surface\nVisible moderate crease impacts aesthetics, with some light scratches present.\n\n#### Centering\nCentering appears relatively balanced but predicts potential centering issues.\n\n## Professional Verdict\nProjected PSA 3 based on visible condition. The primary limiter is visible crease unacceptable on front surface.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1902,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}

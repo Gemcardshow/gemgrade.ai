@@ -1,0 +1,110 @@
+{
+  "cachedAt": "2026-06-06T03:24:36.014Z",
+  "card": {
+    "id": "1967-t-hunter-psa9",
+    "slug": "1967-t-hunter-psa9",
+    "cardName": "1967 T HUNTER",
+    "fileLabel": "1967 T HUNTER PSA 9",
+    "year": 1967,
+    "psaGrade": 9,
+    "suiteId": "TEST 9",
+    "relativeDir": "TEST 9",
+    "images": {
+      "front": "TEST 9/1967 T HUNTER PSA 9 FRONT.jpg",
+      "back": "TEST 9/1967 T HUNTER PSA 9 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 3,
+    "internalGrade": 3.5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1967,
+    "categoryScores": {
+      "corners": 7,
+      "edges": 6.5,
+      "surface": 7.5,
+      "centering": 8
+    },
+    "primaryLimiter": {
+      "tag": "surface_scratch_light",
+      "label": "Light surface scratch"
+    },
+    "bestAttribute": "Strong centering with clean front surface",
+    "eyeAppealSummary": "Overall attractive appearance despite minor defects and back writing.",
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Minor wear visible; corners remain adequately sharp for age.",
+      "edges": "Light edge wear evident; typical for vintage cards.",
+      "surface": "Clean surface with minor scratches; good visual appeal.",
+      "centering": "Well-centered, slightly favoring top edge."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryFloor",
+        "value": 6.5
+      },
+      {
+        "source": "defect:corner_wear_light",
+        "cap": 8
+      },
+      {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "primaryLimiter:surface_scratch_light",
+        "cap": 7.5
+      },
+      {
+        "source": "centering:minor",
+        "cap": 9
+      },
+      {
+        "source": "vintage:triad_light_wear_notes",
+        "cap": 3.5
+      },
+      {
+        "source": "overall_derivation",
+        "value": 3.5
+      }
+    ],
+    "likelyRange": "PSA 3–4",
+    "verdict": "## Overall Grade: 3 / 10\nInternal Grade: 3.5\n\n### Category Scores\n- Corners: 7\n- Edges: 6.5\n- Surface: 7.5\n- Centering: 8\n\n### Primary Grade Limiter\nLight surface scratch\n\n### Best Attribute\nStrong centering with clean front surface\n\n### Eye Appeal Summary\nOverall attractive appearance despite minor defects and back writing.\n\n### Likely Grade Range\nPSA 3–4\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nMinor wear visible; corners remain adequately sharp for age.\n\n#### Edges\nLight edge wear evident; typical for vintage cards.\n\n#### Surface\nClean surface with minor scratches; good visual appeal.\n\n#### Centering\nWell-centered, slightly favoring top edge.\n\n## Professional Verdict\nProjected PSA 3 based on visible condition. The primary limiter is light surface scratch.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1966,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}

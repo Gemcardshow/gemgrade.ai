@@ -1,0 +1,124 @@
+{
+  "cachedAt": "2026-06-06T03:03:21.808Z",
+  "card": {
+    "id": "1956-t-moon-psa7",
+    "slug": "1956-t-moon-psa7",
+    "cardName": "1956 T MOON",
+    "fileLabel": "1956 T MOON PSA 7",
+    "year": 1956,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1956 T MOON PSA 7 FRONT.jpg",
+      "back": "TEST 7/1956 T MOON PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 5,
+    "internalGrade": 5.5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1959,
+    "categoryScores": {
+      "corners": 6,
+      "edges": 6,
+      "surface": 6,
+      "centering": 7
+    },
+    "primaryLimiter": {
+      "tag": "surface_scratch_moderate",
+      "label": "Moderate surface scratching"
+    },
+    "bestAttribute": "Fair overall condition with decent color and clarity.",
+    "eyeAppealSummary": "Despite some wear, the image retains nice vibrance and centering.",
+    "defects": [
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "surface_scratch_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Moderate rounding and softening present.",
+      "edges": "Minor wear noted, no major fraying.",
+      "surface": "Minor scratches observed, color remains vivid.",
+      "centering": "Well-centered, contributing positively to overall appeal."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryImpact:corner_wear_moderate:corners",
+        "cap": 6
+      },
+      {
+        "source": "categoryImpact:surface_scratch_moderate:surface",
+        "cap": 6
+      },
+      {
+        "source": "categoryFloor",
+        "value": 6
+      },
+      {
+        "source": "defect:corner_wear_moderate",
+        "cap": 6
+      },
+      {
+        "source": "defect:surface_scratch_moderate",
+        "cap": 5.5
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "compound:2plus_moderate_defects",
+        "cap": 5.5
+      },
+      {
+        "source": "primaryLimiter:surface_scratch_moderate",
+        "cap": 5.5
+      },
+      {
+        "source": "centering:major",
+        "cap": 8
+      },
+      {
+        "source": "overall_derivation",
+        "value": 5.5
+      }
+    ],
+    "likelyRange": "PSA 5–6",
+    "verdict": "## Overall Grade: 5 / 10\nInternal Grade: 5.5\n\n### Category Scores\n- Corners: 6\n- Edges: 6\n- Surface: 6\n- Centering: 7\n\n### Primary Grade Limiter\nModerate surface scratching\n\n### Best Attribute\nFair overall condition with decent color and clarity.\n\n### Eye Appeal Summary\nDespite some wear, the image retains nice vibrance and centering.\n\n### Likely Grade Range\nPSA 5–6\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nModerate rounding and softening present.\n\n#### Edges\nMinor wear noted, no major fraying.\n\n#### Surface\nMinor scratches observed, color remains vivid.\n\n#### Centering\nWell-centered, contributing positively to overall appeal.\n\n## Professional Verdict\nProjected PSA 5 based on visible condition. The primary limiter is moderate surface scratching.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1959,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}

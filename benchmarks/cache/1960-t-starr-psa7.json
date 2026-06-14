@@ -1,0 +1,85 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.777Z",
+  "card": {
+    "id": "1960-t-starr-psa7",
+    "slug": "1960-t-starr-psa7",
+    "cardName": "1960 T STARR",
+    "fileLabel": "1960 T STARR PSA 7",
+    "year": 1960,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1960 T STARR PSA 7 FRONT.jpg",
+      "back": "TEST 7/1960 T STARR PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1960,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 8.5,
+      "edges": 8,
+      "surface": 8,
+      "centering": 8.5
+    },
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "corner_wear_light",
+      "label": "Minor corner wear visible on the front"
+    },
+    "eyeAppealSummary": "This card has vibrant colors and a sharp image, but minor corner wear detracts slightly from its appeal.",
+    "bestAttribute": "Overall clean presentation with strong color and detail",
+    "categoryNotes": {
+      "corners": "Minor wear visible.",
+      "edges": "Light wear on edges, consistent with age.",
+      "surface": "Surface remains clean with minor scratches noted.",
+      "centering": "Strong centering overall."
+    },
+    "scanQuality": {
+      "level": "excellent",
+      "visibilityIssues": [],
+      "inspectionLimits": []
+    },
+    "cardMeta": {
+      "estimatedYear": 1960,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.777Z",
+    "previousCachedAt": "2026-06-06T03:04:51.150Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T13:53:29.085Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

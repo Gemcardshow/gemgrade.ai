@@ -1,0 +1,79 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.806Z",
+  "card": {
+    "id": "1978-t-eckersley-psa9",
+    "slug": "1978-t-eckersley-psa9",
+    "cardName": "1978 T ECKERSLEY",
+    "fileLabel": "1978 T ECKERSLEY PSA 9",
+    "year": 1978,
+    "psaGrade": 9,
+    "suiteId": "TEST 9",
+    "relativeDir": "TEST 9",
+    "images": {
+      "front": "TEST 9/1978 T ECKERSLEY PSA 9 FRONT.jpg",
+      "back": "TEST 9/1978 T ECKERSLEY PSA 9 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1978,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 7,
+      "edges": 7,
+      "surface": 6.5,
+      "centering": 8
+    },
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "high"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "surface_scratch_light",
+      "label": "Light surface scratches detected"
+    },
+    "eyeAppealSummary": "The card presents well with minimal visible wear and good centering.",
+    "bestAttribute": "Strong centering and clean borders",
+    "categoryNotes": {
+      "corners": "Slight rounding visible on all corners, consistent with age-related wear.",
+      "edges": "Edges remain clean, minor wear present but no significant issues.",
+      "surface": "Front surface has light scratches and minor imperfections, the overall quality is good.",
+      "centering": "The card is well-centered, with even borders."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": []
+    },
+    "cardMeta": {
+      "estimatedYear": 1979,
+      "isReflective": false,
+      "isDarkBorder": true
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.806Z",
+    "previousCachedAt": "2026-06-06T03:31:42.480Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T14:59:48.144Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

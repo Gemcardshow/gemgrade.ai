@@ -1,0 +1,73 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.797Z",
+  "card": {
+    "id": "1975-t-luzinski-psa8",
+    "slug": "1975-t-luzinski-psa8",
+    "cardName": "1975 T LUZINSKI",
+    "fileLabel": "1975 T LUZINSKI PSA 8",
+    "year": 1975,
+    "psaGrade": 8,
+    "suiteId": "TEST 8",
+    "relativeDir": "TEST 8",
+    "images": {
+      "front": "TEST 8/1975 T LUZINSKI PSA 8 FRONT.jpg",
+      "back": "TEST 8/1975 T LUZINSKI PSA 8 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1975,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 7,
+      "edges": 7,
+      "surface": 7,
+      "centering": 8
+    },
+    "defects": [
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "corner_wear_light",
+      "label": "corner_wear_light"
+    },
+    "eyeAppealSummary": "Card presents well with vibrant colors and clear imagery, but shows minor surface imperfections.",
+    "bestAttribute": "Strong centering with overall clean surface",
+    "categoryNotes": {
+      "corners": "Slight wear visible on corners; primarily affects one corner.",
+      "edges": "Edges appear clean with minimal wear.",
+      "surface": "Surface shows light scratches but retains good color and gloss.",
+      "centering": "Card is well-centered for its age."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": []
+    },
+    "cardMeta": {
+      "estimatedYear": 1975,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.797Z",
+    "previousCachedAt": "2026-06-06T03:20:53.271Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T14:39:09.258Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

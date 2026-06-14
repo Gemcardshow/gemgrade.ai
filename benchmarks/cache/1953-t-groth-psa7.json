@@ -1,0 +1,67 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.774Z",
+  "card": {
+    "id": "1953-t-groth-psa7",
+    "slug": "1953-t-groth-psa7",
+    "cardName": "1953 T GROTH",
+    "fileLabel": "1953 T GROTH PSA 7",
+    "year": 1953,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1953 T GROTH PSA 7 FRONT.jpg",
+      "back": "TEST 7/1953 T GROTH PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1953,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 7,
+      "edges": 7.5,
+      "surface": 7,
+      "centering": 8
+    },
+    "defects": [
+      {
+        "tag": "writing_mark_severe",
+        "severity": "severe",
+        "location": "back",
+        "confidence": "high"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "writing_mark_severe",
+      "label": "Writing mark on back"
+    },
+    "eyeAppealSummary": "Decent vintage appeal with clear coloration, minimal wear.",
+    "bestAttribute": "Strong centering and overall decent surface",
+    "categoryNotes": {
+      "corners": "Minor wear, no rounding observed.",
+      "edges": "Some light wear, generally decent.",
+      "surface": "Surface appears good with few visible issues.",
+      "centering": "Strong centering, good alignment."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": []
+    },
+    "cardMeta": {
+      "estimatedYear": 1953,
+      "isReflective": false,
+      "isDarkBorder": true
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.774Z",
+    "previousCachedAt": "2026-06-06T03:02:35.380Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T13:48:20.919Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

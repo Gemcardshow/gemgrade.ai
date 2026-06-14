@@ -1,0 +1,110 @@
+{
+  "cachedAt": "2026-06-06T02:41:04.642Z",
+  "card": {
+    "id": "1983-t-seaver-psa9",
+    "slug": "1983-t-seaver-psa9",
+    "cardName": "1983 T SEAVER",
+    "fileLabel": "1983 T SEAVER PSA 9",
+    "year": 1983,
+    "psaGrade": 9,
+    "suiteId": "TEST 9",
+    "relativeDir": "TEST 9",
+    "images": {
+      "front": "TEST 9/1983 T SEAVER PSA 9 FRONT.jpg",
+      "back": "TEST 9/1983 T SEAVER PSA 9 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 3,
+    "internalGrade": 3.5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1983,
+    "categoryScores": {
+      "corners": 5.5,
+      "edges": 5.5,
+      "surface": 5.5,
+      "centering": 8
+    },
+    "primaryLimiter": {
+      "tag": "surface_scratch_light",
+      "label": "Edge Wear (Light)"
+    },
+    "bestAttribute": "Good centering and surface appeal",
+    "eyeAppealSummary": "The card exhibits nice centering and a clean surface but shows light wear on corners and edges.",
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Minor wear observed, not severely rounded.",
+      "edges": "Light edge wear noted along the borders.",
+      "surface": "The surface appears clean with minor scratches only.",
+      "centering": "Good centering across the front of the card."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryFloor",
+        "value": 5.5
+      },
+      {
+        "source": "defect:corner_wear_light",
+        "cap": 8
+      },
+      {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "primaryLimiter:surface_scratch_light",
+        "cap": 7.5
+      },
+      {
+        "source": "centering:minor",
+        "cap": 9
+      },
+      {
+        "source": "vintage:triad_light_wear_notes",
+        "cap": 3.5
+      },
+      {
+        "source": "overall_derivation",
+        "value": 3.5
+      }
+    ],
+    "likelyRange": "PSA 3–4",
+    "verdict": "## Overall Grade: 3 / 10\nInternal Grade: 3.5\n\n### Category Scores\n- Corners: 5.5\n- Edges: 5.5\n- Surface: 5.5\n- Centering: 8\n\n### Primary Grade Limiter\nEdge Wear (Light)\n\n### Best Attribute\nGood centering and surface appeal\n\n### Eye Appeal Summary\nThe card exhibits nice centering and a clean surface but shows light wear on corners and edges.\n\n### Likely Grade Range\nPSA 3–4\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nMinor wear observed, not severely rounded.\n\n#### Edges\nLight edge wear noted along the borders.\n\n#### Surface\nThe surface appears clean with minor scratches only.\n\n#### Centering\nGood centering across the front of the card.\n\n## Professional Verdict\nProjected PSA 3 based on visible condition. The primary limiter is edge wear (light).\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1983,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}

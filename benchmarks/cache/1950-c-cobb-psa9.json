@@ -1,0 +1,87 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.800Z",
+  "card": {
+    "id": "1950-c-cobb-psa9",
+    "slug": "1950-c-cobb-psa9",
+    "cardName": "1950 C COBB",
+    "fileLabel": "1950 C COBB PSA 9",
+    "year": 1950,
+    "psaGrade": 9,
+    "suiteId": "TEST 9",
+    "relativeDir": "TEST 9",
+    "images": {
+      "front": "TEST 9/1950 C COBB PSA 9 FRONT.jpg",
+      "back": "TEST 9/1950 C COBB PSA 9 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1936,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 6.5,
+      "edges": 6.5,
+      "surface": 6,
+      "centering": 7
+    },
+    "defects": [
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "writing_mark",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "high"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "corner_wear_moderate",
+      "label": "moderate corner wear"
+    },
+    "eyeAppealSummary": "Visible wear consistent with age, but attractive presentation for a vintage card.",
+    "bestAttribute": "fair overall presentation with historical significance",
+    "categoryNotes": {
+      "corners": "Moderate rounding and wear visible on corners.",
+      "edges": "Light edge wear present, consistent with handling.",
+      "surface": "Minor scratches on surface observed, primarily affecting eye appeal.",
+      "centering": "Good centering overall, with slight adjustments noted."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [
+        "full back inspection may be limited due to text coverage"
+      ]
+    },
+    "cardMeta": {
+      "estimatedYear": 1950,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.800Z",
+    "previousCachedAt": "2026-06-06T03:23:08.656Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T14:44:18.468Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

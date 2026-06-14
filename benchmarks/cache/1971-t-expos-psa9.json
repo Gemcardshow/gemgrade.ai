@@ -1,0 +1,79 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.804Z",
+  "card": {
+    "id": "1971-t-expos-psa9",
+    "slug": "1971-t-expos-psa9",
+    "cardName": "1971 T EXPOS",
+    "fileLabel": "1971 T EXPOS PSA 9",
+    "year": 1971,
+    "psaGrade": 9,
+    "suiteId": "TEST 9",
+    "relativeDir": "TEST 9",
+    "images": {
+      "front": "TEST 9/1971 T EXPOS PSA 9 FRONT.jpg",
+      "back": "TEST 9/1971 T EXPOS PSA 9 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1970,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 7,
+      "edges": 7,
+      "surface": 7,
+      "centering": 8
+    },
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "surface_scratch_light",
+      "label": "light surface scratch on front"
+    },
+    "eyeAppealSummary": "Overall a visually appealing card with minor wear consistent with age.",
+    "bestAttribute": "strong eye appeal with minor corner and edge wear",
+    "categoryNotes": {
+      "corners": "Minor wear visible on several corners, but no rounding.",
+      "edges": "Light wear noted along edges; minimal chipping.",
+      "surface": "Surface shows small light scratches but presentation is strong.",
+      "centering": "Well-centered card overall."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": []
+    },
+    "cardMeta": {
+      "estimatedYear": 1970,
+      "isReflective": false,
+      "isDarkBorder": true
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.804Z",
+    "previousCachedAt": "2026-06-06T03:29:03.776Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T14:54:40.326Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

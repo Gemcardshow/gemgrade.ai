@@ -1,0 +1,162 @@
+{
+  "cachedAt": "2026-06-06T03:04:04.606Z",
+  "card": {
+    "id": "1958-t-turley-psa7",
+    "slug": "1958-t-turley-psa7",
+    "cardName": "1958 T TURLEY",
+    "fileLabel": "1958 T TURLEY PSA 7",
+    "year": 1958,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1958 T TURLEY PSA 7 FRONT.jpg",
+      "back": "TEST 7/1958 T TURLEY PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 4,
+    "internalGrade": 4,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1955,
+    "categoryScores": {
+      "corners": 6,
+      "edges": 6.5,
+      "surface": 4,
+      "centering": 7.5
+    },
+    "primaryLimiter": {
+      "tag": "writing_mark_severe",
+      "label": "writing on back"
+    },
+    "bestAttribute": "centering",
+    "eyeAppealSummary": "Good centering with visible wear on corners and edges.",
+    "defects": [
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "surface_scratch_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "writing_mark",
+        "severity": "moderate",
+        "location": "back",
+        "confidence": "medium"
+      },
+      {
+        "tag": "writing_mark_severe",
+        "severity": "severe",
+        "location": "both",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Some light wear present, but generally clean.",
+      "edges": "Edge wear observed, typical for age.",
+      "surface": "Light scratches noted; overall decent surface.",
+      "centering": "Well-centered card, which boosts appeal."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryImpact:corner_wear_moderate:corners",
+        "cap": 6
+      },
+      {
+        "source": "categoryImpact:writing_mark:surface",
+        "cap": 3.5
+      },
+      {
+        "source": "categoryImpact:writing_mark_severe:surface",
+        "cap": 2.5
+      },
+      {
+        "source": "back_only_writing:surface_relief",
+        "floor": 4
+      },
+      {
+        "source": "categoryFloor",
+        "value": 4
+      },
+      {
+        "source": "defect:corner_wear_moderate",
+        "cap": 6
+      },
+      {
+        "source": "defect:surface_scratch_moderate",
+        "cap": 5.5
+      },
+      {
+        "source": "back_only_writing:writing_mark",
+        "cap": 5
+      },
+      {
+        "source": "defect:writing_mark",
+        "cap": 5
+      },
+      {
+        "source": "back_only_writing:writing_mark_severe",
+        "cap": 4
+      },
+      {
+        "source": "defect:writing_mark_severe",
+        "cap": 4
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "compound:3plus_structural_defects",
+        "cap": 3.5
+      },
+      {
+        "source": "back_only_writing:writing_mark_severe",
+        "cap": 4
+      },
+      {
+        "source": "primaryLimiter:writing_mark_severe",
+        "cap": 4
+      },
+      {
+        "source": "centering:major",
+        "cap": 8
+      },
+      {
+        "source": "back_only_writing:overall_floor",
+        "floor": 4
+      },
+      {
+        "source": "overall_derivation",
+        "value": 4
+      }
+    ],
+    "likelyRange": "PSA 3–4",
+    "verdict": "## Overall Grade: 4 / 10\nInternal Grade: 4\n\n### Category Scores\n- Corners: 6\n- Edges: 6.5\n- Surface: 4\n- Centering: 7.5\n\n### Primary Grade Limiter\nwriting on back\n\n### Best Attribute\ncentering\n\n### Eye Appeal Summary\nGood centering with visible wear on corners and edges.\n\n### Likely Grade Range\nPSA 3–4\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nSome light wear present, but generally clean.\n\n#### Edges\nEdge wear observed, typical for age.\n\n#### Surface\nLight scratches noted; overall decent surface.\n\n#### Centering\nWell-centered card, which boosts appeal.\n\n## Professional Verdict\nProjected PSA 4 based on visible condition. The primary limiter is writing on back.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1957,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}

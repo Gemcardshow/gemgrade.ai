@@ -1,0 +1,115 @@
+{
+  "cachedAt": "2026-06-06T03:14:48.963Z",
+  "card": {
+    "id": "1933-w-brydge-psa8",
+    "slug": "1933-w-brydge-psa8",
+    "cardName": "1933 W BRYDGE",
+    "fileLabel": "1933 W BRYDGE PSA 8",
+    "year": 1933,
+    "psaGrade": 8,
+    "suiteId": "TEST 8",
+    "relativeDir": "TEST 8",
+    "images": {
+      "front": "TEST 8/1933 W BRYDGE PSA 8 FRONT.jpg",
+      "back": "TEST 8/1933 W BRYDGE PSA 8 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 5,
+    "internalGrade": 5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1933,
+    "categoryScores": {
+      "corners": 5,
+      "edges": 6,
+      "surface": 6,
+      "centering": 7
+    },
+    "primaryLimiter": {
+      "tag": "surface_scratch_moderate",
+      "label": "Moderate surface scratching"
+    },
+    "bestAttribute": "Fair centering with minor edge and corner abrasions",
+    "eyeAppealSummary": "The card presents acceptable eye appeal for its age, although visible wear is present.",
+    "defects": [
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "surface_scratch_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Moderate wear noted on all corners, consistent with age.",
+      "edges": "Some light wear along the edges, with noticeable areas of chipping near corners.",
+      "surface": "Overall surface is worn with some scratches and light staining present.",
+      "centering": "Centering appears balanced with no significant off-centering."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [
+        "Minor surface imperfections",
+        "Faint glare at edges"
+      ],
+      "inspectionLimits": [
+        "Edges and corners on the front may limit full assessment"
+      ],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryFloor",
+        "value": 5
+      },
+      {
+        "source": "defect:corner_wear_moderate",
+        "cap": 6
+      },
+      {
+        "source": "defect:surface_scratch_moderate",
+        "cap": 5.5
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "compound:2plus_moderate_defects",
+        "cap": 5.5
+      },
+      {
+        "source": "primaryLimiter:surface_scratch_moderate",
+        "cap": 5.5
+      },
+      {
+        "source": "centering:major",
+        "cap": 8
+      },
+      {
+        "source": "overall_derivation",
+        "value": 5
+      }
+    ],
+    "likelyRange": "PSA 4–5",
+    "verdict": "## Overall Grade: 5 / 10\nInternal Grade: 5\n\n### Category Scores\n- Corners: 5\n- Edges: 6\n- Surface: 6\n- Centering: 7\n\n### Primary Grade Limiter\nModerate surface scratching\n\n### Best Attribute\nFair centering with minor edge and corner abrasions\n\n### Eye Appeal Summary\nThe card presents acceptable eye appeal for its age, although visible wear is present.\n\n### Likely Grade Range\nPSA 4–5\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: Minor surface imperfections; Faint glare at edges\n\n## Detailed Breakdown\n\n#### Corners\nModerate wear noted on all corners, consistent with age.\n\n#### Edges\nSome light wear along the edges, with noticeable areas of chipping near corners.\n\n#### Surface\nOverall surface is worn with some scratches and light staining present.\n\n#### Centering\nCentering appears balanced with no significant off-centering.\n\n## Professional Verdict\nProjected PSA 5 based on visible condition. The primary limiter is moderate surface scratching.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1935,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.775Z",
+  "card": {
+    "id": "1956-t-moon-psa7",
+    "slug": "1956-t-moon-psa7",
+    "cardName": "1956 T MOON",
+    "fileLabel": "1956 T MOON PSA 7",
+    "year": 1956,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1956 T MOON PSA 7 FRONT.jpg",
+      "back": "TEST 7/1956 T MOON PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1959,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 6.5,
+      "edges": 6.5,
+      "surface": 6.5,
+      "centering": 7
+    },
+    "defects": [
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "severe_crease",
+        "severity": "severe",
+        "location": "front",
+        "confidence": "high"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "severe_crease",
+      "label": "Visible severe crease affecting front surface"
+    },
+    "eyeAppealSummary": "The card presents moderate wear consistent with age, with specific attention needed for the severe crease.",
+    "bestAttribute": "Moderate edge wear consistent with age",
+    "categoryNotes": {
+      "corners": "Moderate wear visible, rounding noted.",
+      "edges": "Minor wear along the edges, not severe.",
+      "surface": "Severe crease impacting front image area.",
+      "centering": "Decent centering overall."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": []
+    },
+    "cardMeta": {
+      "estimatedYear": 1959,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.775Z",
+    "previousCachedAt": "2026-06-06T03:03:21.808Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T13:50:03.543Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

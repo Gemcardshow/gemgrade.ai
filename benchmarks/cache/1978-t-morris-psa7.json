@@ -1,0 +1,79 @@
+{
+  "cachedAt": "2026-06-14T03:10:27.781Z",
+  "card": {
+    "id": "1978-t-morris-psa7",
+    "slug": "1978-t-morris-psa7",
+    "cardName": "1978 T MORRIS",
+    "fileLabel": "1978 T MORRIS PSA 7",
+    "year": 1978,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1978 T MORRIS PSA 7 FRONT.jpg",
+      "back": "TEST 7/1978 T MORRIS PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "estimatedYear": 1978,
+    "era": "vintage",
+    "eraSource": "auto",
+    "categoryScores": {
+      "corners": 7,
+      "edges": 7,
+      "surface": 7,
+      "centering": 7.5
+    },
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      }
+    ],
+    "primaryLimiter": {
+      "tag": "corner_wear_light",
+      "label": "visible corner wear on front"
+    },
+    "eyeAppealSummary": "Good overall eye appeal despite minor flaws.",
+    "bestAttribute": "clean print quality",
+    "categoryNotes": {
+      "corners": "Slight wear observed on the corners.",
+      "edges": "Minor wear noted, typical for age.",
+      "surface": "Surface shows light scratches but remains clean overall.",
+      "centering": "Strong centering at 7.5."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": []
+    },
+    "cardMeta": {
+      "estimatedYear": 1978,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  },
+  "visionRefresh": {
+    "phase": "2A",
+    "refreshedAt": "2026-06-14T03:10:27.781Z",
+    "previousCachedAt": "2026-06-06T03:10:26.088Z",
+    "visionSource": "live-runs/vision-snapshots",
+    "snapshotCapturedAt": "2026-06-07T14:10:20.405Z",
+    "engineCommit": "fb4cf93",
+    "modernFreeze": "15a078c"
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "cachedAt": "2026-06-06T03:02:35.380Z",
+  "card": {
+    "id": "1953-t-groth-psa7",
+    "slug": "1953-t-groth-psa7",
+    "cardName": "1953 T GROTH",
+    "fileLabel": "1953 T GROTH PSA 7",
+    "year": 1953,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1953 T GROTH PSA 7 FRONT.jpg",
+      "back": "TEST 7/1953 T GROTH PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 4,
+    "internalGrade": 4,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1953,
+    "categoryScores": {
+      "corners": 5,
+      "edges": 5.5,
+      "surface": 4,
+      "centering": 7.5
+    },
+    "primaryLimiter": {
+      "tag": "writing_mark_severe",
+      "label": "Writing present on the back in ink"
+    },
+    "bestAttribute": "Centering is strong, around 7.5",
+    "eyeAppealSummary": "The card displays vibrant colors and centering, but significant issues on the back and moderate corner wear detract from overall appeal.",
+    "defects": [
+      {
+        "tag": "writing_mark_severe",
+        "severity": "severe",
+        "location": "back",
+        "confidence": "high"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Moderately worn corners visible, affecting appeal.",
+      "edges": "Minor edge wear evident but not severe.",
+      "surface": "Surface appears clean with minor issues; significant writing on back.",
+      "centering": "Centered well with a good balance."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryImpact:writing_mark_severe:surface",
+        "cap": 2.5
+      },
+      {
+        "source": "back_only_writing:surface_relief",
+        "floor": 4
+      },
+      {
+        "source": "categoryFloor",
+        "value": 4
+      },
+      {
+        "source": "back_only_writing:writing_mark_severe",
+        "cap": 4
+      },
+      {
+        "source": "defect:writing_mark_severe",
+        "cap": 4
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "compound:2plus_moderate_defects",
+        "cap": 4
+      },
+      {
+        "source": "back_only_writing:writing_mark_severe",
+        "cap": 4
+      },
+      {
+        "source": "primaryLimiter:writing_mark_severe",
+        "cap": 4
+      },
+      {
+        "source": "centering:major",
+        "cap": 8
+      },
+      {
+        "source": "overall_derivation",
+        "value": 4
+      }
+    ],
+    "likelyRange": "PSA 3–4",
+    "verdict": "## Overall Grade: 4 / 10\nInternal Grade: 4\n\n### Category Scores\n- Corners: 5\n- Edges: 5.5\n- Surface: 4\n- Centering: 7.5\n\n### Primary Grade Limiter\nWriting present on the back in ink\n\n### Best Attribute\nCentering is strong, around 7.5\n\n### Eye Appeal Summary\nThe card displays vibrant colors and centering, but significant issues on the back and moderate corner wear detract from overall appeal.\n\n### Likely Grade Range\nPSA 3–4\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nModerately worn corners visible, affecting appeal.\n\n#### Edges\nMinor edge wear evident but not severe.\n\n#### Surface\nSurface appears clean with minor issues; significant writing on back.\n\n#### Centering\nCentered well with a good balance.\n\n## Professional Verdict\nProjected PSA 4 based on visible condition. The primary limiter is writing present on the back in ink.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1953,
+      "isReflective": false,
+      "isDarkBorder": true
+    }
+  }
+}

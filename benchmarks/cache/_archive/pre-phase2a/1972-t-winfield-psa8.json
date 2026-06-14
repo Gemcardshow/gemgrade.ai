@@ -1,0 +1,120 @@
+{
+  "cachedAt": "2026-06-06T03:20:08.143Z",
+  "card": {
+    "id": "1972-t-winfield-psa8",
+    "slug": "1972-t-winfield-psa8",
+    "cardName": "1972 T WINFIELD",
+    "fileLabel": "1972 T WINFIELD PSA 8",
+    "year": 1972,
+    "psaGrade": 8,
+    "suiteId": "TEST 8",
+    "relativeDir": "TEST 8",
+    "images": {
+      "front": "TEST 8/1972 T WINFIELD PSA 8 FRONT.jpg",
+      "back": "TEST 8/1972 T WINFIELD PSA 8 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 3,
+    "internalGrade": 3.5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1972,
+    "categoryScores": {
+      "corners": 5.5,
+      "edges": 5.5,
+      "surface": 5.5,
+      "centering": 7.5
+    },
+    "primaryLimiter": {
+      "tag": "staining_light",
+      "label": "Light staining or discoloration"
+    },
+    "bestAttribute": "Good centering adds to the overall appeal.",
+    "eyeAppealSummary": " This card features vibrant colors and a clean design, although the light corner and edge wear are present.",
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Light wear is visible on the top two corners.",
+      "edges": "Minor edge wear is apparent along the sides of the card.",
+      "surface": "A few light scratches and minor surface imperfections are present.",
+      "centering": "The centering is good, contributing positively to the eye appeal."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryFloor",
+        "value": 5.5
+      },
+      {
+        "source": "defect:corner_wear_light",
+        "cap": 8
+      },
+      {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      {
+        "source": "defect:staining_light",
+        "cap": 7
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "primaryLimiter:staining_light",
+        "cap": 7
+      },
+      {
+        "source": "centering:major",
+        "cap": 8
+      },
+      {
+        "source": "vintage:triad_light_wear_notes",
+        "cap": 3.5
+      },
+      {
+        "source": "overall_derivation",
+        "value": 3.5
+      }
+    ],
+    "likelyRange": "PSA 3–4",
+    "verdict": "## Overall Grade: 3 / 10\nInternal Grade: 3.5\n\n### Category Scores\n- Corners: 5.5\n- Edges: 5.5\n- Surface: 5.5\n- Centering: 7.5\n\n### Primary Grade Limiter\nLight staining or discoloration\n\n### Best Attribute\nGood centering adds to the overall appeal.\n\n### Eye Appeal Summary\n This card features vibrant colors and a clean design, although the light corner and edge wear are present.\n\n### Likely Grade Range\nPSA 3–4\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nLight wear is visible on the top two corners.\n\n#### Edges\nMinor edge wear is apparent along the sides of the card.\n\n#### Surface\nA few light scratches and minor surface imperfections are present.\n\n#### Centering\nThe centering is good, contributing positively to the eye appeal.\n\n## Professional Verdict\nProjected PSA 3 based on visible condition. The primary limiter is light staining or discoloration.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1971,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}

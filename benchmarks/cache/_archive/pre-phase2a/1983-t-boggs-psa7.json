@@ -1,0 +1,96 @@
+{
+  "cachedAt": "2026-06-06T03:11:54.367Z",
+  "card": {
+    "id": "1983-t-boggs-psa7",
+    "slug": "1983-t-boggs-psa7",
+    "cardName": "1983 T BOGGS",
+    "fileLabel": "1983 T BOGGS PSA 7",
+    "year": 1983,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1983 T BOGGS PSA 7 FRONT.jpg",
+      "back": "TEST 7/1983 T BOGGS PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 5,
+    "internalGrade": 5.5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1983,
+    "categoryScores": {
+      "corners": 5.5,
+      "edges": 5.5,
+      "surface": 5.5,
+      "centering": 9
+    },
+    "primaryLimiter": {
+      "tag": "surface_scratch_light",
+      "label": "Minor corner wear on the front"
+    },
+    "bestAttribute": "Strong centering and good surface",
+    "eyeAppealSummary": "Card presents well with vibrant colors and minimal issues.",
+    "defects": [
+      {
+        "tag": "corner_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Minor rounding with light wear on the top right corner.",
+      "edges": "Edges show minimal wear with no significant chipping.",
+      "surface": "Surface has minor scratches but presents well overall.",
+      "centering": "Strong centering, well-aligned image."
+    },
+    "scanQuality": {
+      "level": "excellent",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 10
+    },
+    "capAudit": [
+      {
+        "source": "categoryFloor",
+        "value": 5.5
+      },
+      {
+        "source": "defect:corner_wear_light",
+        "cap": 8
+      },
+      {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      {
+        "source": "scanQuality",
+        "cap": 10
+      },
+      {
+        "source": "primaryLimiter:surface_scratch_light",
+        "cap": 7.5
+      },
+      {
+        "source": "overall_derivation",
+        "value": 5.5
+      }
+    ],
+    "likelyRange": "PSA 5–6",
+    "verdict": "## Overall Grade: 5 / 10\nInternal Grade: 5.5\n\n### Category Scores\n- Corners: 5.5\n- Edges: 5.5\n- Surface: 5.5\n- Centering: 9\n\n### Primary Grade Limiter\nMinor corner wear on the front\n\n### Best Attribute\nStrong centering and good surface\n\n### Eye Appeal Summary\nCard presents well with vibrant colors and minimal issues.\n\n### Likely Grade Range\nPSA 5–6\n\n## Scan Quality Analysis\nScan Quality: excellent\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nMinor rounding with light wear on the top right corner.\n\n#### Edges\nEdges show minimal wear with no significant chipping.\n\n#### Surface\nSurface has minor scratches but presents well overall.\n\n#### Centering\nStrong centering, well-aligned image.\n\n## Professional Verdict\nProjected PSA 5 based on visible condition. The primary limiter is minor corner wear on the front.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1983,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}

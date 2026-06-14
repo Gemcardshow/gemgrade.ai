@@ -1,0 +1,128 @@
+{
+  "cachedAt": "2026-06-06T03:07:49.516Z",
+  "card": {
+    "id": "1971-t-cash-psa7",
+    "slug": "1971-t-cash-psa7",
+    "cardName": "1971 T CASH",
+    "fileLabel": "1971 T CASH PSA 7",
+    "year": 1971,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1971 T CASH PSA 7 FRONT.jpg",
+      "back": "TEST 7/1971 T CASH PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 2,
+    "internalGrade": 2,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1961,
+    "categoryScores": {
+      "corners": 5,
+      "edges": 4,
+      "surface": 5,
+      "centering": 6
+    },
+    "primaryLimiter": {
+      "tag": "surface_scratch_moderate",
+      "label": "Moderate surface scratching"
+    },
+    "bestAttribute": "basic aesthetic appeal despite defects",
+    "eyeAppealSummary": "The card displays clear evidence of use, including moderate corner wear and minor surface scratches, but retains collector interest due to its overall appearance.",
+    "defects": [
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "surface_scratch_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "medium"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Moderate wear visible; rounding present.",
+      "edges": "Light wear on edges; not severe.",
+      "surface": "Moderate scratches present; overall surface issues detected.",
+      "centering": "Generally decent centering, but not perfectly aligned."
+    },
+    "scanQuality": {
+      "level": "fair",
+      "visibilityIssues": [
+        "some blurriness",
+        "edges of card not clearly visible",
+        "back surface issues not easily inspected"
+      ],
+      "inspectionLimits": [
+        "limited visibility of corners",
+        "limited visibility of edges",
+        "limited visibility of surface condition"
+      ],
+      "confidence": "medium",
+      "ceilingApplied": 7.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryFloor",
+        "value": 4
+      },
+      {
+        "source": "defect:corner_wear_moderate",
+        "cap": 6
+      },
+      {
+        "source": "defect:surface_scratch_moderate",
+        "cap": 5.5
+      },
+      {
+        "source": "scanQuality",
+        "cap": 7.5
+      },
+      {
+        "source": "compound:2plus_moderate_defects",
+        "cap": 4
+      },
+      {
+        "source": "primaryLimiter:surface_scratch_moderate",
+        "cap": 5.5
+      },
+      {
+        "source": "centering:major",
+        "cap": 8
+      },
+      {
+        "source": "vintage:poor_band_notes_cluster",
+        "cap": 2
+      },
+      {
+        "source": "overall_derivation",
+        "value": 2
+      }
+    ],
+    "likelyRange": "PSA 1–2",
+    "verdict": "## Overall Grade: 2 / 10\nInternal Grade: 2\n\n### Category Scores\n- Corners: 5\n- Edges: 4\n- Surface: 5\n- Centering: 6\n\n### Primary Grade Limiter\nModerate surface scratching\n\n### Best Attribute\nbasic aesthetic appeal despite defects\n\n### Eye Appeal Summary\nThe card displays clear evidence of use, including moderate corner wear and minor surface scratches, but retains collector interest due to its overall appearance.\n\n### Likely Grade Range\nPSA 1–2\n\n## Scan Quality Analysis\nScan Quality: fair\nConfidence Level: medium\nVisibility Issues: some blurriness; edges of card not clearly visible; back surface issues not easily inspected\n\n## Detailed Breakdown\n\n#### Corners\nModerate wear visible; rounding present.\n\n#### Edges\nLight wear on edges; not severe.\n\n#### Surface\nModerate scratches present; overall surface issues detected.\n\n#### Centering\nGenerally decent centering, but not perfectly aligned.\n\n## Professional Verdict\nProjected PSA 2 based on visible condition. The primary limiter is moderate surface scratching.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1966,
+      "isReflective": false,
+      "isDarkBorder": true
+    }
+  }
+}

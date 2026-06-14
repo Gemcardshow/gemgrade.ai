@@ -1,0 +1,120 @@
+{
+  "cachedAt": "2026-06-06T03:11:09.502Z",
+  "card": {
+    "id": "1981-t-henderson-psa7",
+    "slug": "1981-t-henderson-psa7",
+    "cardName": "1981 T HENDERSON",
+    "fileLabel": "1981 T HENDERSON PSA 7",
+    "year": 1981,
+    "psaGrade": 7,
+    "suiteId": "TEST 7",
+    "relativeDir": "TEST 7",
+    "images": {
+      "front": "TEST 7/1981 T HENDERSON PSA 7 FRONT.jpg",
+      "back": "TEST 7/1981 T HENDERSON PSA 7 BACK.jpg"
+    }
+  },
+  "grade": {
+    "psaGrade": 5,
+    "internalGrade": 5,
+    "era": "vintage",
+    "eraSource": "auto",
+    "estimatedYear": 1981,
+    "categoryScores": {
+      "corners": 5,
+      "edges": 6.5,
+      "surface": 6,
+      "centering": 7.5
+    },
+    "primaryLimiter": {
+      "tag": "surface_scratch_moderate",
+      "label": "Moderate surface scratching"
+    },
+    "bestAttribute": "strong centering",
+    "eyeAppealSummary": "Overall appealing card with moderate wear on corners, edges, and surface, along with severe staining on back visibility.",
+    "defects": [
+      {
+        "tag": "corner_wear_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "edge_wear_light",
+        "severity": "minor",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "surface_scratch_moderate",
+        "severity": "moderate",
+        "location": "front",
+        "confidence": "high"
+      },
+      {
+        "tag": "staining_light",
+        "severity": "minor",
+        "location": "back",
+        "confidence": "medium"
+      }
+    ],
+    "categoryNotes": {
+      "corners": "Moderate wear seen, primarily on the lower left and upper right corners.",
+      "edges": "Light edge wear mainly around the borders.",
+      "surface": "Minor scratches present; surface generally clean.",
+      "centering": "Centering is strong with minimal adjustments needed."
+    },
+    "scanQuality": {
+      "level": "good",
+      "visibilityIssues": [],
+      "inspectionLimits": [],
+      "confidence": "high",
+      "ceilingApplied": 9.5
+    },
+    "capAudit": [
+      {
+        "source": "categoryImpact:surface_scratch_moderate:surface",
+        "cap": 6
+      },
+      {
+        "source": "categoryFloor",
+        "value": 5
+      },
+      {
+        "source": "defect:corner_wear_moderate",
+        "cap": 6
+      },
+      {
+        "source": "defect:surface_scratch_moderate",
+        "cap": 5.5
+      },
+      {
+        "source": "scanQuality",
+        "cap": 9.5
+      },
+      {
+        "source": "compound:2plus_moderate_defects",
+        "cap": 5.5
+      },
+      {
+        "source": "primaryLimiter:surface_scratch_moderate",
+        "cap": 5.5
+      },
+      {
+        "source": "centering:major",
+        "cap": 8
+      },
+      {
+        "source": "overall_derivation",
+        "value": 5
+      }
+    ],
+    "likelyRange": "PSA 4–5",
+    "verdict": "## Overall Grade: 5 / 10\nInternal Grade: 5\n\n### Category Scores\n- Corners: 5\n- Edges: 6.5\n- Surface: 6\n- Centering: 7.5\n\n### Primary Grade Limiter\nModerate surface scratching\n\n### Best Attribute\nstrong centering\n\n### Eye Appeal Summary\nOverall appealing card with moderate wear on corners, edges, and surface, along with severe staining on back visibility.\n\n### Likely Grade Range\nPSA 4–5\n\n## Scan Quality Analysis\nScan Quality: good\nConfidence Level: high\nVisibility Issues: None significant.\n\n## Detailed Breakdown\n\n#### Corners\nModerate wear seen, primarily on the lower left and upper right corners.\n\n#### Edges\nLight edge wear mainly around the borders.\n\n#### Surface\nMinor scratches present; surface generally clean.\n\n#### Centering\nCentering is strong with minimal adjustments needed.\n\n## Professional Verdict\nProjected PSA 5 based on visible condition. The primary limiter is moderate surface scratching.\n\nGemGrade evaluates visible condition only. Hidden defects, altered surfaces, or defects obscured by holders/scans may impact final professional grading results.",
+    "cardMeta": {
+      "estimatedYear": 1981,
+      "isReflective": false,
+      "isDarkBorder": false
+    }
+  }
+}
