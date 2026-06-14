@@ -2,8 +2,23 @@
 
 **Branch:** `phase2/vintage-research` (from `main` @ `26def17`)  
 **Planning date:** 2026-06-14  
-**Status:** Planning only — **no grading logic changes**  
+**Last updated:** 2026-06-14  
+**Status:** Phase 2C **shipped**; Phase 2D **deferred**; Phase 2B **research complete** (implementation pending)  
 **Authority:** Phase 1 frozen baselines only
+
+### Phase 2 progress snapshot @ `8e8b81f`
+
+| Workstream | Status | Vintage ±1 |
+|------------|--------|------------|
+| **2A** Cache refresh + re-baseline | Done | 40→41/72 |
+| **2C** Mantle `gem_stain_relief` floor cap | **Shipped** (`8e8b81f`) | 41/72 |
+| **2D** Martin writing severity (analyze) | **Deferred** — see `benchmarks/vintage-phase2d-deferred.md` | 41/72 unchanged |
+| **2B** PSA 7–9 pillar clamp companion | **Research complete** — see pillar clamp report | TBD impl. |
+| **Parallel** Gem Mint separation | Independent research branch | — |
+
+**2D defer reason:** Analyze-only gate improves tags but not ±1 (Martin 2→3 only); writing inflation risk; revisit with compound-cap research.
+
+**2B next step:** Implement vision-aware triad skip companion (not naive pillar lift — B1 counterfactual 0/12 reach ±1).
 
 ---
 
@@ -171,13 +186,14 @@ Scratch cap at 7.5 is often **non-binding** — primary limiter label is mislead
 - Scratch gremlins ≤ 11 (prefer lower after cache refresh).
 - Bird PSA 4 must not inflate; Mantle PSA 6 must not inflate further.
 
-### Deliverables (Phase 2B research)
+### Deliverables (Phase 2B research) — **complete**
 
 | Artifact | Purpose |
 |----------|---------|
-| `benchmarks/analyze-fix3-pillar-clamp-research.mjs` | Counterfactual floor lift analysis |
-| `benchmarks/reports/vintage-pillar-clamp-investigation.md` | Per-card binding + counterfactual |
-| `benchmarks/reports/vintage-pillar-clamp-regression-plan.md` | Test cases before code |
+| `benchmarks/analyze-phase2b-pillar-clamp-research.mjs` | Binding classification + B1 counterfactual |
+| `benchmarks/reports/vintage-pillar-clamp-companion-report.md` | Per-card binding + workstream analysis |
+| `benchmarks/reports/vintage-pillar-clamp-companion-regression-plan.md` | F2B-1…F2B-14 before code |
+| `benchmarks/reports/vintage-pillar-clamp-root-cause-summary.json` | Machine-readable summary |
 
 ---
 
@@ -289,13 +305,15 @@ If `writing_mark_severe` removed and `edge_fraying_major` downgraded: est. Gem *
 - McCovey PSA 4 (legitimate severe compound — uncertain/manual review).
 - Bird PSA 4 inflation — separate low-PSA ceiling guard.
 
-### Deliverables (Phase 2D research)
+### Deliverables (Phase 2D research) — **complete, implementation deferred**
 
 | Artifact | Purpose |
 |----------|---------|
-| `benchmarks/analyze-vintage-writing-severity.mjs` | Tag vs note contradiction scan |
-| `benchmarks/reports/vintage-writing-severity-investigation.md` | Martin + cohort analysis |
-| Regression plan | F2D-1…F2D-N before analyze changes |
+| `benchmarks/analyze-phase2d-martin-writing.mjs` | Tag vs note contradiction scan |
+| `benchmarks/reports/vintage-martin-writing-report.md` | Martin + cohort analysis |
+| `benchmarks/reports/vintage-martin-writing-regression-plan.md` | F2D test plan |
+| `benchmarks/reports/vintage-martin-writing-root-cause-summary.json` | Machine-readable summary |
+| `benchmarks/vintage-phase2d-deferred.md` | Defer record + revisit criteria |
 
 ---
 
@@ -356,12 +374,12 @@ Gem Mint work targets **MODERN PSA 9 vs PSA 10 separation** — not vintage cali
 
 | Phase | Workstream | Grading logic? | Depends on |
 |-------|------------|:--------------:|------------|
-| **2A** | Cache refresh + drift report | **No** | — |
-| **2A′** | Re-baseline metrics post-refresh | **No** | 2A |
-| **2C** | Mantle `gem_stain_relief` floor cap | Yes (narrow) | 2A′ |
-| **2D** | Martin writing severity (analyze) | Yes (analyze) | 2A′ |
-| **2B** | PSA 7–9 pillar clamp companion | Yes (calibration) | 2A′, 2C |
-| **Parallel** | Gem Mint separation research | **No** (modern research branch) | Independent |
+| **2A** | Cache refresh + drift report | **No** | — | **Done** |
+| **2A′** | Re-baseline metrics post-refresh | **No** | 2A | **Done** (41/72) |
+| **2C** | Mantle `gem_stain_relief` floor cap | Yes (narrow) | 2A′ | **Shipped** |
+| **2D** | Martin writing severity (analyze) | Yes (analyze) | 2A′ | **Deferred** |
+| **2B** | PSA 7–9 pillar clamp companion | Yes (calibration) | 2A′, 2C | **Research done → impl. next** |
+| **Parallel** | Gem Mint separation research | **No** (modern research branch) | Independent | Ongoing |
 
 **Explicitly not in Phase 2 initial sequence:**
 
@@ -392,9 +410,10 @@ Gem Mint work targets **MODERN PSA 9 vs PSA 10 separation** — not vintage cali
 |----------------------------|---------------------|
 | `benchmarks/vintage-phase1-FREEZE.md` | `benchmarks/reports/vintage-phase2-planning-report.md` |
 | `benchmarks/reports/vintage-phase1-final-summary.md` | 2A: cache drift script + report (TBD) |
-| `benchmarks/reports/fix3-remaining-scratch-gremlins.md` | 2B: pillar clamp investigation (TBD) |
-| `benchmarks/vintage-fix5-mantle-stain-relief-followup.md` | 2C: implementation plan (TBD) |
-| `benchmarks/reports/vintage-exvg-investigation-report.md` | 2D: writing severity investigation (TBD) |
+| `benchmarks/reports/fix3-remaining-scratch-gremlins.md` | 2B: pillar clamp companion report ✓ |
+| `benchmarks/vintage-fix5-mantle-stain-relief-followup.md` | 2C: shipped @ `8e8b81f` |
+| `benchmarks/vintage-phase2d-deferred.md` | 2D: deferred + preserved artifacts |
+| `benchmarks/reports/vintage-martin-writing-report.md` | 2D: research complete |
 | `benchmarks/gem-mint-research/README.md` | Parallel: gem-mint separation |
 
 ---
@@ -404,11 +423,14 @@ Gem Mint work targets **MODERN PSA 9 vs PSA 10 separation** — not vintage cali
 - [x] `main` contains Vintage Phase 1 merge (`fb4cf93` ancestor)
 - [x] `main` preserves Modern production freeze (`15a078c` ancestor)
 - [x] Branch `phase2/vintage-research` created from `main`
-- [ ] Run frozen baseline verification (166 tests, 33/72, 31/32)
-- [ ] Execute Phase 2A cache drift inventory
-- [ ] Re-baseline before any implementation PR
+- [x] Run frozen baseline verification (171 tests @ 2C, 41/72, 31/32)
+- [x] Execute Phase 2A cache drift inventory + re-baseline
+- [x] Phase 2C Mantle stain relief shipped
+- [x] Phase 2D research complete — **deferred** (no implementation)
+- [x] Phase 2B research complete — **implementation next**
+- [ ] Phase 2B implementation PR + acceptance gates (≥ 43/72)
 
-**Phase 2 begins from frozen baselines only. No grading logic changes until Phase 2A re-baseline is complete.**
+**Next implementation:** Phase 2B vision-aware triad skip companion — not Phase 2D.
 
 ---
 
