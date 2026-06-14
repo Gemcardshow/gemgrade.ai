@@ -6,11 +6,11 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { analyzeCard } from "../api/grading/analyze.js";
-import { computeGrade } from "../api/grading/engine.js";
-import { resolveEra } from "../api/grading/era.js";
-import { formatGradeResponse } from "../api/grading/response.js";
-import { getWearFloor } from "../api/grading/psa-calibration.js";
+import { analyzeCard } from "../lib/grading/analyze.js";
+import { computeGrade } from "../lib/grading/engine.js";
+import { resolveEra } from "../lib/grading/era.js";
+import { formatGradeResponse } from "../lib/grading/response.js";
+import { getWearFloor } from "../lib/grading/psa-calibration.js";
 import {
   BENCHMARKS_ROOT,
   imageToDataUrl,

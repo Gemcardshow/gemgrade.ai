@@ -7,15 +7,15 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { callStructuredVision, normalizeAnalysis as normalizeNarrow } from "../api/grading/analyze.js";
+import { callStructuredVision, normalizeAnalysis as normalizeNarrow } from "../lib/grading/analyze.js";
 import { normalizeAnalysis as normalizeLoose } from "./snapshots/analyze-loose-nmgem.js";
-import { computeGrade } from "../api/grading/engine.js";
-import { resolveEra } from "../api/grading/era.js";
-import { getWearFloor } from "../api/grading/psa-calibration.js";
-import { ANALYSIS_JSON_SCHEMA, buildAnalysisInstruction } from "../api/grading/prompts/core.js";
-import { GRADING_PHILOSOPHY } from "../api/grading/philosophy.js";
-import { MODERN_RUBRIC } from "../api/grading/prompts/modern.js";
-import { VINTAGE_RUBRIC } from "../api/grading/prompts/vintage.js";
+import { computeGrade } from "../lib/grading/engine.js";
+import { resolveEra } from "../lib/grading/era.js";
+import { getWearFloor } from "../lib/grading/psa-calibration.js";
+import { ANALYSIS_JSON_SCHEMA, buildAnalysisInstruction } from "../lib/grading/prompts/core.js";
+import { GRADING_PHILOSOPHY } from "../lib/grading/philosophy.js";
+import { MODERN_RUBRIC } from "../lib/grading/prompts/modern.js";
+import { VINTAGE_RUBRIC } from "../lib/grading/prompts/vintage.js";
 import {
   BENCHMARKS_ROOT,
   imageToDataUrl,

@@ -7,7 +7,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { runGradingPipeline } from "../api/grading/pipeline.js";
+import { runGradingPipeline } from "../lib/grading/pipeline.js";
 import { scanBenchmarkSuites } from "./lib/scan.js";
 import {
   BENCHMARKS_ROOT,

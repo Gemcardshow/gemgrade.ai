@@ -4,10 +4,10 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeAnalysis as normalizeNarrow } from "../api/grading/analyze.js";
+import { normalizeAnalysis as normalizeNarrow } from "../lib/grading/analyze.js";
 import { normalizeAnalysis as normalizeLoose } from "./snapshots/analyze-loose-nmgem.js";
-import { computeGrade } from "../api/grading/engine.js";
-import { getWearFloor } from "../api/grading/psa-calibration.js";
+import { computeGrade } from "../lib/grading/engine.js";
+import { getWearFloor } from "../lib/grading/psa-calibration.js";
 import { resolveBenchmarkPath } from "./lib/paths.js";
 
 const PSA710_SUITES = new Set(["TEST 7", "TEST 8", "TEST 9", "TEST 10"]);
