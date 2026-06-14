@@ -1,0 +1,631 @@
+{
+  "generatedAt": "2026-06-14T02:41:13.724Z",
+  "fix": "Fix 3 remaining scratch_limiter_high_grade analysis",
+  "gremlinCount": 11,
+  "scratchBlocksWithinOne": 0,
+  "scratchBlocksPartialLift": 3,
+  "otherCapDominates": 8,
+  "rows": [
+    {
+      "id": "1967-t-carew-psa7",
+      "cardName": "1967 T CAREW",
+      "psaGrade": 7,
+      "gemGrade": 2,
+      "gradeDifference": -5,
+      "primaryLimiter": "surface_scratch_moderate",
+      "effectiveBinding": "overall_derivation",
+      "effectiveBindingValue": 2,
+      "effectiveBindingNote": null,
+      "categoryFloor": 5,
+      "lowestDefectCap": {
+        "source": "vintage:poor_band_notes_cluster",
+        "cap": 2
+      },
+      "hasScratchLight": false,
+      "hasScratchModerate": true,
+      "defectTags": [
+        "corner_wear_moderate",
+        "surface_scratch_moderate",
+        "staining_light",
+        "edge_wear_light"
+      ],
+      "scratchCapAudit": [
+        {
+          "source": "defect:surface_scratch_moderate",
+          "cap": 5.5
+        },
+        {
+          "source": "primaryLimiter:surface_scratch_moderate",
+          "cap": 5.5
+        }
+      ],
+      "surfaceNoteExcerpt": "Several scratches are noticeable, affecting the visual quality.",
+      "withoutScratchGem": 5,
+      "withoutScratchLimiter": "corner_wear_moderate",
+      "withoutScratchBinding": "categoryFloor",
+      "withoutScratchBindingValue": 5,
+      "withoutScratchDelta": 3,
+      "withoutScratchDefectTags": [
+        "corner_wear_moderate",
+        "staining_light",
+        "edge_wear_light"
+      ],
+      "wouldImprove": true,
+      "withinOneIfNoScratch": false,
+      "withinOneCurrent": false,
+      "replaySource": "snapshot",
+      "hasSnapshot": true,
+      "outcomeClass": "scratch_blocks_partial_lift",
+      "snapshotGem": 2,
+      "snapshotLimiter": "surface_scratch_moderate",
+      "snapshotScratchLight": false,
+      "snapshotScratchModerate": true,
+      "snapshotEffectiveBinding": "overall_derivation",
+      "snapshotEffectiveBindingValue": 2,
+      "cacheSnapshotDrift": false
+    },
+    {
+      "id": "1971-t-cash-psa7",
+      "cardName": "1971 T CASH",
+      "psaGrade": 7,
+      "gemGrade": 2,
+      "gradeDifference": -5,
+      "primaryLimiter": "surface_scratch_moderate",
+      "effectiveBinding": "overall_derivation",
+      "effectiveBindingValue": 2,
+      "effectiveBindingNote": null,
+      "categoryFloor": 4,
+      "lowestDefectCap": {
+        "source": "vintage:poor_band_notes_cluster",
+        "cap": 2
+      },
+      "hasScratchLight": false,
+      "hasScratchModerate": true,
+      "defectTags": [
+        "corner_wear_moderate",
+        "edge_wear_light",
+        "surface_scratch_moderate",
+        "staining_light"
+      ],
+      "scratchCapAudit": [
+        {
+          "source": "defect:surface_scratch_moderate",
+          "cap": 5.5
+        },
+        {
+          "source": "primaryLimiter:surface_scratch_moderate",
+          "cap": 5.5
+        }
+      ],
+      "surfaceNoteExcerpt": "Moderate scratches present; overall surface issues detected.",
+      "withoutScratchGem": 3,
+      "withoutScratchLimiter": "corner_wear_moderate",
+      "withoutScratchBinding": "vintage:distributed_vg_wear",
+      "withoutScratchBindingValue": 3.5,
+      "withoutScratchDelta": 1,
+      "withoutScratchDefectTags": [
+        "corner_wear_moderate",
+        "edge_wear_light",
+        "staining_light"
+      ],
+      "wouldImprove": true,
+      "withinOneIfNoScratch": false,
+      "withinOneCurrent": false,
+      "replaySource": "cache",
+      "hasSnapshot": true,
+      "outcomeClass": "scratch_blocks_partial_lift",
+      "snapshotGem": 6,
+      "snapshotLimiter": "corner_wear_light",
+      "snapshotScratchLight": false,
+      "snapshotScratchModerate": false,
+      "snapshotEffectiveBinding": "overall_derivation",
+      "snapshotEffectiveBindingValue": 6,
+      "cacheSnapshotDrift": true
+    },
+    {
+      "id": "1953-t-kennedy-psa8",
+      "cardName": "1953 T KENNEDY",
+      "psaGrade": 8,
+      "gemGrade": 3,
+      "gradeDifference": -5,
+      "primaryLimiter": "surface_scratch_light",
+      "effectiveBinding": "vintage:triad_light_wear_notes",
+      "effectiveBindingValue": 3.5,
+      "effectiveBindingNote": null,
+      "categoryFloor": 5.5,
+      "lowestDefectCap": {
+        "source": "vintage:triad_light_wear_notes",
+        "cap": 3.5
+      },
+      "hasScratchLight": true,
+      "hasScratchModerate": false,
+      "defectTags": [
+        "corner_wear_light",
+        "edge_wear_light",
+        "surface_scratch_light"
+      ],
+      "scratchCapAudit": [
+        {
+          "source": "defect:surface_scratch_light",
+          "cap": 7.5
+        },
+        {
+          "source": "primaryLimiter:surface_scratch_light",
+          "cap": 7.5
+        }
+      ],
+      "surfaceNoteExcerpt": "Surface has light scratches visible, affecting the overall appearance.",
+      "withoutScratchGem": 5,
+      "withoutScratchLimiter": "corner_wear_light",
+      "withoutScratchBinding": "defect:corner_wear_light",
+      "withoutScratchBindingValue": 8,
+      "withoutScratchDelta": 2,
+      "withoutScratchDefectTags": [
+        "corner_wear_light",
+        "edge_wear_light"
+      ],
+      "wouldImprove": true,
+      "withinOneIfNoScratch": false,
+      "withinOneCurrent": false,
+      "replaySource": "cache",
+      "hasSnapshot": true,
+      "outcomeClass": "scratch_blocks_partial_lift",
+      "snapshotGem": 6,
+      "snapshotLimiter": null,
+      "snapshotScratchLight": false,
+      "snapshotScratchModerate": false,
+      "snapshotEffectiveBinding": "centering:major",
+      "snapshotEffectiveBindingValue": 8,
+      "cacheSnapshotDrift": true
+    },
+    {
+      "id": "1978-t-eckersley-psa9",
+      "cardName": "1978 T ECKERSLEY",
+      "psaGrade": 9,
+      "gemGrade": 5,
+      "gradeDifference": -4,
+      "primaryLimiter": "surface_scratch_light",
+      "effectiveBinding": "defect:surface_scratch_light",
+      "effectiveBindingValue": 7.5,
+      "effectiveBindingNote": null,
+      "categoryFloor": 5.5,
+      "lowestDefectCap": {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      "hasScratchLight": true,
+      "hasScratchModerate": false,
+      "defectTags": [
+        "corner_wear_light",
+        "edge_wear_light",
+        "surface_scratch_light"
+      ],
+      "scratchCapAudit": [
+        {
+          "source": "defect:surface_scratch_light",
+          "cap": 7.5
+        },
+        {
+          "source": "primaryLimiter:surface_scratch_light",
+          "cap": 7.5
+        }
+      ],
+      "surfaceNoteExcerpt": "Several light scratches; good color and gloss overall.",
+      "withoutScratchGem": 5,
+      "withoutScratchLimiter": "corner_wear_light",
+      "withoutScratchBinding": "defect:corner_wear_light",
+      "withoutScratchBindingValue": 8,
+      "withoutScratchDelta": 0,
+      "withoutScratchDefectTags": [
+        "corner_wear_light",
+        "edge_wear_light"
+      ],
+      "wouldImprove": false,
+      "withinOneIfNoScratch": false,
+      "withinOneCurrent": false,
+      "replaySource": "cache",
+      "hasSnapshot": true,
+      "outcomeClass": "other_cap_dominates",
+      "snapshotGem": 7,
+      "snapshotLimiter": "surface_scratch_light",
+      "snapshotScratchLight": true,
+      "snapshotScratchModerate": false,
+      "snapshotEffectiveBinding": "defect:surface_scratch_light",
+      "snapshotEffectiveBindingValue": 7.5,
+      "cacheSnapshotDrift": true
+    },
+    {
+      "id": "1983-t-seaver-psa9",
+      "cardName": "1983 T SEAVER",
+      "psaGrade": 9,
+      "gemGrade": 5,
+      "gradeDifference": -4,
+      "primaryLimiter": "surface_scratch_light",
+      "effectiveBinding": "defect:surface_scratch_light",
+      "effectiveBindingValue": 7.5,
+      "effectiveBindingNote": null,
+      "categoryFloor": 5.5,
+      "lowestDefectCap": {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      "hasScratchLight": true,
+      "hasScratchModerate": false,
+      "defectTags": [
+        "corner_wear_light",
+        "edge_wear_light",
+        "surface_scratch_light"
+      ],
+      "scratchCapAudit": [
+        {
+          "source": "defect:surface_scratch_light",
+          "cap": 7.5
+        },
+        {
+          "source": "primaryLimiter:surface_scratch_light",
+          "cap": 7.5
+        }
+      ],
+      "surfaceNoteExcerpt": "The surface appears clean with minor scratches only.",
+      "withoutScratchGem": 5,
+      "withoutScratchLimiter": "corner_wear_light",
+      "withoutScratchBinding": "defect:corner_wear_light",
+      "withoutScratchBindingValue": 8,
+      "withoutScratchDelta": 0,
+      "withoutScratchDefectTags": [
+        "corner_wear_light",
+        "edge_wear_light"
+      ],
+      "wouldImprove": false,
+      "withinOneIfNoScratch": false,
+      "withinOneCurrent": false,
+      "replaySource": "cache",
+      "hasSnapshot": true,
+      "outcomeClass": "other_cap_dominates",
+      "snapshotGem": 5,
+      "snapshotLimiter": "corner_wear_light",
+      "snapshotScratchLight": false,
+      "snapshotScratchModerate": false,
+      "snapshotEffectiveBinding": "defect:corner_wear_light",
+      "snapshotEffectiveBindingValue": 8,
+      "cacheSnapshotDrift": true
+    },
+    {
+      "id": "1975-t-luzinski-psa8",
+      "cardName": "1975 T LUZINSKI",
+      "psaGrade": 8,
+      "gemGrade": 5,
+      "gradeDifference": -3,
+      "primaryLimiter": "surface_scratch_light",
+      "effectiveBinding": "defect:surface_scratch_light",
+      "effectiveBindingValue": 7.5,
+      "effectiveBindingNote": null,
+      "categoryFloor": 5.5,
+      "lowestDefectCap": {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      "hasScratchLight": true,
+      "hasScratchModerate": false,
+      "defectTags": [
+        "corner_wear_light",
+        "edge_wear_light",
+        "surface_scratch_light"
+      ],
+      "scratchCapAudit": [
+        {
+          "source": "defect:surface_scratch_light",
+          "cap": 7.5
+        },
+        {
+          "source": "primaryLimiter:surface_scratch_light",
+          "cap": 7.5
+        }
+      ],
+      "surfaceNoteExcerpt": "Surface exhibits light scratches, consistent with handling but minimal overall impact.",
+      "withoutScratchGem": 5,
+      "withoutScratchLimiter": "corner_wear_light",
+      "withoutScratchBinding": "defect:corner_wear_light",
+      "withoutScratchBindingValue": 8,
+      "withoutScratchDelta": 0,
+      "withoutScratchDefectTags": [
+        "corner_wear_light",
+        "edge_wear_light"
+      ],
+      "wouldImprove": false,
+      "withinOneIfNoScratch": false,
+      "withinOneCurrent": false,
+      "replaySource": "cache",
+      "hasSnapshot": true,
+      "outcomeClass": "other_cap_dominates",
+      "snapshotGem": 7,
+      "snapshotLimiter": "corner_wear_light",
+      "snapshotScratchLight": false,
+      "snapshotScratchModerate": false,
+      "snapshotEffectiveBinding": "categoryFloor",
+      "snapshotEffectiveBindingValue": 7,
+      "cacheSnapshotDrift": true
+    },
+    {
+      "id": "1974-t-parker-psa7",
+      "cardName": "1974 T PARKER",
+      "psaGrade": 7,
+      "gemGrade": 5,
+      "gradeDifference": -2,
+      "primaryLimiter": "surface_scratch_light",
+      "effectiveBinding": "defect:surface_scratch_light",
+      "effectiveBindingValue": 7.5,
+      "effectiveBindingNote": null,
+      "categoryFloor": 5.5,
+      "lowestDefectCap": {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      "hasScratchLight": true,
+      "hasScratchModerate": false,
+      "defectTags": [
+        "corner_wear_light",
+        "edge_wear_light",
+        "surface_scratch_light"
+      ],
+      "scratchCapAudit": [
+        {
+          "source": "defect:surface_scratch_light",
+          "cap": 7.5
+        },
+        {
+          "source": "primaryLimiter:surface_scratch_light",
+          "cap": 7.5
+        }
+      ],
+      "surfaceNoteExcerpt": "Good surface with some light scratches.",
+      "withoutScratchGem": 5,
+      "withoutScratchLimiter": "corner_wear_light",
+      "withoutScratchBinding": "defect:corner_wear_light",
+      "withoutScratchBindingValue": 8,
+      "withoutScratchDelta": 0,
+      "withoutScratchDefectTags": [
+        "corner_wear_light",
+        "edge_wear_light"
+      ],
+      "wouldImprove": false,
+      "withinOneIfNoScratch": false,
+      "withinOneCurrent": false,
+      "replaySource": "cache",
+      "hasSnapshot": true,
+      "outcomeClass": "other_cap_dominates",
+      "snapshotGem": 7,
+      "snapshotLimiter": "staining_light",
+      "snapshotScratchLight": false,
+      "snapshotScratchModerate": false,
+      "snapshotEffectiveBinding": "categoryFloor",
+      "snapshotEffectiveBindingValue": 7,
+      "cacheSnapshotDrift": true
+    },
+    {
+      "id": "1977-t-dawson-psa7",
+      "cardName": "1977 T DAWSON",
+      "psaGrade": 7,
+      "gemGrade": 5,
+      "gradeDifference": -2,
+      "primaryLimiter": "surface_scratch_light",
+      "effectiveBinding": "vintage:uniform_optimistic_light_wear",
+      "effectiveBindingValue": 5.5,
+      "effectiveBindingNote": null,
+      "categoryFloor": 8,
+      "lowestDefectCap": {
+        "source": "vintage:uniform_optimistic_light_wear",
+        "cap": 5.5
+      },
+      "hasScratchLight": true,
+      "hasScratchModerate": false,
+      "defectTags": [
+        "corner_wear_light",
+        "edge_wear_light",
+        "surface_scratch_light"
+      ],
+      "scratchCapAudit": [
+        {
+          "source": "defect:surface_scratch_light",
+          "cap": 7.5
+        },
+        {
+          "source": "primaryLimiter:surface_scratch_light",
+          "cap": 7.5
+        }
+      ],
+      "surfaceNoteExcerpt": "Minor scratches, but overall surface maintains decent integrity.",
+      "withoutScratchGem": 5,
+      "withoutScratchLimiter": "corner_wear_light",
+      "withoutScratchBinding": "vintage:uniform_optimistic_light_wear",
+      "withoutScratchBindingValue": 5.5,
+      "withoutScratchDelta": 0,
+      "withoutScratchDefectTags": [
+        "corner_wear_light",
+        "edge_wear_light"
+      ],
+      "wouldImprove": false,
+      "withinOneIfNoScratch": false,
+      "withinOneCurrent": false,
+      "replaySource": "cache",
+      "hasSnapshot": true,
+      "outcomeClass": "other_cap_dominates",
+      "snapshotGem": 5,
+      "snapshotLimiter": "surface_scratch_light",
+      "snapshotScratchLight": true,
+      "snapshotScratchModerate": false,
+      "snapshotEffectiveBinding": "defect:surface_scratch_light",
+      "snapshotEffectiveBindingValue": 7.5,
+      "cacheSnapshotDrift": false
+    },
+    {
+      "id": "1983-t-boggs-psa7",
+      "cardName": "1983 T BOGGS",
+      "psaGrade": 7,
+      "gemGrade": 5,
+      "gradeDifference": -2,
+      "primaryLimiter": "surface_scratch_light",
+      "effectiveBinding": "defect:surface_scratch_light",
+      "effectiveBindingValue": 7.5,
+      "effectiveBindingNote": null,
+      "categoryFloor": 5.5,
+      "lowestDefectCap": {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      "hasScratchLight": true,
+      "hasScratchModerate": false,
+      "defectTags": [
+        "corner_wear_light",
+        "surface_scratch_light",
+        "edge_wear_light"
+      ],
+      "scratchCapAudit": [
+        {
+          "source": "defect:surface_scratch_light",
+          "cap": 7.5
+        },
+        {
+          "source": "primaryLimiter:surface_scratch_light",
+          "cap": 7.5
+        }
+      ],
+      "surfaceNoteExcerpt": "Surface has minor scratches but presents well overall.",
+      "withoutScratchGem": 5,
+      "withoutScratchLimiter": "corner_wear_light",
+      "withoutScratchBinding": "defect:corner_wear_light",
+      "withoutScratchBindingValue": 8,
+      "withoutScratchDelta": 0,
+      "withoutScratchDefectTags": [
+        "corner_wear_light",
+        "edge_wear_light"
+      ],
+      "wouldImprove": false,
+      "withinOneIfNoScratch": false,
+      "withinOneCurrent": false,
+      "replaySource": "cache",
+      "hasSnapshot": true,
+      "outcomeClass": "other_cap_dominates",
+      "snapshotGem": 7,
+      "snapshotLimiter": "corner_wear_light",
+      "snapshotScratchLight": false,
+      "snapshotScratchModerate": false,
+      "snapshotEffectiveBinding": "ex_band:uniform_light_optimism_ceiling",
+      "snapshotEffectiveBindingValue": 4,
+      "cacheSnapshotDrift": true
+    },
+    {
+      "id": "1985-t-mcgwire-psa7",
+      "cardName": "1985 T MCGWIRE",
+      "psaGrade": 7,
+      "gemGrade": 5,
+      "gradeDifference": -2,
+      "primaryLimiter": "surface_scratch_light",
+      "effectiveBinding": "defect:surface_scratch_light",
+      "effectiveBindingValue": 7.5,
+      "effectiveBindingNote": null,
+      "categoryFloor": 5.5,
+      "lowestDefectCap": {
+        "source": "defect:surface_scratch_light",
+        "cap": 7.5
+      },
+      "hasScratchLight": true,
+      "hasScratchModerate": false,
+      "defectTags": [
+        "corner_wear_light",
+        "edge_wear_light",
+        "surface_scratch_light"
+      ],
+      "scratchCapAudit": [
+        {
+          "source": "defect:surface_scratch_light",
+          "cap": 7.5
+        },
+        {
+          "source": "primaryLimiter:surface_scratch_light",
+          "cap": 7.5
+        }
+      ],
+      "surfaceNoteExcerpt": "Some light scratches present, not overly distracting.",
+      "withoutScratchGem": 5,
+      "withoutScratchLimiter": "corner_wear_light",
+      "withoutScratchBinding": "defect:corner_wear_light",
+      "withoutScratchBindingValue": 8,
+      "withoutScratchDelta": 0,
+      "withoutScratchDefectTags": [
+        "corner_wear_light",
+        "edge_wear_light"
+      ],
+      "wouldImprove": false,
+      "withinOneIfNoScratch": false,
+      "withinOneCurrent": false,
+      "replaySource": "cache",
+      "hasSnapshot": true,
+      "outcomeClass": "other_cap_dominates",
+      "snapshotGem": 7,
+      "snapshotLimiter": "staining_light",
+      "snapshotScratchLight": true,
+      "snapshotScratchModerate": false,
+      "snapshotEffectiveBinding": "overall_derivation",
+      "snapshotEffectiveBindingValue": 7,
+      "cacheSnapshotDrift": true
+    },
+    {
+      "id": "1966-t-superman-psa8",
+      "cardName": "1966 T SUPERMAN",
+      "psaGrade": 8,
+      "gemGrade": 6,
+      "gradeDifference": -2,
+      "primaryLimiter": "surface_scratch_light",
+      "effectiveBinding": "overall_derivation",
+      "effectiveBindingValue": 6,
+      "effectiveBindingNote": null,
+      "categoryFloor": 6.5,
+      "lowestDefectCap": {
+        "source": "ex_band:back_stain_only_ceiling",
+        "cap": 6
+      },
+      "hasScratchLight": true,
+      "hasScratchModerate": false,
+      "defectTags": [
+        "corner_wear_light",
+        "edge_wear_light",
+        "surface_scratch_light"
+      ],
+      "scratchCapAudit": [
+        {
+          "source": "defect:surface_scratch_light",
+          "cap": 7.5
+        },
+        {
+          "source": "primaryLimiter:surface_scratch_light",
+          "cap": 7.5
+        }
+      ],
+      "surfaceNoteExcerpt": "A few isolated scratches and light wear, overall fair surface.",
+      "withoutScratchGem": 6,
+      "withoutScratchLimiter": "surface_scratch_light",
+      "withoutScratchBinding": "overall_derivation",
+      "withoutScratchBindingValue": 6,
+      "withoutScratchDelta": 0,
+      "withoutScratchDefectTags": [
+        "corner_wear_light",
+        "edge_wear_light",
+        "surface_scratch_light"
+      ],
+      "wouldImprove": false,
+      "withinOneIfNoScratch": false,
+      "withinOneCurrent": false,
+      "replaySource": "snapshot",
+      "hasSnapshot": true,
+      "outcomeClass": "other_cap_dominates",
+      "snapshotGem": 6,
+      "snapshotLimiter": "surface_scratch_light",
+      "snapshotScratchLight": true,
+      "snapshotScratchModerate": false,
+      "snapshotEffectiveBinding": "overall_derivation",
+      "snapshotEffectiveBindingValue": 6,
+      "cacheSnapshotDrift": false
+    }
+  ]
+}

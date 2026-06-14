@@ -1,0 +1,115 @@
+{
+  "generatedAt": "2026-06-14T02:35:00.000Z",
+  "fix": "Vintage Phase 1 Fix 3 — NM Scratch Skepticism",
+  "status": "research_complete_no_code_changes",
+  "branchCheckpoint": "vintage/calibration-phase-1 (Fix 1 + Fix 5; Fix 2 deferred)",
+  "deferredFix2": {
+    "status": "deferred",
+    "record": "benchmarks/vintage-fix2-deferred.md",
+    "findings": [
+      "0 downstream moderate_crease inferences on current replay",
+      "High-grade crease failures from stale benchmark cache drift",
+      "EX crease reconciliation functioning correctly",
+      "moderate_crease no longer top-priority vintage bottleneck"
+    ]
+  },
+  "researchScript": "benchmarks/analyze-fix3-scratch-research.mjs",
+  "detailedReport": "benchmarks/reports/vintage-scratch-investigation-report.md",
+  "regressionPlan": "benchmarks/reports/vintage-scratch-regression-plan.md",
+  "rootCauseVerdict": {
+    "primary": "vintage_lacks_scratch_skepticism_gate",
+    "summary": "surface_scratch_light systematically undergrades PSA 7-9 vintage cards. filterUnconfirmedSurfaceScratchDefects and modern glossy scratch reconciliation apply to modern era only. Vision tags persist on generic scratch language and bind at capVintage 7.5. 17 gremlin scratch_limiter_high_grade misses; 10 bind directly on defect:surface_scratch_light.",
+    "secondary": [
+      "benchmark_cache_drift_amplifies_scratch_misses",
+      "SURFACE_SCRATCH_EXPLICIT_EVIDENCE too broad for vintage NM",
+      "triad_cap_binds_some_scratch_tagged_cards_before_scratch_cap"
+    ],
+    "notPrimaryCause": [
+      "inferHeavyWearCrease",
+      "moderate_crease (Fix 2 deferred)"
+    ]
+  },
+  "totals": {
+    "psa7to9Graded": 52,
+    "investigationCardCount": 48,
+    "scratchPrimaryLimiter": 29,
+    "gremlinScratchLimiterMisses": 17,
+    "scratchDirectCapBinds": 10,
+    "likelyFalsePositiveAmongGremlinMisses": 17,
+    "withinOneInvestigation": 15,
+    "visionPersistedScratch": 35,
+    "cacheDriftFromSnapshot": 5
+  },
+  "priorityRanking": {
+    "fix3_scratch_skepticism": "top_priority_psa7_9",
+    "fix2_crease_gate": "deferred",
+    "fix5_triad_followup": "secondary_for_triad_cluster_cards"
+  },
+  "minimumEvidenceGate": {
+    "retainSurfaceScratchLightWhen": [
+      "Structural language: linear/hairline scratch, scratch crossing artwork/background, multi-angle visibility",
+      "High-confidence vision tag with explicit scratch in surface note and no clean-surface contradiction",
+      "PSA 4-6 EX band with surface_scratch_moderate and continuous/deep scratch wording"
+    ],
+    "stripOrReclassifyWhen": [
+      "PSA 7-9 with generic light/minor/few scratch language only",
+      "SURFACE_CLEAN_SCRATCH_CONTRADICTION match (clean surface, presents well, do not detract)",
+      "Scratch denial in notes (no major scratches)",
+      "Sole scratch limiter with min(corners,edges) >= 6.5 and no structural evidence"
+    ],
+    "confirmedLanguagePatterns": [
+      "linear scratch",
+      "hairline scratch",
+      "scratch crossing artwork",
+      "scratch visible at multiple angles",
+      "scratch under angled light",
+      "visible scratch on/across surface"
+    ],
+    "nonConfirmingLanguagePatterns": [
+      "few light scratches",
+      "minor scratches",
+      "slight surface scratches",
+      "clean surface with minor scratches",
+      "do not detract",
+      "otherwise clean surface",
+      "surface is clean with minimal visible issues",
+      "print line",
+      "roller mark",
+      "no major creases",
+      "presents well"
+    ]
+  },
+  "scratchLimiterGremlinMisses": [
+    { "id": "1953-t-kennedy-psa8", "psaGrade": 8, "gemGrade": 3, "bindingRule": "vintage:poor_band_notes_cluster", "snapshotGemGrade": 6, "scratchRemovedOnSnapshot": true },
+    { "id": "1967-t-carew-psa7", "psaGrade": 7, "gemGrade": 2, "bindingRule": "vintage:poor_band_notes_cluster", "scratchTag": "surface_scratch_moderate" },
+    { "id": "1971-t-cash-psa7", "psaGrade": 7, "gemGrade": 2, "bindingRule": "vintage:triad_light_wear_notes" },
+    { "id": "1968-t-drysdale-psa9", "psaGrade": 9, "gemGrade": 5, "bindingRule": "defect:surface_scratch_light", "fix3Target": true },
+    { "id": "1969-t-rose-psa9", "psaGrade": 9, "gemGrade": 5, "bindingRule": "defect:surface_scratch_light", "fix3Target": true },
+    { "id": "1978-t-eckersley-psa9", "psaGrade": 9, "gemGrade": 5, "bindingRule": "defect:surface_scratch_light", "snapshotGemGrade": 7, "fix3Target": true },
+    { "id": "1983-t-seaver-psa9", "psaGrade": 9, "gemGrade": 5, "bindingRule": "defect:surface_scratch_light", "fix3Target": true },
+    { "id": "1984-f-clemens-psa9", "psaGrade": 9, "gemGrade": 5, "bindingRule": "defect:surface_scratch_light", "fix3Target": true },
+    { "id": "1975-t-luzinski-psa8", "psaGrade": 8, "gemGrade": 5, "bindingRule": "defect:surface_scratch_light", "snapshotGemGrade": 7, "fix3Target": true },
+    { "id": "1981-t-gibson-psa9", "psaGrade": 9, "gemGrade": 6, "bindingRule": "ex_band:back_stain_only_ceiling" },
+    { "id": "1981-t-tyler-psa9", "psaGrade": 9, "gemGrade": 6, "bindingRule": "ex_band:back_stain_only_ceiling" },
+    { "id": "1966-t-superman-psa8", "psaGrade": 8, "gemGrade": 6, "bindingRule": "vintage:uniform_optimistic_light_wear" },
+    { "id": "1967-t-hunter-psa9", "psaGrade": 9, "gemGrade": 7, "bindingRule": "defect:surface_scratch_light", "fix3Target": true },
+    { "id": "1974-t-parker-psa7", "psaGrade": 7, "gemGrade": 5, "bindingRule": "defect:surface_scratch_light", "snapshotGemGrade": 7, "fix3Target": true },
+    { "id": "1977-t-dawson-psa7", "psaGrade": 7, "gemGrade": 5, "bindingRule": "ex_band:back_stain_only_ceiling" },
+    { "id": "1983-t-boggs-psa7", "psaGrade": 7, "gemGrade": 5, "bindingRule": "defect:surface_scratch_light", "snapshotGemGrade": 7, "scratchRemovedOnSnapshot": true, "fix3Target": true },
+    { "id": "1985-t-mcgwire-psa7", "psaGrade": 7, "gemGrade": 5, "bindingRule": "defect:surface_scratch_light", "snapshotGemGrade": 7, "fix3Target": true }
+  ],
+  "codePaths": {
+    "modernScratchFilter": "lib/grading/analyze.js filterUnconfirmedSurfaceScratchDefects — era === modern only",
+    "modernGlossyGate": "lib/grading/analyze.js reconcileModernReflectiveScratchArtifacts",
+    "scratchEvidenceCheck": "lib/grading/analyze.js hasConfirmedSurfaceScratchEvidence",
+    "vintageScratchCap": "lib/grading/defects.js surface_scratch_light.capVintage = 7.5",
+    "vintagePrompt": "lib/grading/prompts/vintage.js — print lines vs scratch guidance"
+  },
+  "fix3Recommendations": [
+    "Add reconcileVintageNmScratchSkepticism in normalizeAnalysis (vintage era only)",
+    "Reuse hasConfirmedSurfaceScratchEvidence and clean-surface contradiction patterns",
+    "Do not extend filterUnconfirmedSurfaceScratchDefects to vintage — separate vintage NM path",
+    "Add F3-1 through F3-N6 engine tests per regression plan",
+    "Prefer vision snapshots over cache when tags diverge in benchmark replay"
+  ]
+}
