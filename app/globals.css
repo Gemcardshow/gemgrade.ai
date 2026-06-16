@@ -208,6 +208,12 @@ body {
   cursor: pointer;
 }
 
+.grade-scanner__hint {
+  margin: 0;
+  color: #b8c1d1;
+  font-size: 14px;
+}
+
 .grade-scanner__error {
   color: #ff7b7b;
 }

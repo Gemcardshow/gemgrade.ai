@@ -34,6 +34,7 @@ export default function GradeScanner({ email = "" }) {
 
   const selectedMode =
     SCAN_MODES.find((mode) => mode.value === scanMode) ?? SCAN_MODES[1];
+  const isScoutMode = scanMode === "scout";
 
   useEffect(() => {
     if (!configured) {
@@ -79,18 +80,25 @@ export default function GradeScanner({ email = "" }) {
     const frontFile = formData.get("frontImage");
     const backFile = formData.get("backImage");
 
-    if (!(frontFile instanceof File) || !(backFile instanceof File)) {
-      setError("Front and back card images are required.");
+    if (!(frontFile instanceof File) || frontFile.size === 0) {
+      setError("Front image is required.");
+      return;
+    }
+
+    const hasBackFile = backFile instanceof File && backFile.size > 0;
+
+    if (!isScoutMode && !hasBackFile) {
+      setError("Pro scans require front and back images.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const [frontImage, backImage] = await Promise.all([
-        compressImageForUpload(frontFile),
-        compressImageForUpload(backFile),
-      ]);
+      const frontImage = await compressImageForUpload(frontFile);
+      const backImage = hasBackFile
+        ? await compressImageForUpload(backFile)
+        : null;
 
       const responseGrade = await gradeCard({
         frontImage,
@@ -147,8 +155,23 @@ export default function GradeScanner({ email = "" }) {
 
         <label>
           Back image
-          <input type="file" name="backImage" accept="image/*" required />
+          {isScoutMode ? (
+            <span className="grade-scanner__hint"> (optional for Scout)</span>
+          ) : null}
+          <input
+            type="file"
+            name="backImage"
+            accept="image/*"
+            required={!isScoutMode}
+          />
         </label>
+
+        {isScoutMode ? (
+          <p className="grade-scanner__hint">
+            Scout v1: front-only scans use a temporary adapter that duplicates
+            the front image for grading.
+          </p>
+        ) : null}
 
         <button type="submit" disabled={loading || (configured && !signedIn)}>
           {loading

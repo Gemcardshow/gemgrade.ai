@@ -21,6 +21,12 @@ export default function ScoutResult({ grade }) {
       <header className="grade-result__header">
         <p className="grade-result__eyebrow">Scout — Know what to buy</p>
         <h2 className="grade-result__score">{getScoutPsaEstimate(grade)}</h2>
+        {grade.scout?.frontOnlyApproximation ? (
+          <p className="grade-scanner__hint">
+            Scout v1 approximation: graded using front image only (back duplicated
+            for adapter).
+          </p>
+        ) : null}
       </header>
 
       <div className="scout-result__grid">
