@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "npm run test:api && node --test lib/gradeHandler.test.js lib/credits.test.js lib/gradeScanGate.test.js",
+    "test": "npm run test:api && node --test lib/gradeHandler.test.js lib/credits.test.js lib/gradeScanGate.test.js lib/scoutPresentation.test.js",
     "test:api": "node --test lib/grading/engine.test.js",
     "benchmark:scan": "node benchmarks/scan-manifest.js",
     "benchmark:run": "node benchmarks/run-benchmark.js",

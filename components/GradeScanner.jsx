@@ -8,13 +8,32 @@ import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasSupabasePublicConfig } from "../lib/supabase/env.js";
 import GradeResult from "./GradeResult.jsx";
 
+const SCAN_MODES = [
+  {
+    value: "scout",
+    label: "Scout",
+    tagline: "Know what to buy",
+    credits: 1,
+  },
+  {
+    value: "pro",
+    label: "Pro",
+    tagline: "Know what you have",
+    credits: 2,
+  },
+];
+
 export default function GradeScanner({ email = "" }) {
   const [grade, setGrade] = useState(null);
+  const [scanMode, setScanMode] = useState("pro");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [signedIn, setSignedIn] = useState(false);
   const [authReady, setAuthReady] = useState(false);
   const [configured] = useState(() => hasSupabasePublicConfig());
+
+  const selectedMode =
+    SCAN_MODES.find((mode) => mode.value === scanMode) ?? SCAN_MODES[1];
 
   useEffect(() => {
     if (!configured) {
@@ -77,7 +96,7 @@ export default function GradeScanner({ email = "" }) {
         frontImage,
         backImage,
         email: email || undefined,
-        mode: "pro",
+        mode: scanMode,
       });
 
       setGrade(responseGrade);
@@ -93,12 +112,34 @@ export default function GradeScanner({ email = "" }) {
     <div className="grade-scanner">
       {configured && authReady && !signedIn ? (
         <p className="grade-scanner__notice">
-          <Link href="/login">Sign in</Link> to grade cards. Pro scans cost 2
-          credits.
+          <Link href="/login">Sign in</Link> to grade cards. Scout scans cost 1
+          credit; Pro scans cost 2 credits.
         </p>
       ) : null}
 
       <form className="grade-scanner__form" onSubmit={handleSubmit}>
+        <fieldset className="scan-mode-selector">
+          <legend>Scan mode</legend>
+          <div className="scan-mode-selector__options">
+            {SCAN_MODES.map((mode) => (
+              <label key={mode.value} className="scan-mode-selector__option">
+                <input
+                  type="radio"
+                  name="scanMode"
+                  value={mode.value}
+                  checked={scanMode === mode.value}
+                  onChange={() => setScanMode(mode.value)}
+                />
+                <span className="scan-mode-selector__label">{mode.label}</span>
+                <span className="scan-mode-selector__tagline">{mode.tagline}</span>
+                <span className="scan-mode-selector__credits">
+                  {mode.credits} credit{mode.credits === 1 ? "" : "s"}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
         <label>
           Front image
           <input type="file" name="frontImage" accept="image/*" required />
@@ -110,12 +151,14 @@ export default function GradeScanner({ email = "" }) {
         </label>
 
         <button type="submit" disabled={loading || (configured && !signedIn)}>
-          {loading ? "Grading..." : "Grade Card (2 credits)"}
+          {loading
+            ? "Grading..."
+            : `Scan with ${selectedMode.label} (${selectedMode.credits} credit${selectedMode.credits === 1 ? "" : "s"})`}
         </button>
       </form>
 
       {error ? <p className="grade-scanner__error">{error}</p> : null}
-      <GradeResult grade={grade} />
+      <GradeResult grade={grade} mode={scanMode} />
     </div>
   );
 }

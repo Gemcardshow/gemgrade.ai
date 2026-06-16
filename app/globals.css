@@ -221,6 +221,80 @@ body {
   color: #5b8cff;
 }
 
+.scan-mode-selector {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.scan-mode-selector legend {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.scan-mode-selector__options {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.scan-mode-selector__option {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid #2a3140;
+  border-radius: 12px;
+  background: #171b24;
+  cursor: pointer;
+}
+
+.scan-mode-selector__option:has(input:checked) {
+  border-color: #5b8cff;
+}
+
+.scan-mode-selector__label {
+  font-weight: 600;
+}
+
+.scan-mode-selector__tagline,
+.scan-mode-selector__credits {
+  color: #b8c1d1;
+  font-size: 14px;
+}
+
+.scout-result__grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.scout-result__signal-label {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.scout-result__signal-summary {
+  margin: 8px 0 0;
+  color: #b8c1d1;
+}
+
+.scout-result__signal--positive .scout-result__signal-label {
+  color: #8fd18f;
+}
+
+.scout-result__signal--neutral .scout-result__signal-label {
+  color: #f5f7fa;
+}
+
+.scout-result__signal--warn .scout-result__signal-label {
+  color: #f0c674;
+}
+
+.scout-result__signal--negative .scout-result__signal-label {
+  color: #ff7b7b;
+}
+
 .grade-result {
   display: grid;
   gap: 20px;
