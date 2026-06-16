@@ -52,7 +52,10 @@ export default function AuthStatus() {
 
   return (
     <div className="auth-status">
-      <CreditBalance />
+      <div className="auth-status__nav">
+        <CreditBalance />
+        {email ? <Link href="/history">History</Link> : null}
+      </div>
       <div className="auth-status__actions">
         {email ? (
           <>
