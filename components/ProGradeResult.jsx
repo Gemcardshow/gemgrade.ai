@@ -23,7 +23,10 @@ export default function ProGradeResult({ grade }) {
       <header className="grade-result__header">
         <div>
           <p className="grade-result__eyebrow">Pro — Know what you have</p>
-          <h2 className="grade-result__score">PSA {grade.psaGrade}</h2>
+          <h2 className="grade-result__score">
+            <span className="grade-result__score-prefix">PSA</span>
+            <span className="grade-result__score-value">{grade.psaGrade}</span>
+          </h2>
           <p className="grade-result__meta">
             Internal {grade.internalGrade} · {grade.likelyRange} · Detected era:{" "}
             {grade.era} ({grade.eraSource})

@@ -20,7 +20,11 @@ export default function ScoutResult({ grade }) {
     <section className="grade-result grade-result--scout">
       <header className="grade-result__header">
         <p className="grade-result__eyebrow">Scout — Know what to buy</p>
-        <h2 className="grade-result__score">{getScoutPsaEstimate(grade)}</h2>
+        <h2 className="grade-result__score">
+          <span className="grade-result__score-value">
+            {getScoutPsaEstimate(grade)}
+          </span>
+        </h2>
         {grade.scout?.frontOnlyApproximation ? (
           <p className="grade-scanner__hint">
             Scout v1 approximation: graded using front image only (back duplicated
@@ -32,7 +36,11 @@ export default function ScoutResult({ grade }) {
       <div className="scout-result__grid">
         <article className="grade-card">
           <h3>Confidence</h3>
-          <p>{getScoutConfidence(grade)}</p>
+          <p>
+            <span className="badge badge--mode-scout">
+              {getScoutConfidence(grade)}
+            </span>
+          </p>
         </article>
 
         <article className={`grade-card scout-result__signal scout-result__signal--${buySignal.tone}`}>

@@ -11,7 +11,7 @@ export default function CreditsPage() {
 
       <CreditsPurchase />
 
-      <p>
+      <p className="page__footer">
         <Link href="/">Back to grading</Link>
       </p>
     </main>

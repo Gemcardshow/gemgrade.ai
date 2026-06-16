@@ -127,7 +127,13 @@ export default function ScanHistoryList() {
             {scans.map((scan) => (
               <tr key={scan.id}>
                 <td>{formatScanDate(scan.createdAt)}</td>
-                <td>{formatScanModeLabel(scan.mode)}</td>
+                <td>
+                  <span
+                    className={`badge badge--mode-${scan.mode === "scout" ? "scout" : "pro"}`}
+                  >
+                    {formatScanModeLabel(scan.mode)}
+                  </span>
+                </td>
                 <td>PSA {scan.grade}</td>
                 <td>
                   {scan.mode === "scout"

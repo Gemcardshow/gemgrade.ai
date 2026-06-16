@@ -23,7 +23,7 @@ export default function LoginPage({ searchParams }) {
         <LoginForm callbackError={searchParams?.error} />
       )}
 
-      <p>
+      <p className="page__footer">
         <Link href="/">Back to grading</Link>
       </p>
     </main>

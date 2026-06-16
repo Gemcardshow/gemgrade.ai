@@ -12,7 +12,7 @@ export default function ScanHistoryDetailPage({ params }) {
 
       <ScanHistoryDetail scanId={params.id} />
 
-      <p>
+      <p className="page__footer">
         <Link href="/history">All scans</Link> · <Link href="/">Grade another card</Link>
       </p>
     </main>

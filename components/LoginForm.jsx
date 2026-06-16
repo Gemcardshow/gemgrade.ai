@@ -65,7 +65,7 @@ export default function LoginForm({ callbackError }) {
         />
       </label>
 
-      <button type="submit" disabled={loading}>
+      <button type="submit" className="btn btn--primary" disabled={loading}>
         {loading ? "Sending..." : "Send magic link"}
       </button>
 

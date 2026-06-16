@@ -125,7 +125,8 @@ export default function GradeScanner({ email = "" }) {
         </p>
       ) : null}
 
-      <form className="grade-scanner__form" onSubmit={handleSubmit}>
+      <div className="grade-scanner__panel">
+        <form className="grade-scanner__form" onSubmit={handleSubmit}>
         <fieldset className="scan-mode-selector">
           <legend>Scan mode</legend>
           <div className="scan-mode-selector__options">
@@ -173,12 +174,17 @@ export default function GradeScanner({ email = "" }) {
           </p>
         ) : null}
 
-        <button type="submit" disabled={loading || (configured && !signedIn)}>
+        <button
+          type="submit"
+          className="btn btn--primary"
+          disabled={loading || (configured && !signedIn)}
+        >
           {loading
             ? "Grading..."
             : `Scan with ${selectedMode.label} (${selectedMode.credits} credit${selectedMode.credits === 1 ? "" : "s"})`}
         </button>
-      </form>
+        </form>
+      </div>
 
       {error ? <p className="grade-scanner__error">{error}</p> : null}
       <GradeResult grade={grade} mode={scanMode} />

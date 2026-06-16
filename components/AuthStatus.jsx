@@ -51,7 +51,10 @@ export default function AuthStatus() {
   }
 
   return (
-    <div className="auth-status">
+    <header className="site-header auth-status">
+      <Link href="/" className="site-brand">
+        GemGrade AI
+      </Link>
       <div className="auth-status__nav">
         <CreditBalance />
         {email ? <Link href="/history">History</Link> : null}
@@ -68,6 +71,6 @@ export default function AuthStatus() {
           <Link href="/login">Sign in</Link>
         )}
       </div>
-    </div>
+    </header>
   );
 }

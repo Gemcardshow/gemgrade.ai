@@ -24,6 +24,7 @@ export default function PurchasePackCard({
       <p className="purchase-pack__credits">{credits} credits</p>
       <button
         type="button"
+        className="btn btn--primary"
         disabled={disabled || loading}
         onClick={() => onPurchase(packKey)}
       >
