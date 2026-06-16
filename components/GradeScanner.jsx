@@ -36,7 +36,6 @@ export default function GradeScanner({ email = "" }) {
       const responseGrade = await gradeCard({
         frontImage,
         backImage,
-        era: formData.get("era") || "auto",
         email: email || undefined,
       });
 
@@ -59,15 +58,6 @@ export default function GradeScanner({ email = "" }) {
         <label>
           Back image
           <input type="file" name="backImage" accept="image/*" required />
-        </label>
-
-        <label>
-          Era
-          <select name="era" defaultValue="auto">
-            <option value="auto">Auto detect</option>
-            <option value="vintage">Vintage</option>
-            <option value="modern">Modern</option>
-          </select>
         </label>
 
         <button type="submit" disabled={loading}>

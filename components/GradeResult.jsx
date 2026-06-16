@@ -29,8 +29,8 @@ export default function GradeResult({ grade }) {
           <p className="grade-result__eyebrow">Projected PSA Grade</p>
           <h2 className="grade-result__score">PSA {grade.psaGrade}</h2>
           <p className="grade-result__meta">
-            Internal {grade.internalGrade} · {grade.likelyRange} · {grade.era} (
-            {grade.eraSource})
+            Internal {grade.internalGrade} · {grade.likelyRange} · Detected era:{" "}
+            {grade.era} ({grade.eraSource})
           </p>
         </div>
       </header>
