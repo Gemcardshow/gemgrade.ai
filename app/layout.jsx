@@ -1,4 +1,5 @@
 import "./globals.css";
+import AuthStatus from "../components/AuthStatus.jsx";
 
 export const metadata = {
   title: "GemGrade AI",
@@ -8,7 +9,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AuthStatus />
+        {children}
+      </body>
     </html>
   );
 }

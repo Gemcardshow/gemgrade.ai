@@ -13,6 +13,74 @@ body {
   margin: 0;
 }
 
+.auth-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #2a3140;
+  background: #171b24;
+  font-size: 14px;
+}
+
+.auth-status a,
+.auth-status button {
+  font: inherit;
+  color: #5b8cff;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+}
+
+.auth-status__label {
+  color: #b8c1d1;
+}
+
+.login-form {
+  display: grid;
+  gap: 16px;
+  max-width: 420px;
+  margin: 24px 0;
+}
+
+.login-form label {
+  display: grid;
+  gap: 8px;
+}
+
+.login-form input,
+.login-form button {
+  font: inherit;
+}
+
+.login-form button {
+  width: fit-content;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #5b8cff;
+  color: white;
+  cursor: pointer;
+}
+
+.login-form button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.login-form__message {
+  margin: 0;
+  color: #8fd18f;
+}
+
+.login-form__error {
+  margin: 0;
+  color: #ff7b7b;
+}
+
 .page {
   max-width: 960px;
   margin: 0 auto;
