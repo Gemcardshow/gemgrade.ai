@@ -20,6 +20,7 @@
     "benchmark:recovery-baseline": "node benchmarks/build-recovery-gating-baseline.js"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.1",
     "next": "^14.2.24",
     "openai": "^4.86.1",
