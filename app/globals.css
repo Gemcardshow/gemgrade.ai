@@ -212,6 +212,15 @@ body {
   color: #ff7b7b;
 }
 
+.grade-scanner__notice {
+  margin: 0 0 16px;
+  color: #b8c1d1;
+}
+
+.grade-scanner__notice a {
+  color: #5b8cff;
+}
+
 .grade-result {
   display: grid;
   gap: 20px;
