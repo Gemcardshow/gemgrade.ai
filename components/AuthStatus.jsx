@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasSupabasePublicConfig } from "../lib/supabase/env.js";
+import CreditBalance from "./CreditBalance.jsx";
 
 export default function AuthStatus() {
   const [email, setEmail] = useState(null);
@@ -51,16 +52,19 @@ export default function AuthStatus() {
 
   return (
     <div className="auth-status">
-      {email ? (
-        <>
-          <span className="auth-status__label">Signed in as {email}</span>
-          <button type="button" onClick={handleSignOut}>
-            Sign out
-          </button>
-        </>
-      ) : (
-        <Link href="/login">Sign in</Link>
-      )}
+      <CreditBalance />
+      <div className="auth-status__actions">
+        {email ? (
+          <>
+            <span className="auth-status__label">Signed in as {email}</span>
+            <button type="button" onClick={handleSignOut}>
+              Sign out
+            </button>
+          </>
+        ) : (
+          <Link href="/login">Sign in</Link>
+        )}
+      </div>
     </div>
   );
 }

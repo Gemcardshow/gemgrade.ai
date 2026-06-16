@@ -16,12 +16,102 @@ body {
 .auth-status {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 12px;
   padding: 12px 20px;
   border-bottom: 1px solid #2a3140;
   background: #171b24;
   font-size: 14px;
+}
+
+.auth-status__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.credit-balance {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid #2a3140;
+  border-radius: 999px;
+  background: #0f1115;
+  color: #f5f7fa;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.credit-balance:hover {
+  border-color: #5b8cff;
+}
+
+.credits-page {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.credits-page__balance {
+  margin: 0;
+}
+
+.credits-page__note {
+  margin: 0;
+  color: #b8c1d1;
+}
+
+.credits-page__sign-in {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.credits-page__packs {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.purchase-pack {
+  padding: 16px;
+  border: 1px solid #2a3140;
+  border-radius: 12px;
+  background: #171b24;
+}
+
+.purchase-pack h2 {
+  margin: 0 0 8px;
+}
+
+.purchase-pack__credits {
+  margin: 0 0 16px;
+  color: #b8c1d1;
+}
+
+.purchase-pack button {
+  font: inherit;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #5b8cff;
+  color: white;
+  cursor: pointer;
+}
+
+.purchase-pack button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.credits-page__message {
+  margin: 0;
+  color: #8fd18f;
+}
+
+.credits-page__error {
+  margin: 0;
+  color: #ff7b7b;
 }
 
 .auth-status a,
