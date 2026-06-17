@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getAuthCallbackUrl } from "../lib/authRedirect.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 
 /**
@@ -30,7 +31,12 @@ export default function LoginForm({ callbackError }) {
         );
       }
 
-      const redirectTo = `${window.location.origin}/auth/callback`;
+      const redirectTo = getAuthCallbackUrl(window.location.origin);
+      if (!redirectTo) {
+        throw new Error(
+          "Unable to determine auth callback URL. Set NEXT_PUBLIC_SITE_URL or use the app from a browser origin.",
+        );
+      }
 
       const { error: signInError } = await supabase.auth.signInWithOtp({
         email: email.trim(),
