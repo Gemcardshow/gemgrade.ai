@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
-import { updateSession } from "./lib/supabase/middleware.js";
 
+/**
+ * Launch hotfix: Supabase session refresh disabled in Edge middleware.
+ * Auth continues via client Supabase, Pages API cookie clients, and /auth/callback.
+ * Re-enable updateSession from lib/supabase/middleware.js once Edge runtime is stable.
+ */
 export async function middleware(request) {
-  try {
-    return await updateSession(request);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error("Middleware invocation failed:", message);
-    return NextResponse.next({ request });
-  }
+  return NextResponse.next({ request });
 }
 
 export const config = {
