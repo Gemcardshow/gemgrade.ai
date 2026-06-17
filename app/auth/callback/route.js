@@ -20,6 +20,7 @@ export async function GET(request) {
     return NextResponse.redirect(`${origin}/login?error=auth_callback_error`);
   }
 
+  const response = NextResponse.redirect(`${origin}${nextPath}`);
   const cookieStore = cookies();
   const supabase = createServerClient(url, key, {
     cookies: {
@@ -28,7 +29,12 @@ export async function GET(request) {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
-          cookieStore.set(name, value, options);
+          try {
+            cookieStore.set(name, value, options);
+          } catch {
+            // Request-scope cookie store may be read-only in some contexts.
+          }
+          response.cookies.set(name, value, options);
         });
       },
     },
@@ -40,5 +46,5 @@ export async function GET(request) {
     return NextResponse.redirect(`${origin}/login?error=auth_callback_error`);
   }
 
-  return NextResponse.redirect(`${origin}${nextPath}`);
+  return response;
 }
