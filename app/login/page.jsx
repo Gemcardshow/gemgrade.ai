@@ -1,10 +1,10 @@
 import Link from "next/link";
 import LoginForm from "../../components/LoginForm.jsx";
-import { hasSupabasePublicConfig } from "../../lib/supabase/env.js";
+import { hasUsableSupabasePublicConfig } from "../../lib/supabase/env.js";
 
 /** @param {{ searchParams?: { error?: string } }} props */
 export default function LoginPage({ searchParams }) {
-  const configured = hasSupabasePublicConfig();
+  const configured = hasUsableSupabasePublicConfig();
 
   return (
     <main className="page">
@@ -15,9 +15,12 @@ export default function LoginPage({ searchParams }) {
 
       {!configured ? (
         <p className="login-form__error">
-          Supabase auth is not configured. Set{" "}
-          <code>NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
-          <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>.
+          Supabase auth is not configured correctly. Set{" "}
+          <code>NEXT_PUBLIC_SUPABASE_URL</code> to your project URL (for example{" "}
+          <code>https://abcdefgh.supabase.co</code>) and{" "}
+          <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to your anon JWT (
+          <code>eyJ...</code>) or publishable key (<code>sb_publishable_...</code>
+          ). Redeploy after updating Vercel env vars.
         </p>
       ) : (
         <LoginForm callbackError={searchParams?.error} />

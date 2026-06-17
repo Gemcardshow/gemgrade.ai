@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { compressImageForUpload } from "../lib/compressImage.js";
 import { gradeCard } from "../lib/gradeApi.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
-import { hasSupabasePublicConfig } from "../lib/supabase/env.js";
+import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 import GradeResult from "./GradeResult.jsx";
 
 const SCAN_MODES = [
@@ -30,7 +30,7 @@ export default function GradeScanner({ email = "" }) {
   const [error, setError] = useState("");
   const [signedIn, setSignedIn] = useState(false);
   const [authReady, setAuthReady] = useState(false);
-  const [configured] = useState(() => hasSupabasePublicConfig());
+  const [configured] = useState(() => hasUsableSupabasePublicConfig());
 
   const selectedMode =
     SCAN_MODES.find((mode) => mode.value === scanMode) ?? SCAN_MODES[1];
@@ -44,6 +44,11 @@ export default function GradeScanner({ email = "" }) {
 
     let active = true;
     const supabase = createSupabaseBrowserClient();
+
+    if (!supabase) {
+      setAuthReady(true);
+      return undefined;
+    }
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!active) {

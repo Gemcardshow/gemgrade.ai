@@ -24,6 +24,12 @@ export default function LoginForm({ callbackError }) {
 
     try {
       const supabase = createSupabaseBrowserClient();
+      if (!supabase) {
+        throw new Error(
+          "Supabase auth is not configured correctly. Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then redeploy.",
+        );
+      }
+
       const redirectTo = `${window.location.origin}/auth/callback`;
 
       const { error: signInError } = await supabase.auth.signInWithOtp({

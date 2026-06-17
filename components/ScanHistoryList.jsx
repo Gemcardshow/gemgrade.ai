@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
-import { hasSupabasePublicConfig } from "../lib/supabase/env.js";
+import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 import {
   formatScanDate,
   formatScanModeLabel,
@@ -15,7 +15,7 @@ export default function ScanHistoryList() {
   const [error, setError] = useState("");
   const [signedIn, setSignedIn] = useState(false);
   const [authReady, setAuthReady] = useState(false);
-  const [configured] = useState(() => hasSupabasePublicConfig());
+  const [configured] = useState(() => hasUsableSupabasePublicConfig());
 
   useEffect(() => {
     if (!configured) {
@@ -26,6 +26,12 @@ export default function ScanHistoryList() {
 
     let active = true;
     const supabase = createSupabaseBrowserClient();
+
+    if (!supabase) {
+      setAuthReady(true);
+      setLoading(false);
+      return undefined;
+    }
 
     async function loadHistory() {
       const {

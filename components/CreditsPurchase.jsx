@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import PurchasePackCard from "./PurchasePackCard.jsx";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
-import { hasSupabasePublicConfig } from "../lib/supabase/env.js";
+import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 
 const PACK_CATALOG = [
   { key: "starter", label: "Starter", credits: 10 },
@@ -19,7 +19,7 @@ export default function CreditsPurchase() {
   const [activePack, setActivePack] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [configured] = useState(() => hasSupabasePublicConfig());
+  const [configured] = useState(() => hasUsableSupabasePublicConfig());
 
   const loadBalance = useCallback(async () => {
     const response = await fetch("/api/credits/balance", {
@@ -43,6 +43,11 @@ export default function CreditsPurchase() {
 
     let active = true;
     const supabase = createSupabaseBrowserClient();
+
+    if (!supabase) {
+      setReady(true);
+      return undefined;
+    }
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!active) {

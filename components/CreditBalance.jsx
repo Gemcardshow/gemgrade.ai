@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
-import { hasSupabasePublicConfig } from "../lib/supabase/env.js";
+import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 
 export default function CreditBalance() {
   const [balance, setBalance] = useState(null);
   const [signedIn, setSignedIn] = useState(false);
   const [ready, setReady] = useState(false);
-  const [configured] = useState(() => hasSupabasePublicConfig());
+  const [configured] = useState(() => hasUsableSupabasePublicConfig());
 
   const loadBalance = useCallback(async () => {
     const response = await fetch("/api/credits/balance", {
@@ -33,6 +33,11 @@ export default function CreditBalance() {
 
     let active = true;
     const supabase = createSupabaseBrowserClient();
+
+    if (!supabase) {
+      setReady(true);
+      return undefined;
+    }
 
     async function syncAuthState() {
       const {

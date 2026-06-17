@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
-import { hasSupabasePublicConfig } from "../lib/supabase/env.js";
+import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 import CreditBalance from "./CreditBalance.jsx";
 
 export default function AuthStatus() {
   const [email, setEmail] = useState(null);
   const [ready, setReady] = useState(false);
-  const [configured] = useState(() => hasSupabasePublicConfig());
+  const [configured] = useState(() => hasUsableSupabasePublicConfig());
 
   useEffect(() => {
     if (!configured) {
@@ -20,13 +20,25 @@ export default function AuthStatus() {
     let active = true;
     const supabase = createSupabaseBrowserClient();
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!active) {
-        return;
-      }
-      setEmail(user?.email ?? null);
+    if (!supabase) {
       setReady(true);
-    });
+      return undefined;
+    }
+
+    supabase.auth
+      .getUser()
+      .then(({ data: { user } }) => {
+        if (!active) {
+          return;
+        }
+        setEmail(user?.email ?? null);
+        setReady(true);
+      })
+      .catch(() => {
+        if (active) {
+          setReady(true);
+        }
+      });
 
     const {
       data: { subscription },
@@ -42,11 +54,15 @@ export default function AuthStatus() {
 
   async function handleSignOut() {
     const supabase = createSupabaseBrowserClient();
+    if (!supabase) {
+      return;
+    }
+
     await supabase.auth.signOut();
     setEmail(null);
   }
 
-  if (!configured || !ready) {
+  if (!ready) {
     return null;
   }
 
@@ -56,11 +72,13 @@ export default function AuthStatus() {
         GemGrade AI
       </Link>
       <div className="auth-status__nav">
-        <CreditBalance />
+        {configured ? <CreditBalance /> : null}
         {email ? <Link href="/history">History</Link> : null}
       </div>
       <div className="auth-status__actions">
-        {email ? (
+        {!configured ? (
+          <span className="auth-status__label">Auth unavailable</span>
+        ) : email ? (
           <>
             <span className="auth-status__label">Signed in as {email}</span>
             <button type="button" onClick={handleSignOut}>
