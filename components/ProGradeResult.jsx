@@ -1,3 +1,8 @@
+import {
+  formatGemGradeValue,
+  formatLikelyRangeDisplay,
+} from "../lib/gradePresentation.js";
+
 const CATEGORY_LABELS = {
   corners: "Corners",
   edges: "Edges",
@@ -24,12 +29,17 @@ export default function ProGradeResult({ grade }) {
         <div>
           <p className="grade-result__eyebrow">Pro — Know what you have</p>
           <h2 className="grade-result__score">
-            <span className="grade-result__score-prefix">PSA</span>
-            <span className="grade-result__score-value">{grade.psaGrade}</span>
+            <span className="grade-result__score-prefix">GemGrade</span>
+            <span className="grade-result__score-value">
+              {formatGemGradeValue(grade.psaGrade)}
+            </span>
           </h2>
           <p className="grade-result__meta">
-            Internal {grade.internalGrade} · {grade.likelyRange} · Detected era:{" "}
-            {grade.era} ({grade.eraSource})
+            Internal {grade.internalGrade}
+            {grade.likelyRange
+              ? ` · ${formatLikelyRangeDisplay(grade.likelyRange)}`
+              : ""}{" "}
+            · Detected era: {grade.era} ({grade.eraSource})
           </p>
         </div>
       </header>

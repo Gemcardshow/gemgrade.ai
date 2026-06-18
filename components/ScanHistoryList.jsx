@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
+import { formatGemGradeHeader } from "../lib/gradePresentation.js";
 import {
   formatScanDate,
   formatScanModeLabel,
@@ -140,7 +141,7 @@ export default function ScanHistoryList() {
                     {formatScanModeLabel(scan.mode)}
                   </span>
                 </td>
-                <td>PSA {scan.grade}</td>
+                <td>{formatGemGradeHeader(scan.grade)}</td>
                 <td>
                   {scan.mode === "scout"
                     ? scan.confidence || "—"

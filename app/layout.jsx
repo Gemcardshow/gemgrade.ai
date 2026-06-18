@@ -1,6 +1,7 @@
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import AuthStatus from "../components/AuthStatus.jsx";
+import { GEMGRADE_DISCLAIMER } from "../lib/gradePresentation.js";
 
 const display = Cormorant_Garamond({
   subsets: ["latin"],
@@ -15,7 +16,7 @@ const body = Inter({
 
 export const metadata = {
   title: "GemGrade AI",
-  description: "PSA-style sports card grading",
+  description: "Independent sports card grading estimates",
 };
 
 export default function RootLayout({ children }) {
@@ -24,6 +25,9 @@ export default function RootLayout({ children }) {
       <body className={body.className}>
         <AuthStatus />
         {children}
+        <footer className="site-footer">
+          <p>{GEMGRADE_DISCLAIMER}</p>
+        </footer>
       </body>
     </html>
   );

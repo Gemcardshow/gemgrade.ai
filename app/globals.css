@@ -279,6 +279,21 @@ code {
   letter-spacing: 0.02em;
 }
 
+.site-footer {
+  margin: 0;
+  padding: 28px clamp(20px, 5vw, 32px) 48px;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.site-footer p {
+  margin: 0 auto;
+  max-width: 52ch;
+}
+
 /* -------------------------------------------------------------------------- */
 /* Grade scanner / home scan flow                                             */
 /* -------------------------------------------------------------------------- */
