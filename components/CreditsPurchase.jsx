@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import PurchasePackCard from "./PurchasePackCard.jsx";
+import { fetchAuthed } from "../lib/fetchAuthed.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 
@@ -22,9 +23,7 @@ export default function CreditsPurchase() {
   const [configured] = useState(() => hasUsableSupabasePublicConfig());
 
   const loadBalance = useCallback(async () => {
-    const response = await fetch("/api/credits/balance", {
-      credentials: "include",
-    });
+    const response = await fetchAuthed("/api/credits/balance");
 
     if (!response.ok) {
       throw new Error("Unable to load credit balance.");
@@ -84,7 +83,7 @@ export default function CreditsPurchase() {
     setError("");
 
     try {
-      const response = await fetch("/api/credits/purchase", {
+      const response = await fetchAuthed("/api/credits/purchase", {
         method: "POST",
         credentials: "include",
         headers: {

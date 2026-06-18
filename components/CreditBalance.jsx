@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { fetchAuthed } from "../lib/fetchAuthed.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 
@@ -12,9 +13,7 @@ export default function CreditBalance() {
   const [configured] = useState(() => hasUsableSupabasePublicConfig());
 
   const loadBalance = useCallback(async () => {
-    const response = await fetch("/api/credits/balance", {
-      credentials: "include",
-    });
+    const response = await fetchAuthed("/api/credits/balance");
 
     if (!response.ok) {
       setBalance(null);

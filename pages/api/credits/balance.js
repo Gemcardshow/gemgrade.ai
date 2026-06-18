@@ -1,6 +1,10 @@
 import { createPagesApiClient, requireAuth } from "../../../lib/auth.js";
-import { getCreditBalanceSummary } from "../../../lib/credits.js";
+import {
+  ensureCreditProfile,
+  getCreditBalanceSummary,
+} from "../../../lib/credits.js";
 import { hasSupabasePublicConfig } from "../../../lib/supabase/env.js";
+import { getServiceRoleClient } from "../../../lib/supabase/server.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -23,11 +27,25 @@ export default async function handler(req, res) {
   }
 
   try {
+    const serviceSupabase = getServiceRoleClient();
+    if (serviceSupabase) {
+      try {
+        await ensureCreditProfile(
+          serviceSupabase,
+          user.id,
+          user.email ?? "",
+        );
+      } catch (profileEnsureError) {
+        console.error("ensureCreditProfile failed:", profileEnsureError);
+      }
+    }
+
     const summary = await getCreditBalanceSummary(supabase, user.id);
     return res.status(200).json(summary);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to fetch balance";
+    console.error("GET /api/credits/balance failed:", message);
     return res.status(500).json({ error: message });
   }
 }

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { fetchAuthed } from "../lib/fetchAuthed.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 
@@ -24,22 +25,27 @@ export default function ScanCreditBalanceCard({
   syncDeduction = null,
 }) {
   const [balance, setBalance] = useState(null);
+  const [loadingBalance, setLoadingBalance] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [ready, setReady] = useState(false);
   const [configured] = useState(() => hasUsableSupabasePublicConfig());
 
   const loadBalance = useCallback(async () => {
-    const response = await fetch("/api/credits/balance", {
-      credentials: "include",
-    });
+    setLoadingBalance(true);
 
-    if (!response.ok) {
-      setBalance(null);
-      return;
+    try {
+      const response = await fetchAuthed("/api/credits/balance");
+
+      if (!response.ok) {
+        setBalance(null);
+        return;
+      }
+
+      const data = await response.json();
+      setBalance(typeof data.balance === "number" ? data.balance : null);
+    } finally {
+      setLoadingBalance(false);
     }
-
-    const data = await response.json();
-    setBalance(typeof data.balance === "number" ? data.balance : null);
   }, []);
 
   useEffect(() => {
@@ -128,6 +134,12 @@ export default function ScanCreditBalanceCard({
     syncDeduction > 0 &&
     typeof displayBalance === "number";
 
+  const balanceLabel = loadingBalance
+    ? "..."
+    : displayBalance === null
+      ? "—"
+      : displayBalance;
+
   return (
     <section className="scan-credit-balance" aria-label="Credit balance">
       <div className="scan-credit-balance__header">
@@ -137,9 +149,7 @@ export default function ScanCreditBalanceCard({
         </Link>
       </div>
 
-      <p className="scan-credit-balance__value">
-        {displayBalance === null ? "—" : displayBalance}
-      </p>
+      <p className="scan-credit-balance__value">{balanceLabel}</p>
 
       {showDeduction ? (
         <p className="scan-credit-balance__deduction" role="status">
