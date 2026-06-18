@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { compressImageForUpload } from "../lib/compressImage.js";
 import { gradeCard } from "../lib/gradeApi.js";
+import {
+  clearFileInputValue,
+  shouldResetCompanionImagesOnFrontChange,
+} from "../lib/gradeScannerForm.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 import GradeResult from "./GradeResult.jsx";
@@ -33,6 +37,7 @@ const SCAN_MODES = [
  *   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void,
  *   required?: boolean,
  *   hint?: React.ReactNode,
+ *   inputRef?: React.RefObject<HTMLInputElement | null>,
  * }} props
  */
 function ImageUploadField({
@@ -42,6 +47,7 @@ function ImageUploadField({
   onChange,
   required = false,
   hint = null,
+  inputRef = null,
 }) {
   return (
     <label className="grade-scanner__upload">
@@ -50,6 +56,7 @@ function ImageUploadField({
         {hint}
       </span>
       <input
+        ref={inputRef}
         type="file"
         name={name}
         accept="image/*"
@@ -88,6 +95,7 @@ export default function GradeScanner({ email = "" }) {
   const [frontPreview, setFrontPreview] = useState(null);
   const [backPreview, setBackPreview] = useState(null);
   const [creditSnapshot, setCreditSnapshot] = useState(null);
+  const backInputRef = useRef(null);
 
   const selectedMode =
     SCAN_MODES.find((mode) => mode.value === scanMode) ?? SCAN_MODES[1];
@@ -152,6 +160,31 @@ export default function GradeScanner({ email = "" }) {
 
       return URL.createObjectURL(file);
     });
+  }
+
+  function clearBackImageSelection() {
+    setBackPreview((previous) => {
+      if (previous) {
+        URL.revokeObjectURL(previous);
+      }
+
+      return null;
+    });
+    clearFileInputValue(backInputRef.current);
+  }
+
+  function handleFrontImageChange(event) {
+    handleImagePreviewChange(setFrontPreview, event);
+
+    const file = event.target.files?.[0];
+    if (!shouldResetCompanionImagesOnFrontChange(file)) {
+      return;
+    }
+
+    clearBackImageSelection();
+    setGrade(null);
+    setError("");
+    setCreditSnapshot(null);
   }
 
   async function handleSubmit(event) {
@@ -280,9 +313,7 @@ export default function GradeScanner({ email = "" }) {
             name="frontImage"
             preview={frontPreview}
             required
-            onChange={(event) =>
-              handleImagePreviewChange(setFrontPreview, event)
-            }
+            onChange={handleFrontImageChange}
           />
 
           <ImageUploadField
@@ -290,6 +321,7 @@ export default function GradeScanner({ email = "" }) {
             name="backImage"
             preview={backPreview}
             required={!isScoutMode}
+            inputRef={backInputRef}
             hint={
               isScoutMode ? (
                 <span className="grade-scanner__hint"> (optional for Scout)</span>
