@@ -313,6 +313,30 @@ code {
   letter-spacing: 0.02em;
 }
 
+.grade-scanner__uploads {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .grade-scanner__uploads {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.grade-scanner__upload {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.grade-scanner__upload-label {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
 .grade-scanner__form input[type="file"] {
   padding: 12px;
   border: 1px dashed var(--border-gold);
@@ -344,21 +368,53 @@ code {
 }
 
 .grade-scanner__preview-wrap {
-  display: block;
-  margin-top: 10px;
-  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 140px;
+  max-height: 220px;
+  padding: 12px;
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
 }
 
 .grade-scanner__preview {
   display: block;
   max-width: 100%;
-  max-height: 200px;
+  max-height: 220px;
   width: auto;
   height: auto;
   object-fit: contain;
-  border: 1px solid var(--border-gold);
-  border-radius: var(--radius-md);
-  background: rgba(0, 0, 0, 0.35);
+  border-radius: var(--radius-sm);
+}
+
+.grade-scanner__preview-placeholder {
+  display: grid;
+  gap: 6px;
+  place-items: center;
+  width: 100%;
+  min-height: 116px;
+  padding: 16px;
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.grade-scanner__preview-placeholder-label {
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.grade-scanner__preview-placeholder-text {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .grade-scanner__hint {

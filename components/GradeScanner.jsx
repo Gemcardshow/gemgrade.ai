@@ -25,6 +25,57 @@ const SCAN_MODES = [
   },
 ];
 
+/**
+ * @param {{
+ *   label: string,
+ *   name: string,
+ *   preview: string | null,
+ *   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void,
+ *   required?: boolean,
+ *   hint?: React.ReactNode,
+ * }} props
+ */
+function ImageUploadField({
+  label,
+  name,
+  preview,
+  onChange,
+  required = false,
+  hint = null,
+}) {
+  return (
+    <label className="grade-scanner__upload">
+      <span className="grade-scanner__upload-label">
+        {label}
+        {hint}
+      </span>
+      <input
+        type="file"
+        name={name}
+        accept="image/*"
+        required={required}
+        onChange={onChange}
+      />
+      <div className="grade-scanner__preview-wrap">
+        {preview ? (
+          <img
+            src={preview}
+            alt={`${label} preview`}
+            className="grade-scanner__preview"
+          />
+        ) : (
+          <div className="grade-scanner__preview-placeholder">
+            <span className="grade-scanner__preview-placeholder-label">{label}</span>
+            <span className="grade-scanner__preview-placeholder-text">
+              No image selected
+            </span>
+          </div>
+        )}
+      </div>
+    </label>
+  );
+}
+
 export default function GradeScanner({ email = "" }) {
   const [grade, setGrade] = useState(null);
   const [scanMode, setScanMode] = useState("pro");
@@ -223,48 +274,30 @@ export default function GradeScanner({ email = "" }) {
           </div>
         </fieldset>
 
-        <label>
-          Front image
-          <input
-            type="file"
+        <div className="grade-scanner__uploads">
+          <ImageUploadField
+            label="Front image"
             name="frontImage"
-            accept="image/*"
+            preview={frontPreview}
             required
-            onChange={(event) => handleImagePreviewChange(setFrontPreview, event)}
+            onChange={(event) =>
+              handleImagePreviewChange(setFrontPreview, event)
+            }
           />
-          {frontPreview ? (
-            <span className="grade-scanner__preview-wrap">
-              <img
-                src={frontPreview}
-                alt="Front image preview"
-                className="grade-scanner__preview"
-              />
-            </span>
-          ) : null}
-        </label>
 
-        <label>
-          Back image
-          {isScoutMode ? (
-            <span className="grade-scanner__hint"> (optional for Scout)</span>
-          ) : null}
-          <input
-            type="file"
+          <ImageUploadField
+            label="Back image"
             name="backImage"
-            accept="image/*"
+            preview={backPreview}
             required={!isScoutMode}
+            hint={
+              isScoutMode ? (
+                <span className="grade-scanner__hint"> (optional for Scout)</span>
+              ) : null
+            }
             onChange={(event) => handleImagePreviewChange(setBackPreview, event)}
           />
-          {backPreview ? (
-            <span className="grade-scanner__preview-wrap">
-              <img
-                src={backPreview}
-                alt="Back image preview"
-                className="grade-scanner__preview"
-              />
-            </span>
-          ) : null}
-        </label>
+        </div>
 
         {isScoutMode ? (
           <p className="grade-scanner__hint">
