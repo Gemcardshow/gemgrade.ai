@@ -7,6 +7,7 @@ import { gradeCard } from "../lib/gradeApi.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 import GradeResult from "./GradeResult.jsx";
+import ScanProgress from "./ScanProgress.jsx";
 
 const SCAN_MODES = [
   {
@@ -27,10 +28,13 @@ export default function GradeScanner({ email = "" }) {
   const [grade, setGrade] = useState(null);
   const [scanMode, setScanMode] = useState("pro");
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(null);
   const [error, setError] = useState("");
   const [signedIn, setSignedIn] = useState(false);
   const [authReady, setAuthReady] = useState(false);
   const [configured] = useState(() => hasUsableSupabasePublicConfig());
+  const [frontPreview, setFrontPreview] = useState(null);
+  const [backPreview, setBackPreview] = useState(null);
 
   const selectedMode =
     SCAN_MODES.find((mode) => mode.value === scanMode) ?? SCAN_MODES[1];
@@ -70,6 +74,33 @@ export default function GradeScanner({ email = "" }) {
     };
   }, [configured]);
 
+  useEffect(() => {
+    return () => {
+      if (frontPreview) {
+        URL.revokeObjectURL(frontPreview);
+      }
+      if (backPreview) {
+        URL.revokeObjectURL(backPreview);
+      }
+    };
+  }, [frontPreview, backPreview]);
+
+  function handleImagePreviewChange(setPreview, event) {
+    const file = event.target.files?.[0];
+
+    setPreview((previous) => {
+      if (previous) {
+        URL.revokeObjectURL(previous);
+      }
+
+      if (!(file instanceof File) || file.size === 0) {
+        return null;
+      }
+
+      return URL.createObjectURL(file);
+    });
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
@@ -98,12 +129,22 @@ export default function GradeScanner({ email = "" }) {
     }
 
     setLoading(true);
+    setLoadingStep("uploading");
+
+    let advanceTimer;
 
     try {
       const frontImage = await compressImageForUpload(frontFile);
       const backImage = hasBackFile
         ? await compressImageForUpload(backFile)
         : null;
+
+      setLoadingStep("analyzing");
+      advanceTimer = window.setTimeout(() => {
+        setLoadingStep((current) =>
+          current === "analyzing" ? "calculating" : current,
+        );
+      }, 3000);
 
       const responseGrade = await gradeCard({
         frontImage,
@@ -112,12 +153,15 @@ export default function GradeScanner({ email = "" }) {
         mode: scanMode,
       });
 
+      setLoadingStep("calculating");
       setGrade(responseGrade);
       window.dispatchEvent(new Event("credits-updated"));
     } catch (submitError) {
       setError(submitError.message || "Unable to grade card.");
     } finally {
+      window.clearTimeout(advanceTimer);
       setLoading(false);
+      setLoadingStep(null);
     }
   }
 
@@ -156,7 +200,22 @@ export default function GradeScanner({ email = "" }) {
 
         <label>
           Front image
-          <input type="file" name="frontImage" accept="image/*" required />
+          <input
+            type="file"
+            name="frontImage"
+            accept="image/*"
+            required
+            onChange={(event) => handleImagePreviewChange(setFrontPreview, event)}
+          />
+          {frontPreview ? (
+            <span className="grade-scanner__preview-wrap">
+              <img
+                src={frontPreview}
+                alt="Front image preview"
+                className="grade-scanner__preview"
+              />
+            </span>
+          ) : null}
         </label>
 
         <label>
@@ -169,7 +228,17 @@ export default function GradeScanner({ email = "" }) {
             name="backImage"
             accept="image/*"
             required={!isScoutMode}
+            onChange={(event) => handleImagePreviewChange(setBackPreview, event)}
           />
+          {backPreview ? (
+            <span className="grade-scanner__preview-wrap">
+              <img
+                src={backPreview}
+                alt="Back image preview"
+                className="grade-scanner__preview"
+              />
+            </span>
+          ) : null}
         </label>
 
         {isScoutMode ? (
@@ -185,9 +254,11 @@ export default function GradeScanner({ email = "" }) {
           disabled={loading || (configured && !signedIn)}
         >
           {loading
-            ? "Grading..."
+            ? "Scanning..."
             : `Scan with ${selectedMode.label} (${selectedMode.credits} credit${selectedMode.credits === 1 ? "" : "s"})`}
         </button>
+
+        <ScanProgress activeStep={loadingStep} />
         </form>
       </div>
 
