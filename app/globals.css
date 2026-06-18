@@ -457,6 +457,79 @@ code {
   font-weight: 600;
 }
 
+.scan-credit-balance {
+  display: grid;
+  gap: 8px;
+  padding: 20px clamp(16px, 4vw, 24px);
+  border: 1px solid var(--border-gold-strong);
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    180deg,
+    rgba(201, 169, 98, 0.1) 0%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    var(--shadow-gold-selected);
+}
+
+.scan-credit-balance__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.scan-credit-balance__eyebrow {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.scan-credit-balance__link {
+  color: var(--gold-bright);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.scan-credit-balance__link:hover {
+  color: var(--gold);
+  text-decoration: underline;
+}
+
+.scan-credit-balance__value {
+  margin: 0;
+  color: var(--gold-bright);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 8vw, 2.75rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 24px var(--gold-glow-soft);
+}
+
+.scan-credit-balance__hint,
+.scan-credit-balance__deduction {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.scan-credit-balance__hint {
+  color: var(--text-muted);
+}
+
+.scan-credit-balance__deduction {
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
 .scan-mode-selector {
   margin: 0;
   padding: 0;

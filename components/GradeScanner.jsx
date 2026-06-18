@@ -7,6 +7,7 @@ import { gradeCard } from "../lib/gradeApi.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 import GradeResult from "./GradeResult.jsx";
+import ScanCreditBalanceCard from "./ScanCreditBalanceCard.jsx";
 import ScanProgress from "./ScanProgress.jsx";
 
 const SCAN_MODES = [
@@ -35,6 +36,7 @@ export default function GradeScanner({ email = "" }) {
   const [configured] = useState(() => hasUsableSupabasePublicConfig());
   const [frontPreview, setFrontPreview] = useState(null);
   const [backPreview, setBackPreview] = useState(null);
+  const [creditSnapshot, setCreditSnapshot] = useState(null);
 
   const selectedMode =
     SCAN_MODES.find((mode) => mode.value === scanMode) ?? SCAN_MODES[1];
@@ -105,6 +107,7 @@ export default function GradeScanner({ email = "" }) {
     event.preventDefault();
     setError("");
     setGrade(null);
+    setCreditSnapshot(null);
 
     if (configured && !signedIn) {
       setError("Sign in required to grade cards.");
@@ -155,7 +158,24 @@ export default function GradeScanner({ email = "" }) {
 
       setLoadingStep("calculating");
       setGrade(responseGrade);
-      window.dispatchEvent(new Event("credits-updated"));
+
+      const creditsPayload = responseGrade?.credits;
+      if (creditsPayload && typeof creditsPayload.balance === "number") {
+        setCreditSnapshot({
+          balance: creditsPayload.balance,
+          deducted:
+            typeof creditsPayload.deducted === "number"
+              ? creditsPayload.deducted
+              : null,
+        });
+        window.dispatchEvent(
+          new CustomEvent("credits-updated", {
+            detail: { balance: creditsPayload.balance },
+          }),
+        );
+      } else {
+        window.dispatchEvent(new Event("credits-updated"));
+      }
     } catch (submitError) {
       setError(submitError.message || "Unable to grade card.");
     } finally {
@@ -176,6 +196,11 @@ export default function GradeScanner({ email = "" }) {
 
       <div className="grade-scanner__panel">
         <form className="grade-scanner__form" onSubmit={handleSubmit}>
+        <ScanCreditBalanceCard
+          syncBalance={creditSnapshot?.balance ?? null}
+          syncDeduction={creditSnapshot?.deducted ?? null}
+        />
+
         <fieldset className="scan-mode-selector">
           <legend>Scan mode</legend>
           <div className="scan-mode-selector__options">

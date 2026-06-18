@@ -5,7 +5,24 @@ import { useCallback, useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 
-export default function CreditBalance() {
+/**
+ * @param {{ detail?: { balance?: number } }} event
+ */
+function readBalanceFromEvent(event) {
+  const balance = event?.detail?.balance;
+  return typeof balance === "number" ? balance : null;
+}
+
+/**
+ * @param {{
+ *   syncBalance?: number | null,
+ *   syncDeduction?: number | null,
+ * }} props
+ */
+export default function ScanCreditBalanceCard({
+  syncBalance = null,
+  syncDeduction = null,
+}) {
   const [balance, setBalance] = useState(null);
   const [signedIn, setSignedIn] = useState(false);
   const [ready, setReady] = useState(false);
@@ -77,9 +94,9 @@ export default function CreditBalance() {
 
     /** @param {Event} event */
     const handleCreditsUpdated = (event) => {
-      const detailBalance = event?.detail?.balance;
-      if (typeof detailBalance === "number") {
-        setBalance(detailBalance);
+      const eventBalance = readBalanceFromEvent(event);
+      if (eventBalance !== null) {
+        setBalance(eventBalance);
         return;
       }
 
@@ -95,13 +112,42 @@ export default function CreditBalance() {
     };
   }, [configured, loadBalance]);
 
+  useEffect(() => {
+    if (typeof syncBalance === "number") {
+      setBalance(syncBalance);
+    }
+  }, [syncBalance]);
+
   if (!configured || !ready || !signedIn) {
     return null;
   }
 
+  const displayBalance = typeof syncBalance === "number" ? syncBalance : balance;
+  const showDeduction =
+    typeof syncDeduction === "number" &&
+    syncDeduction > 0 &&
+    typeof displayBalance === "number";
+
   return (
-    <Link href="/credits" className="credit-balance">
-      {balance === null ? "Credits" : `${balance} credits`}
-    </Link>
+    <section className="scan-credit-balance" aria-label="Credit balance">
+      <div className="scan-credit-balance__header">
+        <p className="scan-credit-balance__eyebrow">Available credits</p>
+        <Link href="/credits" className="scan-credit-balance__link">
+          Buy credits
+        </Link>
+      </div>
+
+      <p className="scan-credit-balance__value">
+        {displayBalance === null ? "—" : displayBalance}
+      </p>
+
+      {showDeduction ? (
+        <p className="scan-credit-balance__deduction" role="status">
+          −{syncDeduction} used · {displayBalance} remaining
+        </p>
+      ) : (
+        <p className="scan-credit-balance__hint">Scout 1 credit · Pro 2 credits</p>
+      )}
+    </section>
   );
 }
