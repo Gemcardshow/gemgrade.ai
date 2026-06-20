@@ -7,6 +7,9 @@ export default function AdminCreditsPage() {
       <header className="page__header">
         <h1>Admin Credits</h1>
         <p>Search beta testers and adjust credit balances.</p>
+        <p className="page__header-link">
+          <Link href="/admin">Back to dashboard</Link>
+        </p>
       </header>
 
       <AdminCreditsTool />
