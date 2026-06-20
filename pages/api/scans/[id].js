@@ -1,6 +1,7 @@
-import { createPagesApiClient, requireAuth } from "../../../lib/auth.js";
+import { requireAuth } from "../../../lib/auth.js";
 import { fetchUserScanById } from "../../../lib/scanHistory.js";
 import { hasSupabasePublicConfig } from "../../../lib/supabase/env.js";
+import { getServiceRoleClient } from "../../../lib/supabase/server.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -22,13 +23,19 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Scan id is required." });
   }
 
-  const supabase = createPagesApiClient(req, res);
+  const supabase = getServiceRoleClient();
   if (!supabase) {
-    return res.status(503).json({ error: "Supabase auth is not configured" });
+    return res.status(503).json({
+      error: "Supabase service role is not configured",
+    });
   }
 
   try {
-    const scan = await fetchUserScanById(supabase, user.id, scanId);
+    const scan = await fetchUserScanById(
+      supabase,
+      { userId: user.id, email: user.email },
+      scanId,
+    );
 
     if (!scan) {
       return res.status(404).json({ error: "Scan not found." });
