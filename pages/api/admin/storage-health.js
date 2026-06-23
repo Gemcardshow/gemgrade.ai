@@ -41,9 +41,25 @@ export default async function handler(req, res) {
     downloadOk = !error && Boolean(data);
   }
 
+  let attachResult = null;
   const scanId =
     typeof req.query.scanId === "string" ? req.query.scanId.trim() : "";
   let scanRow = null;
+
+  if (req.query.testAttach === "1" && scanId) {
+    const { attachScanImagesAfterInsert } = await import(
+      "../../../lib/scanImageStorage.js"
+    );
+    const sampleImage =
+      "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAALCAABAAEBAREA/8QAJgABAAAAAAAAAAAAAAAAAAAAAxABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQAAPwCf/9k=";
+    attachResult = await attachScanImagesAfterInsert(supabase, {
+      userId: admin.id,
+      scanId,
+      frontImage: sampleImage,
+      backImage: sampleImage,
+    });
+  }
+
   if (scanId) {
     const { data } = await supabase
       .from("scans")
@@ -60,6 +76,7 @@ export default async function handler(req, res) {
     bucketPresent: bucketIds.includes(SCAN_IMAGES_BUCKET),
     uploadError: uploadError?.message ?? null,
     downloadOk,
+    attachResult,
     scanRow,
   });
 }
