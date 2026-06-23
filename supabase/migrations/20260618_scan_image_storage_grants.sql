@@ -1,6 +1,10 @@
 -- Optional follow-up if scan-images uploads fail with permission errors.
 -- Safe to run after 20260617_scan_image_storage.sql
 
+ALTER TABLE public.scans
+  ADD COLUMN IF NOT EXISTS front_image text NULL,
+  ADD COLUMN IF NOT EXISTS back_image text NULL;
+
 GRANT ALL ON storage.objects TO service_role;
 GRANT ALL ON storage.buckets TO service_role;
 
