@@ -12,6 +12,7 @@ import {
   formatHistoryListCredits,
   formatHistoryListEra,
 } from "../lib/scanHistory.js";
+import ScanHistoryImage from "./ScanHistoryImage.jsx";
 
 export default function ScanHistoryList() {
   const [scans, setScans] = useState([]);
@@ -126,6 +127,9 @@ export default function ScanHistoryList() {
             <tr>
               <th>Date</th>
               <th>Mode</th>
+              <th className="scan-history__col-card" aria-label="Card">
+                <span className="scan-history__sr-only">Card</span>
+              </th>
               <th>Grade</th>
               <th>Confidence</th>
               <th>Credits</th>
@@ -136,19 +140,38 @@ export default function ScanHistoryList() {
           <tbody>
             {scans.map((scan) => (
               <tr key={scan.id}>
-                <td>{formatScanDate(scan.createdAt)}</td>
-                <td>
+                <td className="scan-history__cell scan-history__cell--date">
+                  {formatScanDate(scan.createdAt)}
+                </td>
+                <td className="scan-history__cell scan-history__cell--mode">
                   <span
                     className={`badge badge--mode-${scan.mode === "scout" ? "scout" : "pro"}`}
                   >
                     {formatScanModeLabel(scan.mode)}
                   </span>
                 </td>
-                <td>{formatGemGradeHeader(scan.grade)}</td>
-                <td>{formatHistoryListConfidence(scan)}</td>
-                <td>{formatHistoryListCredits(scan)}</td>
-                <td>{formatHistoryListEra(scan)}</td>
-                <td>
+                <td className="scan-history__cell scan-history__cell--thumb">
+                  <ScanHistoryImage
+                    scanId={scan.id}
+                    side="front"
+                    size="list"
+                    hasImage={scan.hasFrontImage}
+                    imageUrl={scan.frontThumbnailUrl}
+                  />
+                </td>
+                <td className="scan-history__cell scan-history__cell--grade">
+                  {formatGemGradeHeader(scan.grade)}
+                </td>
+                <td className="scan-history__cell scan-history__cell--confidence">
+                  {formatHistoryListConfidence(scan)}
+                </td>
+                <td className="scan-history__cell scan-history__cell--credits">
+                  {formatHistoryListCredits(scan)}
+                </td>
+                <td className="scan-history__cell scan-history__cell--era">
+                  {formatHistoryListEra(scan)}
+                </td>
+                <td className="scan-history__cell scan-history__cell--view">
                   <Link href={`/history/${scan.id}`} className="scan-history__link">
                     View
                   </Link>

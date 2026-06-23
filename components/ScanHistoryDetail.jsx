@@ -13,6 +13,7 @@ import {
   normalizeHistoryGradeResult,
 } from "../lib/scanHistory.js";
 import GradeResult from "./GradeResult.jsx";
+import ScanHistoryImage from "./ScanHistoryImage.jsx";
 
 /**
  * @param {{ scanId: string }} props
@@ -125,12 +126,42 @@ export default function ScanHistoryDetail({ scanId }) {
   return (
     <div className="scan-history-detail">
       <header className="scan-history-detail__header">
-        <p className="scan-history-detail__meta">
-          {formatScanDate(scan.createdAt)} · {formatScanModeLabel(scan.mode)} ·{" "}
-          {creditsMeta}
-          {scan.era ? ` · ${scan.era}` : ""}
-        </p>
+        <div className="scan-history-detail__hero">
+          <div className="scan-history-detail__hero-copy">
+            <p className="scan-history-detail__meta">
+              {formatScanDate(scan.createdAt)} · {formatScanModeLabel(scan.mode)} ·{" "}
+              {creditsMeta}
+              {scan.era ? ` · ${scan.era}` : ""}
+            </p>
+            <p className="scan-history-detail__confidence">
+              Confidence: {formatHistoryListConfidence(scan)}
+            </p>
+          </div>
+        </div>
       </header>
+
+      <section className="scan-history-detail__images" aria-label="Card images">
+        <figure className="scan-history-detail__figure">
+          <ScanHistoryImage
+            scanId={scan.id}
+            side="front"
+            size="detail"
+            hasImage={scan.hasFrontImage}
+            imageUrl={scan.frontThumbnailUrl}
+          />
+          <figcaption>Front</figcaption>
+        </figure>
+        <figure className="scan-history-detail__figure">
+          <ScanHistoryImage
+            scanId={scan.id}
+            side="back"
+            size="detail"
+            hasImage={scan.hasBackImage}
+            imageUrl={scan.backImageUrl}
+          />
+          <figcaption>Back</figcaption>
+        </figure>
+      </section>
 
       <GradeResult grade={safeGrade} mode={scan.mode} />
 
