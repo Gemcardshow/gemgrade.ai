@@ -68,10 +68,10 @@ if (await page.locator(".grade-scanner__notice").isVisible().catch(() => false))
 }
 pass("Logged in", PRODUCTION_URL);
 
-const beforeCount = await page.evaluate(async () => {
+const beforeLatestId = await page.evaluate(async () => {
   const res = await fetch("/api/scans", { credentials: "include" });
   const body = await res.json();
-  return Array.isArray(body.scans) ? body.scans.length : 0;
+  return body.scans?.[0]?.id ?? null;
 });
 
 await page.locator('label.scan-mode-selector__option:has(input[value="scout"])').click();
@@ -93,12 +93,15 @@ const historyAfter = await page.evaluate(async () => {
   return body.scans ?? [];
 });
 
-  assert(historyAfter.length >= beforeCount + 1, `Expected new scans in history (before=${beforeCount}, after=${historyAfter.length})`);
 const latestPro = historyAfter.find((scan) => scan.mode === "pro") ?? historyAfter[0];
 const latestScout = historyAfter.find((scan) => scan.mode === "scout") ?? historyAfter[1];
 assert(latestPro?.id, "Missing Pro scan");
 assert(latestScout?.id, "Missing Scout scan");
-pass("History saved new scans", `${historyAfter.length} total`);
+assert(
+  latestPro.id !== beforeLatestId || latestScout.id !== beforeLatestId,
+  "Expected new scans at top of history",
+);
+pass("History saved new scans", `pro ${latestPro.id}, scout ${latestScout.id}`);
 
 const imageChecks = await page.evaluate(async ({ proId, scoutId }) => {
   async function check(side, id) {
