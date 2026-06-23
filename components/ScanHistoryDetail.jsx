@@ -4,7 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
-import { formatScanDate, formatScanModeLabel } from "../lib/scanHistory.js";
+import {
+  formatScanDate,
+  formatScanModeLabel,
+  formatHistoryListConfidence,
+  formatHistoryListCredits,
+  formatHistoryListEra,
+  normalizeHistoryGradeResult,
+} from "../lib/scanHistory.js";
 import GradeResult from "./GradeResult.jsx";
 
 /**
@@ -108,19 +115,24 @@ export default function ScanHistoryDetail({ scanId }) {
     return <p className="scan-history__error">Scan not found.</p>;
   }
 
+  const safeGrade = normalizeHistoryGradeResult(scan);
+  const creditsLabel = formatHistoryListCredits(scan);
+  const creditsMeta =
+    creditsLabel === "—"
+      ? "Credits unavailable"
+      : `${creditsLabel} credit${scan.creditsUsed === 1 ? "" : "s"}`;
+
   return (
     <div className="scan-history-detail">
       <header className="scan-history-detail__header">
         <p className="scan-history-detail__meta">
           {formatScanDate(scan.createdAt)} · {formatScanModeLabel(scan.mode)} ·{" "}
-          {scan.creditsUsed != null
-            ? `${scan.creditsUsed} credit${scan.creditsUsed === 1 ? "" : "s"}`
-            : "Credits unavailable"}
+          {creditsMeta}
           {scan.era ? ` · ${scan.era}` : ""}
         </p>
       </header>
 
-      <GradeResult grade={scan.result} mode={scan.mode} />
+      <GradeResult grade={safeGrade} mode={scan.mode} />
 
       {scan.verdict ? (
         <article className="grade-card">

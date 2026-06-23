@@ -8,6 +8,9 @@ import { formatGemGradeHeader } from "../lib/gradePresentation.js";
 import {
   formatScanDate,
   formatScanModeLabel,
+  formatHistoryListConfidence,
+  formatHistoryListCredits,
+  formatHistoryListEra,
 } from "../lib/scanHistory.js";
 
 export default function ScanHistoryList() {
@@ -142,13 +145,9 @@ export default function ScanHistoryList() {
                   </span>
                 </td>
                 <td>{formatGemGradeHeader(scan.grade)}</td>
-                <td>
-                  {scan.mode === "scout"
-                    ? scan.confidence || "—"
-                    : "—"}
-                </td>
-                <td>{scan.creditsUsed ?? "—"}</td>
-                <td>{scan.era || "—"}</td>
+                <td>{formatHistoryListConfidence(scan)}</td>
+                <td>{formatHistoryListCredits(scan)}</td>
+                <td>{formatHistoryListEra(scan)}</td>
                 <td>
                   <Link href={`/history/${scan.id}`} className="scan-history__link">
                     View
