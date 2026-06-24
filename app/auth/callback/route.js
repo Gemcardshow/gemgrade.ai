@@ -1,7 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { ensureCreditProfile } from "../../../lib/credits.js";
+import { fulfillPendingGrantsForEmail } from "../../../lib/shopifyCredits.js";
 import { getSupabaseAnonKey, getSupabaseUrl } from "../../../lib/supabase/env.js";
+import { getServiceRoleClient } from "../../../lib/supabase/server.js";
 
 /** @param {import("next/server").NextRequest} request */
 export async function GET(request) {
@@ -40,10 +43,26 @@ export async function GET(request) {
     },
   });
 
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
     return NextResponse.redirect(`${origin}/login?error=auth_callback_error`);
+  }
+
+  const serviceSupabase = getServiceRoleClient();
+  const user = sessionData.user;
+
+  if (serviceSupabase && user) {
+    try {
+      await ensureCreditProfile(serviceSupabase, user.id, user.email ?? "");
+      await fulfillPendingGrantsForEmail(
+        serviceSupabase,
+        user.id,
+        user.email ?? "",
+      );
+    } catch (fulfillError) {
+      console.error("auth callback pending grant fulfillment failed:", fulfillError);
+    }
   }
 
   return response;

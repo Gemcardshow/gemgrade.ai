@@ -3,6 +3,7 @@ import {
   ensureCreditProfile,
   getCreditBalanceSummary,
 } from "../../../lib/credits.js";
+import { fulfillPendingGrantsForEmail } from "../../../lib/shopifyCredits.js";
 import { hasSupabasePublicConfig } from "../../../lib/supabase/env.js";
 import { getServiceRoleClient } from "../../../lib/supabase/server.js";
 
@@ -31,6 +32,11 @@ export default async function handler(req, res) {
     if (serviceSupabase) {
       try {
         await ensureCreditProfile(
+          serviceSupabase,
+          user.id,
+          user.email ?? "",
+        );
+        await fulfillPendingGrantsForEmail(
           serviceSupabase,
           user.id,
           user.email ?? "",
