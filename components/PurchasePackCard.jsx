@@ -1,35 +1,23 @@
-"use client";
-
 /**
  * @param {{
- *   packKey: string,
  *   label: string,
  *   credits: number,
- *   disabled?: boolean,
- *   loading?: boolean,
- *   onPurchase: (packKey: string) => void,
+ *   checkoutUrl: string,
  * }} props
  */
-export default function PurchasePackCard({
-  packKey,
-  label,
-  credits,
-  disabled = false,
-  loading = false,
-  onPurchase,
-}) {
+export default function PurchasePackCard({ label, credits, checkoutUrl }) {
   return (
     <article className="purchase-pack">
       <h2>{label}</h2>
       <p className="purchase-pack__credits">{credits} credits</p>
-      <button
-        type="button"
+      <a
+        href={checkoutUrl}
         className="btn btn--primary"
-        disabled={disabled || loading}
-        onClick={() => onPurchase(packKey)}
+        target="_blank"
+        rel="noopener noreferrer"
       >
-        {loading ? "Purchasing..." : "Purchase (placeholder)"}
-      </button>
+        Buy on Gem Card Show
+      </a>
     </article>
   );
 }

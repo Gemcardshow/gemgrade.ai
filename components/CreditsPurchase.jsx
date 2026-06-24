@@ -8,17 +8,36 @@ import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 
 const PACK_CATALOG = [
-  { key: "starter", label: "Starter", credits: 10 },
-  { key: "standard", label: "Standard", credits: 50 },
-  { key: "pro", label: "Pro", credits: 100 },
+  {
+    key: "10",
+    label: "10 scans",
+    credits: 10,
+    checkoutUrl: "https://gemcardshow.com/products/10-pro-scans",
+  },
+  {
+    key: "25",
+    label: "25 scans",
+    credits: 25,
+    checkoutUrl: "https://gemcardshow.com/products/25-pro-scans",
+  },
+  {
+    key: "50",
+    label: "50 scans",
+    credits: 50,
+    checkoutUrl: "https://gemcardshow.com/products/50-pro-scans",
+  },
+  {
+    key: "100",
+    label: "100 scans",
+    credits: 100,
+    checkoutUrl: "https://gemcardshow.com/products/100-gemgrade-pro-scans",
+  },
 ];
 
 export default function CreditsPurchase() {
   const [signedIn, setSignedIn] = useState(false);
   const [ready, setReady] = useState(false);
   const [balance, setBalance] = useState(null);
-  const [activePack, setActivePack] = useState(null);
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [configured] = useState(() => hasUsableSupabasePublicConfig());
 
@@ -68,7 +87,16 @@ export default function CreditsPurchase() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSignedIn(Boolean(session?.user));
+      const isSignedIn = Boolean(session?.user);
+      setSignedIn(isSignedIn);
+
+      if (isSignedIn) {
+        loadBalance().catch(() => {
+          setError("Unable to load credit balance.");
+        });
+      } else {
+        setBalance(null);
+      }
     });
 
     return () => {
@@ -76,43 +104,6 @@ export default function CreditsPurchase() {
       subscription.unsubscribe();
     };
   }, [configured, loadBalance]);
-
-  async function handlePurchase(packKey) {
-    setActivePack(packKey);
-    setMessage("");
-    setError("");
-
-    try {
-      const response = await fetchAuthed("/api/credits/purchase", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ pack: packKey }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Purchase failed.");
-      }
-
-      setBalance(data.balance);
-      setMessage(
-        `Added ${data.creditsGranted} credits. New balance: ${data.balance}.`,
-      );
-      window.dispatchEvent(new Event("credits-updated"));
-    } catch (purchaseError) {
-      const text =
-        purchaseError instanceof Error
-          ? purchaseError.message
-          : "Purchase failed.";
-      setError(text);
-    } finally {
-      setActivePack(null);
-    }
-  }
 
   if (!configured) {
     return (
@@ -129,7 +120,7 @@ export default function CreditsPurchase() {
   if (!signedIn) {
     return (
       <div className="credits-page__sign-in">
-        <p>Sign in to view your balance and purchase placeholder credits.</p>
+        <p>Sign in to view your balance and purchase scan credits.</p>
         <Link href="/login">Sign in</Link>
       </div>
     );
@@ -143,25 +134,21 @@ export default function CreditsPurchase() {
       </p>
 
       <p className="credits-page__note">
-        Placeholder purchase mode — credits are granted instantly for testing.
-        Real payments will replace this in a later sprint.
+        Use the same email at checkout that you use for your GemGrade account.
+        Credits are added automatically after payment.
       </p>
 
       <div className="credits-page__packs">
         {PACK_CATALOG.map((pack) => (
           <PurchasePackCard
             key={pack.key}
-            packKey={pack.key}
             label={pack.label}
             credits={pack.credits}
-            loading={activePack === pack.key}
-            disabled={activePack !== null && activePack !== pack.key}
-            onPurchase={handlePurchase}
+            checkoutUrl={pack.checkoutUrl}
           />
         ))}
       </div>
 
-      {message ? <p className="credits-page__message">{message}</p> : null}
       {error ? <p className="credits-page__error">{error}</p> : null}
     </div>
   );
