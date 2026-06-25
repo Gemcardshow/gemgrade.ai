@@ -93,18 +93,32 @@ code {
   font-size: 14px;
 }
 
-.site-brand {
+.site-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   margin-right: auto;
+  white-space: nowrap;
+}
+
+.site-brand {
   font-family: var(--font-display, Georgia, "Times New Roman", serif);
   font-size: 1.15rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--gold-bright);
-  white-space: nowrap;
 }
 
-.site-brand:hover {
+.site-brand__sep {
+  color: var(--text-muted);
+  font-family: var(--font-display, Georgia, "Times New Roman", serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.site-brand:hover,
+.site-brand-group a.site-brand:hover {
   color: var(--gold);
 }
 

@@ -1,6 +1,7 @@
 import {
   formatGemGradeValue,
   formatLikelyRangeDisplay,
+  formatVerdictDisplay,
 } from "../lib/gradePresentation.js";
 
 const CATEGORY_LABELS = {
@@ -102,7 +103,9 @@ export default function ProGradeResult({ grade }) {
       {grade.verdict ? (
         <article className="grade-card grade-card--verdict">
           <h3>Verdict</h3>
-          <pre className="grade-result__verdict">{grade.verdict}</pre>
+          <pre className="grade-result__verdict">
+            {formatVerdictDisplay(grade.verdict)}
+          </pre>
         </article>
       ) : null}
 

@@ -1,7 +1,10 @@
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import AuthStatus from "../components/AuthStatus.jsx";
-import { GEMGRADE_DISCLAIMER } from "../lib/gradePresentation.js";
+import {
+  GEMGRADE_DISCLAIMER,
+  SITE_TITLE,
+} from "../lib/gradePresentation.js";
 
 const display = Cormorant_Garamond({
   subsets: ["latin"],
@@ -15,8 +18,12 @@ const body = Inter({
 });
 
 export const metadata = {
-  title: "GemGrade AI",
-  description: "Independent sports card grading estimates",
+  title: {
+    default: SITE_TITLE,
+    template: `%s · ${SITE_TITLE}`,
+  },
+  description:
+    "Professional sports card grading estimates from Gem Card Show — Scout to buy, Pro to know what you have.",
 };
 
 export default function RootLayout({ children }) {
