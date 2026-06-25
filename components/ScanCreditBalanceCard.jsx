@@ -140,14 +140,14 @@ export default function ScanCreditBalanceCard({
       ? "—"
       : displayBalance;
 
+  const scoutScans =
+    typeof displayBalance === "number" ? displayBalance : null;
+  const proScans =
+    typeof displayBalance === "number" ? Math.floor(displayBalance / 2) : null;
+
   return (
-    <section className="scan-credit-balance" aria-label="Credit balance">
-      <div className="scan-credit-balance__header">
-        <p className="scan-credit-balance__eyebrow">Available credits</p>
-        <Link href="/credits" className="scan-credit-balance__link">
-          Buy credits
-        </Link>
-      </div>
+    <section className="scan-credit-balance" aria-label="Available credits">
+      <p className="scan-credit-balance__eyebrow">Available Credits</p>
 
       <p className="scan-credit-balance__value">{balanceLabel}</p>
 
@@ -156,8 +156,21 @@ export default function ScanCreditBalanceCard({
           −{syncDeduction} used · {displayBalance} remaining
         </p>
       ) : (
-        <p className="scan-credit-balance__hint">Scout 1 credit · Pro 2 credits</p>
+        <div className="scan-credit-balance__breakdown">
+          <p className="scan-credit-balance__scan-line">
+            Scout:{" "}
+            {scoutScans === null ? "—" : `${scoutScans} scan${scoutScans === 1 ? "" : "s"}`}
+          </p>
+          <p className="scan-credit-balance__scan-line">
+            Pro:{" "}
+            {proScans === null ? "—" : `${proScans} scan${proScans === 1 ? "" : "s"}`}
+          </p>
+        </div>
       )}
+
+      <Link href="/credits" className="scan-credit-balance__buy">
+        Buy Credits
+      </Link>
     </section>
   );
 }

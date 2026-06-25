@@ -3,6 +3,7 @@ import "./globals.css";
 import AuthStatus from "../components/AuthStatus.jsx";
 import {
   GEMGRADE_DISCLAIMER,
+  GEMGRADE_FOOTER_TAGLINE,
   SITE_TITLE,
 } from "../lib/gradePresentation.js";
 
@@ -23,7 +24,7 @@ export const metadata = {
     template: `%s · ${SITE_TITLE}`,
   },
   description:
-    "Professional sports card grading estimates from Gem Card Show — Scout to buy, Pro to know what you have.",
+    "Professional AI pre-grade estimates from Gem Card Show — Scout to buy, Pro to know what you have.",
 };
 
 export default function RootLayout({ children }) {
@@ -34,6 +35,7 @@ export default function RootLayout({ children }) {
         {children}
         <footer className="site-footer">
           <p>{GEMGRADE_DISCLAIMER}</p>
+          <p className="site-footer__tagline">{GEMGRADE_FOOTER_TAGLINE}</p>
         </footer>
       </body>
     </html>

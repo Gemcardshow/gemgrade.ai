@@ -19,19 +19,67 @@ const SCAN_MODES = [
     value: "scout",
     label: "Scout",
     tagline: "Know what to buy",
+    description: "Find the cards worth grading.",
     credits: 1,
+    submitLabel: "Estimate with Scout",
   },
   {
     value: "pro",
     label: "Pro",
     tagline: "Know what you have",
+    description:
+      "Complete grading analysis with centering, corners, edges, surface, confidence, and detailed explanations.",
     credits: 2,
+    submitLabel: "Estimate with GemGrade Pro",
   },
 ];
 
+function UploadIcon() {
+  return (
+    <svg
+      className="grade-scanner__upload-icon"
+      width="32"
+      height="32"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M12 15V5M12 5L8 9M12 5L16 9"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5 15v2a2 2 0 002 2h10a2 2 0 002-2v-2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/**
+ * @param {HTMLInputElement | null} input
+ * @param {File | undefined} file
+ * @param {(event: { target: HTMLInputElement }) => void} onChange
+ */
+function assignFileToInput(input, file, onChange) {
+  if (!input || !(file instanceof File) || file.size === 0) {
+    return;
+  }
+
+  const transfer = new DataTransfer();
+  transfer.items.add(file);
+  input.files = transfer.files;
+  onChange({ target: input });
+}
+
 /**
  * @param {{
- *   label: string,
+ *   title: string,
  *   name: string,
  *   preview: string | null,
  *   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void,
@@ -41,7 +89,7 @@ const SCAN_MODES = [
  * }} props
  */
 function ImageUploadField({
-  label,
+  title,
   name,
   preview,
   onChange,
@@ -49,35 +97,62 @@ function ImageUploadField({
   hint = null,
   inputRef = null,
 }) {
+  function handleDragOver(event) {
+    event.preventDefault();
+    event.currentTarget.classList.add("grade-scanner__dropzone--active");
+  }
+
+  function handleDragLeave(event) {
+    event.currentTarget.classList.remove("grade-scanner__dropzone--active");
+  }
+
+  function handleDrop(event) {
+    event.preventDefault();
+    event.currentTarget.classList.remove("grade-scanner__dropzone--active");
+    const file = event.dataTransfer.files?.[0];
+    assignFileToInput(event.currentTarget.querySelector("input"), file, onChange);
+  }
+
   return (
     <label className="grade-scanner__upload">
       <span className="grade-scanner__upload-label">
-        {label}
+        {title}
         {hint}
       </span>
-      <input
-        ref={inputRef}
-        type="file"
-        name={name}
-        accept="image/*"
-        required={required}
-        onChange={onChange}
-      />
-      <div className="grade-scanner__preview-wrap">
-        {preview ? (
-          <img
-            src={preview}
-            alt={`${label} preview`}
-            className="grade-scanner__preview"
-          />
-        ) : (
-          <div className="grade-scanner__preview-placeholder">
-            <span className="grade-scanner__preview-placeholder-label">{label}</span>
-            <span className="grade-scanner__preview-placeholder-text">
-              No image selected
-            </span>
-          </div>
-        )}
+      <div
+        className="grade-scanner__dropzone"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <input
+          ref={inputRef}
+          className="grade-scanner__file-input"
+          type="file"
+          name={name}
+          accept="image/*"
+          required={required}
+          onChange={onChange}
+        />
+        <div className="grade-scanner__preview-wrap">
+          {preview ? (
+            <img
+              src={preview}
+              alt={`${title} preview`}
+              className="grade-scanner__preview"
+            />
+          ) : (
+            <div className="grade-scanner__preview-placeholder">
+              <UploadIcon />
+              <span className="grade-scanner__preview-placeholder-label">
+                {title}
+              </span>
+              <span className="grade-scanner__preview-placeholder-text">
+                Drag &amp; Drop or Click to Browse
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </label>
   );
@@ -286,7 +361,7 @@ export default function GradeScanner({ email = "" }) {
         />
 
         <fieldset className="scan-mode-selector">
-          <legend>Scan mode</legend>
+          <legend>Pre-grade mode</legend>
           <div className="scan-mode-selector__options">
             {SCAN_MODES.map((mode) => (
               <label key={mode.value} className="scan-mode-selector__option">
@@ -302,6 +377,9 @@ export default function GradeScanner({ email = "" }) {
                 <span className="scan-mode-selector__credits">
                   {mode.credits} credit{mode.credits === 1 ? "" : "s"}
                 </span>
+                <span className="scan-mode-selector__description">
+                  {mode.description}
+                </span>
               </label>
             ))}
           </div>
@@ -309,7 +387,7 @@ export default function GradeScanner({ email = "" }) {
 
         <div className="grade-scanner__uploads">
           <ImageUploadField
-            label="Front image"
+            title="Upload Front Image"
             name="frontImage"
             preview={frontPreview}
             required
@@ -317,7 +395,7 @@ export default function GradeScanner({ email = "" }) {
           />
 
           <ImageUploadField
-            label="Back image"
+            title="Upload Back Image"
             name="backImage"
             preview={backPreview}
             required={!isScoutMode}
@@ -340,12 +418,10 @@ export default function GradeScanner({ email = "" }) {
 
         <button
           type="submit"
-          className="btn btn--primary"
+          className="btn btn--primary btn--scan"
           disabled={loading || (configured && !signedIn)}
         >
-          {loading
-            ? "Scanning..."
-            : `Scan with ${selectedMode.label} (${selectedMode.credits} credit${selectedMode.credits === 1 ? "" : "s"})`}
+          {loading ? "Estimating..." : selectedMode.submitLabel}
         </button>
 
         <ScanProgress activeStep={loadingStep} />
