@@ -35,12 +35,13 @@ export default function ProGradeResult({ grade }) {
               {formatGemGradeValue(grade.psaGrade)}
             </span>
           </h2>
+          {grade.likelyRange ? (
+            <p className="grade-result__confidence-range">
+              {formatLikelyRangeDisplay(grade.likelyRange)}
+            </p>
+          ) : null}
           <p className="grade-result__meta">
-            Internal {grade.internalGrade}
-            {grade.likelyRange
-              ? ` · ${formatLikelyRangeDisplay(grade.likelyRange)}`
-              : ""}{" "}
-            · Detected era: {grade.era} ({grade.eraSource})
+            Detected era: {grade.era} ({grade.eraSource})
           </p>
         </div>
       </header>
@@ -102,9 +103,11 @@ export default function ProGradeResult({ grade }) {
 
       {grade.verdict ? (
         <article className="grade-card grade-card--verdict">
-          <h3>Verdict</h3>
+          <h3>Detailed Analysis</h3>
           <pre className="grade-result__verdict">
-            {formatVerdictDisplay(grade.verdict)}
+            {formatVerdictDisplay(grade.verdict, {
+              headlineGrade: grade.psaGrade,
+            })}
           </pre>
         </article>
       ) : null}

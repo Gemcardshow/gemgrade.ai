@@ -165,13 +165,6 @@ export default function ScanHistoryDetail({ scanId }) {
 
       <GradeResult grade={safeGrade} mode={scan.mode} />
 
-      {scan.verdict ? (
-        <article className="grade-card">
-          <h3>Verdict</h3>
-          <p className="grade-result__verdict">{scan.verdict}</p>
-        </article>
-      ) : null}
-
       <p>
         <Link href="/history">Back to scan history</Link>
       </p>

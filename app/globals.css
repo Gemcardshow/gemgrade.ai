@@ -957,6 +957,13 @@ code {
   text-shadow: 0 0 40px var(--gold-glow);
 }
 
+.grade-result__confidence-range {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 .grade-result__meta,
 .grade-result__tag,
 .grade-result__upsell {

@@ -30,7 +30,7 @@ export default function ScoutResult({ grade }) {
           </span>
         </h2>
         {grade.likelyRange ? (
-          <p className="grade-result__meta">
+          <p className="grade-result__confidence-range">
             {formatLikelyRangeDisplay(grade.likelyRange)}
           </p>
         ) : null}
