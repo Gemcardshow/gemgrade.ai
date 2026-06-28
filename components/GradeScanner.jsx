@@ -78,6 +78,19 @@ function assignFileToInput(input, file, onChange) {
 }
 
 /**
+ * @param {HTMLElement | null} dropzone
+ * @returns {HTMLInputElement | null}
+ */
+function getCameraInput(dropzone) {
+  if (!dropzone) {
+    return null;
+  }
+
+  const input = dropzone.querySelector(".grade-scanner__file-input--camera");
+  return input instanceof HTMLInputElement ? input : null;
+}
+
+/**
  * @param {{
  *   title: string,
  *   name: string,
@@ -97,6 +110,10 @@ function ImageUploadField({
   hint = null,
   inputRef = null,
 }) {
+  const localCameraRef = useRef(null);
+  const galleryInputRef = useRef(null);
+  const cameraInputRef = inputRef ?? localCameraRef;
+
   function handleDragOver(event) {
     event.preventDefault();
     event.currentTarget.classList.add("grade-scanner__dropzone--active");
@@ -110,27 +127,34 @@ function ImageUploadField({
     event.preventDefault();
     event.currentTarget.classList.remove("grade-scanner__dropzone--active");
     const file = event.dataTransfer.files?.[0];
-    assignFileToInput(event.currentTarget.querySelector("input"), file, onChange);
+    assignFileToInput(getCameraInput(event.currentTarget), file, onChange);
+  }
+
+  function handleGalleryChange(event) {
+    const file = event.target.files?.[0];
+    assignFileToInput(cameraInputRef.current, file, onChange);
+    event.target.value = "";
   }
 
   return (
-    <label className="grade-scanner__upload">
+    <div className="grade-scanner__upload">
       <span className="grade-scanner__upload-label">
         {title}
         {hint}
       </span>
-      <div
+      <label
         className="grade-scanner__dropzone"
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
         <input
-          ref={inputRef}
-          className="grade-scanner__file-input"
+          ref={cameraInputRef}
+          className="grade-scanner__file-input grade-scanner__file-input--camera"
           type="file"
           name={name}
           accept="image/*"
+          capture="environment"
           required={required}
           onChange={onChange}
         />
@@ -147,14 +171,33 @@ function ImageUploadField({
               <span className="grade-scanner__preview-placeholder-label">
                 {title}
               </span>
-              <span className="grade-scanner__preview-placeholder-text">
+              <span className="grade-scanner__preview-placeholder-text grade-scanner__preview-placeholder-text--desktop">
                 Drag &amp; Drop or Click to Browse
+              </span>
+              <span className="grade-scanner__preview-placeholder-text grade-scanner__preview-placeholder-text--mobile">
+                Tap to take photo
               </span>
             </div>
           )}
         </div>
-      </div>
-    </label>
+      </label>
+      <button
+        type="button"
+        className="grade-scanner__gallery-link"
+        onClick={() => galleryInputRef.current?.click()}
+      >
+        Choose from gallery
+      </button>
+      <input
+        ref={galleryInputRef}
+        className="grade-scanner__file-input grade-scanner__file-input--gallery"
+        type="file"
+        accept="image/*"
+        tabIndex={-1}
+        aria-hidden="true"
+        onChange={handleGalleryChange}
+      />
+    </div>
   );
 }
 

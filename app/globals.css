@@ -446,6 +446,60 @@ code {
   cursor: pointer;
 }
 
+.grade-scanner__file-input--gallery {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.grade-scanner__gallery-link {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--gold-bright);
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.grade-scanner__gallery-link:hover {
+  color: var(--gold);
+}
+
+.grade-scanner__preview-placeholder-text--mobile {
+  display: block;
+}
+
+.grade-scanner__preview-placeholder-text--desktop {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .grade-scanner__gallery-link {
+    display: none;
+  }
+
+  .grade-scanner__preview-placeholder-text--mobile {
+    display: none;
+  }
+
+  .grade-scanner__preview-placeholder-text--desktop {
+    display: block;
+  }
+}
+
 .grade-scanner__form input[type="file"]::file-selector-button {
   display: none;
 }
