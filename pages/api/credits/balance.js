@@ -2,6 +2,7 @@ import { createPagesApiClient, requireAuth } from "../../../lib/auth.js";
 import {
   ensureCreditProfile,
   getCreditBalanceSummary,
+  grantSignupBonusIfEligible,
 } from "../../../lib/credits.js";
 import { fulfillPendingGrantsForEmail } from "../../../lib/shopifyCredits.js";
 import { hasSupabasePublicConfig } from "../../../lib/supabase/env.js";
@@ -35,6 +36,11 @@ export default async function handler(req, res) {
           serviceSupabase,
           user.id,
           user.email ?? "",
+        );
+        await grantSignupBonusIfEligible(
+          serviceSupabase,
+          user.id,
+          user.created_at,
         );
         await fulfillPendingGrantsForEmail(
           serviceSupabase,

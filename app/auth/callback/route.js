@@ -1,7 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { ensureCreditProfile } from "../../../lib/credits.js";
+import {
+  ensureCreditProfile,
+  grantSignupBonusIfEligible,
+} from "../../../lib/credits.js";
 import { fulfillPendingGrantsForEmail } from "../../../lib/shopifyCredits.js";
 import { getSupabaseAnonKey, getSupabaseUrl } from "../../../lib/supabase/env.js";
 import { getServiceRoleClient } from "../../../lib/supabase/server.js";
@@ -55,6 +58,11 @@ export async function GET(request) {
   if (serviceSupabase && user) {
     try {
       await ensureCreditProfile(serviceSupabase, user.id, user.email ?? "");
+      await grantSignupBonusIfEligible(
+        serviceSupabase,
+        user.id,
+        user.created_at,
+      );
       await fulfillPendingGrantsForEmail(
         serviceSupabase,
         user.id,
