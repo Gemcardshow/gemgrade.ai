@@ -10,7 +10,11 @@ export default function LoginPage({ searchParams }) {
     <main className="page">
       <header className="page__header">
         <h1>Sign in</h1>
-        <p>Use your email to receive a magic link.</p>
+        <p>
+          Enter your email and we&apos;ll send a login code. This works well on
+          iPads and card-show devices—check your email on any phone or computer,
+          then enter the code here.
+        </p>
       </header>
 
       {!configured ? (

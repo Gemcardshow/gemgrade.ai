@@ -1211,6 +1211,76 @@ code {
   color: var(--error);
 }
 
+.login-form__hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.login-form__code-section {
+  display: grid;
+  gap: 16px;
+}
+
+.login-form__code-input {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 1.25rem;
+  letter-spacing: 0.35em;
+  text-align: center;
+}
+
+.login-form__divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.login-form__divider::before,
+.login-form__divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+.login-form__magic-link-btn {
+  border-color: var(--border-gold);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.login-form__magic-link-btn:hover:not(:disabled) {
+  border-color: var(--border-gold-strong);
+  color: var(--text-primary);
+  background: rgba(226, 200, 122, 0.06);
+}
+
+.login-form__magic-link-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.login-form__different-email {
+  justify-self: start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.login-form__different-email:hover {
+  color: var(--text-secondary);
+}
+
 /* -------------------------------------------------------------------------- */
 /* Credits                                                                    */
 /* -------------------------------------------------------------------------- */
