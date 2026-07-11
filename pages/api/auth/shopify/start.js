@@ -6,8 +6,8 @@ import {
   sanitizeHandoffNextPath,
   ShopifyHandoffError,
   verifyShopifyAppProxySignature,
-} from "../../../lib/shopifyHandoffAuth.js";
-import { getServiceRoleClient } from "../../../lib/supabase/server.js";
+} from "../../../../lib/shopifyHandoffAuth.js";
+import { getServiceRoleClient } from "../../../../lib/supabase/server.js";
 
 function getSiteOrigin(req) {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
