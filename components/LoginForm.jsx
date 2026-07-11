@@ -46,7 +46,9 @@ export default function LoginForm({ callbackError }) {
   const [error, setError] = useState(
     callbackError === "auth_callback_error"
       ? "Sign-in link expired or was invalid. Request a new magic link."
-      : "",
+      : callbackError === "shopify_handoff_error"
+        ? "We could not continue from Gem Card Show. Sign in with your email below."
+        : "",
   );
   const [sendCodeLoading, setSendCodeLoading] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);

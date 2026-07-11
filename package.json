@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "npm run test:api && node --test lib/gradeHandler.test.js lib/credits.test.js lib/shopifyCredits.test.js lib/gradeScanGate.test.js lib/scoutPresentation.test.js lib/scanInputAdapter.test.js lib/scanHistory.test.js lib/scanImageStorage.test.js lib/adminAuth.test.js lib/adminCredits.test.js lib/adminDashboard.test.js lib/supabase/env.test.js lib/authRedirect.test.js lib/gradeScannerForm.test.js lib/gradePresentation.test.js",
+    "test": "npm run test:api && node --test lib/gradeHandler.test.js lib/credits.test.js lib/shopifyCredits.test.js lib/shopifyHandoffAuth.test.js lib/gradeScanGate.test.js lib/scoutPresentation.test.js lib/scanInputAdapter.test.js lib/scanHistory.test.js lib/scanImageStorage.test.js lib/adminAuth.test.js lib/adminCredits.test.js lib/adminDashboard.test.js lib/supabase/env.test.js lib/authRedirect.test.js lib/gradeScannerForm.test.js lib/gradePresentation.test.js",
     "test:api": "node --test lib/grading/engine.test.js",
     "benchmark:scan": "node benchmarks/scan-manifest.js",
     "benchmark:run": "node benchmarks/run-benchmark.js",
@@ -17,7 +17,14 @@
     "benchmark:psa46-engine-scorecard": "node benchmarks/build-psa46-engine-scorecard.js",
     "benchmark:psa46-miss-report": "node benchmarks/build-psa46-miss-report.js",
     "benchmark:psa46-root-cause": "node benchmarks/build-psa46-root-cause.js",
-    "benchmark:recovery-baseline": "node benchmarks/build-recovery-gating-baseline.js"
+    "benchmark:recovery-baseline": "node benchmarks/build-recovery-gating-baseline.js",
+    "benchmark:psa8910": "node benchmarks/run-psa8910-validation.mjs --resume --delay-ms 2000",
+    "benchmark:psa8910-report": "node benchmarks/run-psa8910-validation.mjs --report-only",
+    "benchmark:psa8910-recompute": "node benchmarks/run-psa8910-validation.mjs --recompute-from-cache",
+    "benchmark:psa8910-compare": "node benchmarks/compare-psa8910-benchmark.mjs",
+    "benchmark:psa8910-psa10-forensic": "node benchmarks/analyze-psa10-binding-caps.mjs",
+    "benchmark:psa8910-category-floor-sim": "node benchmarks/simulate-priority1-category-floor-mint-stack.mjs",
+    "benchmark:psa8910-nm-corner-sim": "node benchmarks/simulate-priority1-nm-corner-stack.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
