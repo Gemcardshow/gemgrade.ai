@@ -1,19 +1,21 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
+client_id = "75ed4c634fbbd0d6b42bb78212e2e3cb"
 name = "GemGrade Auth Handoff"
 application_url = "https://app.gemcardshow.com"
 embedded = false
-handle = "gemgrade-auth-handoff"
-
-# client_id is filled by `shopify app config link` / Dev Dashboard Settings
-client_id = "REPLACE_WITH_DEV_DASHBOARD_CLIENT_ID"
 
 [build]
 automatically_update_urls_on_dev = false
-include_config_on_deploy = true
+
+[webhooks]
+api_version = "2026-07"
 
 [access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "read_customers,write_app_proxy"
+optional_scopes = [ ]
+use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [
@@ -22,8 +24,5 @@ redirect_urls = [
 
 [app_proxy]
 url = "https://app.gemcardshow.com/api/auth/shopify/handoff"
-prefix = "apps"
 subpath = "gemgrade"
-
-[webhooks]
-api_version = "2025-01"
+prefix = "apps"
