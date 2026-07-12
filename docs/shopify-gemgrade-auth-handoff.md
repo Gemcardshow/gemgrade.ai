@@ -21,7 +21,7 @@ Evidence: visiting `/account` redirects to Shopify-hosted authentication with em
 Logged-in Shopify customer
   → Theme link /apps/gemgrade/handoff?next=/
   → Shopify App Proxy (HMAC signed)
-  → GemGrade GET /api/auth/shopify/start
+  → GemGrade GET /api/auth/shopify/handoff
       1. Verify App Proxy signature with SHOPIFY_API_SECRET
       2. Read logged_in_customer_id (no email in URL)
       3. Load verified email via Shopify Admin API
@@ -35,6 +35,18 @@ Logged-in Shopify customer
       4. Establish secure cookie session
       5. Signup bonus (if eligible) + fulfill pending Shopify credits
       6. Redirect to next path (default /)
+```
+
+Shopify Dev Dashboard / CLI config lives in `shopify.app.toml`:
+
+- App URL: `https://app.gemcardshow.com`
+- Redirect URL: `https://app.gemcardshow.com/api/auth/shopify/callback`
+- App proxy: `apps` / `gemgrade` → `https://app.gemcardshow.com/api/auth/shopify/handoff`
+
+Release with:
+
+```bash
+npx @shopify/cli app deploy --allow-updates
 ```
 
 Guest customers (not logged into Shopify) should link directly to:
@@ -70,11 +82,11 @@ Creates `shopify_auth_handoff_nonces` for single-use token enforcement.
 3. Install the app and copy:
    - **API secret key** → `SHOPIFY_API_SECRET` / optional `SHOPIFY_HANDOFF_SECRET`
    - **Admin API access token** → `SHOPIFY_ADMIN_ACCESS_TOKEN`
-4. Configure **App proxy**:
+4. Configure **App proxy** via `shopify.app.toml` / Dev Dashboard version:
    - Subpath prefix: `apps`
    - Subpath: `gemgrade`
-   - Proxy URL: `https://app.gemcardshow.com/api/auth/shopify/start`
-5. Save and ensure the app is installed on the live store.
+   - Proxy URL: `https://app.gemcardshow.com/api/auth/shopify/handoff`
+5. Save, install on the live store, and `shopify app deploy --allow-updates`.
 
 Storefront URL becomes:
 
