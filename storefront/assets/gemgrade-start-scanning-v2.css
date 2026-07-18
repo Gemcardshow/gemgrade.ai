@@ -6,8 +6,6 @@
   Dawn paints primary-button fill on ::before and a 1px ring on ::after.
   Those pseudos are reset here so the gold fill lives on the <a> itself and
   ::before is reserved for the GemGrade mark only.
-
-  Asset revision: 2026-07-18-cdn-bust-2
 */
 
 .banner__buttons a.button.button--primary[href*="app.gemcardshow.com"] {

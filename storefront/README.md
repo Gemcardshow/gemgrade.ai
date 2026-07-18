@@ -15,8 +15,9 @@ the app CSS never appeared on the homepage collectors actually see.
 
 | Path | Purpose |
 |------|---------|
-| `assets/gemgrade-start-scanning.css` | High-specificity gold CTA + official `logo1.jpg` mark |
-| `snippets/gemgrade-start-scanning-styles.liquid` | Stylesheet include for Dawn `theme.liquid` |
+| `assets/gemgrade-start-scanning-v2.css` | High-specificity gold CTA + official `logo1.jpg` mark (live CDN filename) |
+| `assets/gemgrade-start-scanning.css` | Prior filename kept for reference; live theme loads **v2** |
+| `snippets/gemgrade-start-scanning-styles.liquid` | Stylesheet include for Dawn `theme.liquid` → v2 |
 
 Official logo used (existing shop file, icon-only diamond “G”):
 `https://gemcardshow.com/cdn/shop/files/logo1.jpg`
