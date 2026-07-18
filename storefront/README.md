@@ -21,7 +21,27 @@ the app CSS never appeared on the homepage collectors actually see.
 Official logo used (existing shop file, icon-only diamond “G”):
 `https://gemcardshow.com/cdn/shop/files/logo1.jpg`
 
-## How to apply (requires owner approval — this is production storefront)
+## Preview theme (applied — not published)
+
+| Field | Value |
+|------|--------|
+| Theme name | **GemGrade CTA Preview** |
+| Theme ID | `196156129446` |
+| Role | `unpublished` (draft) |
+| Duplicated from | live **Refresh** (`139590271142`) |
+| Preview URL | https://gemcardshow.com/?preview_theme_id=196156129446 |
+| Alternate preview | https://hidden-gem-sportcards.myshopify.com?preview_theme_id=196156129446 |
+| Theme editor | https://hidden-gem-sportcards.myshopify.com/admin/themes/196156129446/editor |
+
+Files pushed to that preview theme only:
+
+- `assets/gemgrade-start-scanning.css`
+- `snippets/gemgrade-start-scanning-styles.liquid`
+- `layout/theme.liquid` (adds `{% render 'gemgrade-start-scanning-styles' %}` after `{{ content_for_header }}`)
+
+**Do not publish** until the project owner explicitly approves.
+
+## How to apply to another theme copy
 
 **Option A — Theme code (recommended)**
 

@@ -11,3 +11,6 @@ build/
 Thumbs.db
 benchmarks/reports/
 benchmarks/cache/
+.vercel
+storefront/theme-preview/
+scripts/_shopify-theme-auth-check.mjs
