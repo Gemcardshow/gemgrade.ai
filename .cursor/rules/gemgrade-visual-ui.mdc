@@ -1,0 +1,35 @@
+---
+description: GemGrade brand colors, primary CTAs, and post-task UI review checklist
+alwaysApply: true
+---
+
+# GemGrade Visual & UI
+
+## Brand colors
+
+- Gold: `#D4AF37`
+- Black: `#111111`
+- White: `#FFFFFF`
+
+## Primary CTAs
+
+Primary buttons use GemGrade gold. Avoid default blue/white buttons unless justified.
+
+Required primary button traits:
+
+- Gold background, black bold text
+- 14–16px border radius, 56–60px height
+- Smooth transitions, hover lift, soft gold glow, pointer cursor
+
+Important actions must immediately draw attention.
+
+## UI review (after every task)
+
+As a senior UI/UX designer, check:
+
+- Does it look premium and match GemGrade?
+- Visually balanced? Primary action obvious?
+- Anything distracting? Spacing/typography consistent?
+- Can trust be improved?
+
+If improvements don't change functionality, make them—then briefly explain what you improved.

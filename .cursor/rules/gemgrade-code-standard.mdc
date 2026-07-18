@@ -1,0 +1,21 @@
+---
+description: Pre-completion checklist for mobile, a11y, states, performance, and visual consistency
+alwaysApply: true
+---
+
+# GemGrade Code Standard
+
+Before considering any task complete, verify and improve where needed:
+
+- Mobile experience
+- Desktop experience
+- Dark theme consistency
+- Performance impact
+- Accessibility
+- Error handling
+- Visual consistency
+- Loading states
+- Empty states
+- Responsive layout
+
+Do not mark work done until gaps in this list are fixed or explicitly called out with a reason.
