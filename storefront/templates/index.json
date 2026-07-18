@@ -1,0 +1,196 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "slideshow": {
+      "type": "slideshow",
+      "blocks": {
+        "slide_E3p397": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/ad4b.jpg",
+            "heading": "",
+            "heading_size": "h2",
+            "subheading": "",
+            "button_label": "Start Scanning",
+            "link": "https://app.gemcardshow.com",
+            "button_style_secondary": false,
+            "box_align": "bottom-center",
+            "show_text_box": true,
+            "text_alignment": "center",
+            "image_overlay_opacity": 0,
+            "color_scheme": "scheme-3",
+            "text_alignment_mobile": "center"
+          }
+        },
+        "slide_NBEzVa": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/homeslide2.png",
+            "heading": "",
+            "heading_size": "h1",
+            "subheading": "",
+            "button_label": "Shop Cards",
+            "link": "shopify://collections/all",
+            "button_style_secondary": true,
+            "box_align": "middle-left",
+            "show_text_box": true,
+            "text_alignment": "center",
+            "image_overlay_opacity": 0,
+            "color_scheme": "scheme-1",
+            "text_alignment_mobile": "center"
+          }
+        },
+        "slide_zpTHDh": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/GemBanner3.jpg",
+            "heading": "GemGrade AI",
+            "heading_size": "h2",
+            "subheading": "Know Before You Grade",
+            "button_label": "Browse Products",
+            "link": "shopify://collections/all",
+            "button_style_secondary": false,
+            "box_align": "bottom-right",
+            "show_text_box": true,
+            "text_alignment": "center",
+            "image_overlay_opacity": 0,
+            "color_scheme": "scheme-1",
+            "text_alignment_mobile": "center"
+          }
+        },
+        "slide-0": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/Why3_91adef51-7e60-4d2d-b2b9-c3fc96aa787c.png",
+            "heading": "Know Before You Grade",
+            "heading_size": "h2",
+            "subheading": "",
+            "button_label": "View Collection",
+            "link": "shopify://collections/all",
+            "button_style_secondary": false,
+            "box_align": "bottom-right",
+            "show_text_box": true,
+            "text_alignment": "center",
+            "image_overlay_opacity": 10,
+            "color_scheme": "scheme-4",
+            "text_alignment_mobile": "left"
+          }
+        }
+      },
+      "block_order": [
+        "slide_E3p397",
+        "slide_NBEzVa",
+        "slide_zpTHDh",
+        "slide-0"
+      ],
+      "settings": {
+        "layout": "full_bleed",
+        "slide_height": "adapt_image",
+        "slider_visual": "counter",
+        "auto_rotate": false,
+        "change_slides_speed": 7,
+        "image_behavior": "none",
+        "show_text_below": true,
+        "accessibility_info": "Slideshow about our brand"
+      }
+    },
+    "featured-collection-0": {
+      "type": "featured-collection",
+      "disabled": true,
+      "settings": {
+        "title": "Featured products",
+        "heading_size": "h2",
+        "description": "",
+        "show_description": false,
+        "description_style": "body",
+        "collection": "gemgrade-ai",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "full_width": false,
+        "show_view_all": false,
+        "view_all_style": "solid",
+        "enable_desktop_slider": false,
+        "color_scheme": "scheme-1",
+        "image_ratio": "portrait",
+        "image_shape": "default",
+        "show_secondary_image": false,
+        "show_vendor": false,
+        "show_rating": false,
+        "quick_add": "standard",
+        "columns_mobile": "2",
+        "swipe_on_mobile": false,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "gem_card_show_slider_ELx7G8": {
+      "type": "gem-card-show-slider",
+      "name": "Gem Card Show Slider",
+      "settings": {
+        "collection": ""
+      }
+    },
+    "newsletter_6YHXyj": {
+      "type": "newsletter",
+      "blocks": {
+        "heading_ArJXDz": {
+          "type": "heading",
+          "settings": {
+            "heading": "Join the GemGrade Community 💎",
+            "heading_size": "h1"
+          }
+        },
+        "paragraph_DpPYMK": {
+          "type": "paragraph",
+          "settings": {
+            "text": "<p>Get AI grading tips, market insights, exclusive offers, and early access to new GemGrade features.</p>"
+          }
+        },
+        "email_form_qUHykb": {
+          "type": "email_form",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "heading_ArJXDz",
+        "paragraph_DpPYMK",
+        "email_form_qUHykb"
+      ],
+      "name": "t:sections.newsletter.presets.name",
+      "settings": {
+        "color_scheme": "",
+        "full_width": true,
+        "padding_top": 40,
+        "padding_bottom": 52
+      }
+    },
+    "gem_card_show_recently_sold_WJaBrK": {
+      "type": "gem-card-show-recently-sold",
+      "name": "Recently Sold",
+      "settings": {}
+    },
+    "gem_card_show_live_products_a96E9H": {
+      "type": "gem-card-show-live-products",
+      "name": "Live Products",
+      "settings": {
+        "collection": ""
+      }
+    }
+  },
+  "order": [
+    "slideshow",
+    "featured-collection-0",
+    "gem_card_show_slider_ELx7G8",
+    "newsletter_6YHXyj",
+    "gem_card_show_recently_sold_WJaBrK",
+    "gem_card_show_live_products_a96E9H"
+  ]
+}
