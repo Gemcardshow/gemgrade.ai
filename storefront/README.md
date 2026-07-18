@@ -25,7 +25,7 @@ Official logo used (existing shop file, icon-only diamond “G”):
 
 | Field | Value |
 |------|--------|
-| **Live theme** | **GemGrade CTA Preview** (`196156129446`) |
+| **Live theme** | **Refresh + GemGrade CTA** (`196156129446`) |
 | Live URL | https://gemcardshow.com/ |
 | **Backup of prior live** | **Refresh backup pre-CTA 2026-07-18** (`196156588198`, unpublished) |
 | Prior live (also retained) | **Refresh** (`139590271142`, unpublished after publish) |
@@ -34,7 +34,7 @@ Official logo used (existing shop file, icon-only diamond “G”):
 
 | Field | Value |
 |------|--------|
-| Theme name | **GemGrade CTA Preview** |
+| Theme name | **Refresh + GemGrade CTA** (renamed from GemGrade CTA Preview) |
 | Theme ID | `196156129446` |
 | Role | was `unpublished`; now **live** |
 | Duplicated from | live **Refresh** (`139590271142`) |
