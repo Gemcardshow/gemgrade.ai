@@ -21,25 +21,31 @@ the app CSS never appeared on the homepage collectors actually see.
 Official logo used (existing shop file, icon-only diamond “G”):
 `https://gemcardshow.com/cdn/shop/files/logo1.jpg`
 
-## Preview theme (applied — not published)
+## Live theme (published 2026-07-18)
+
+| Field | Value |
+|------|--------|
+| **Live theme** | **GemGrade CTA Preview** (`196156129446`) |
+| Live URL | https://gemcardshow.com/ |
+| **Backup of prior live** | **Refresh backup pre-CTA 2026-07-18** (`196156588198`, unpublished) |
+| Prior live (also retained) | **Refresh** (`139590271142`, unpublished after publish) |
+
+## Preview theme history
 
 | Field | Value |
 |------|--------|
 | Theme name | **GemGrade CTA Preview** |
 | Theme ID | `196156129446` |
-| Role | `unpublished` (draft) |
+| Role | was `unpublished`; now **live** |
 | Duplicated from | live **Refresh** (`139590271142`) |
-| Preview URL | https://gemcardshow.com/?preview_theme_id=196156129446 |
-| Alternate preview | https://hidden-gem-sportcards.myshopify.com?preview_theme_id=196156129446 |
+| Preview URL (historical) | https://gemcardshow.com/?preview_theme_id=196156129446 |
 | Theme editor | https://hidden-gem-sportcards.myshopify.com/admin/themes/196156129446/editor |
 
-Files pushed to that preview theme only:
+Files on this theme:
 
 - `assets/gemgrade-start-scanning.css`
 - `snippets/gemgrade-start-scanning-styles.liquid`
 - `layout/theme.liquid` (adds `{% render 'gemgrade-start-scanning-styles' %}` after `{{ content_for_header }}`)
-
-**Do not publish** until the project owner explicitly approves.
 
 ## How to apply to another theme copy
 
