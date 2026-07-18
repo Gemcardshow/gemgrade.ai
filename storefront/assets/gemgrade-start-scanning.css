@@ -1,0 +1,117 @@
+/*
+  GemGrade — Start Scanning CTA (Shopify Dawn slideshow)
+  Targets only the homepage hero primary button that links to the GemGrade app.
+  Uses px for critical sizing because Dawn scales rem via --font-body-scale.
+*/
+
+.banner__buttons a.button.button--primary[href*="app.gemcardshow.com"] {
+  --gg-cta-gold: linear-gradient(135deg, #f1c75b 0%, #d4af37 55%, #b8860b 100%);
+  --gg-cta-gold-hover: linear-gradient(135deg, #f6d67a 0%, #e0bf4a 55%, #c99614 100%);
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+
+  width: 280px !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: 56px !important;
+  height: auto !important;
+  margin-inline: auto !important;
+  padding: 12px 28px !important;
+  box-sizing: border-box !important;
+
+  background: var(--gg-cta-gold) !important;
+  background-image: var(--gg-cta-gold) !important;
+  background-color: #d4af37 !important;
+  color: #111111 !important;
+
+  border: 1px solid #1a1a1a !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 6px 22px rgba(212, 175, 55, 0.38),
+    0 2px 8px rgba(0, 0, 0, 0.28) !important;
+
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+  cursor: pointer !important;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    background-image 0.2s ease,
+    filter 0.2s ease !important;
+}
+
+.banner__buttons a.button.button--primary[href*="app.gemcardshow.com"]::before {
+  content: "" !important;
+  display: inline-block !important;
+  flex: 0 0 auto !important;
+  width: 26px !important;
+  height: 26px !important;
+  background-color: #111111 !important;
+  /* Official GemGrade diamond “G” mark already on the shop CDN (icon-only). */
+  background-image: url("https://gemcardshow.com/cdn/shop/files/logo1.jpg?v=1783081633") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 118% !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35) !important;
+}
+
+.banner__buttons a.button.button--primary[href*="app.gemcardshow.com"]:hover {
+  background: var(--gg-cta-gold-hover) !important;
+  background-image: var(--gg-cta-gold-hover) !important;
+  color: #111111 !important;
+  transform: translateY(-2px) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.34) inset,
+    0 10px 28px rgba(212, 175, 55, 0.55),
+    0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  filter: brightness(1.04) !important;
+}
+
+.banner__buttons a.button.button--primary[href*="app.gemcardshow.com"]:active {
+  transform: translateY(0) !important;
+  filter: none !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 4px 14px rgba(212, 175, 55, 0.28),
+    0 1px 4px rgba(0, 0, 0, 0.25) !important;
+}
+
+.banner__buttons a.button.button--primary[href*="app.gemcardshow.com"]:focus-visible {
+  outline: 3px solid #111111 !important;
+  outline-offset: 3px !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 0 0 4px rgba(241, 199, 91, 0.55),
+    0 6px 22px rgba(212, 175, 55, 0.38) !important;
+}
+
+@media screen and (max-width: 749px) {
+  .banner__buttons {
+    justify-content: center !important;
+  }
+
+  .banner__buttons a.button.button--primary[href*="app.gemcardshow.com"] {
+    width: min(100%, 280px) !important;
+    min-height: 48px !important;
+    padding: 10px 20px !important;
+    gap: 8px !important;
+    font-size: 14px !important;
+  }
+
+  .banner__buttons a.button.button--primary[href*="app.gemcardshow.com"]::before {
+    width: 22px !important;
+    height: 22px !important;
+  }
+}

@@ -1,0 +1,5 @@
+{% comment %}
+  Include once in layout/theme.liquid (inside <head>):
+  {% render 'gemgrade-start-scanning-styles' %}
+{% endcomment %}
+{{ 'gemgrade-start-scanning.css' | asset_url | stylesheet_tag }}
