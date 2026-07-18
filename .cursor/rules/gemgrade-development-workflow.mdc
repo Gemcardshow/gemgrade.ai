@@ -1,0 +1,41 @@
+---
+description: Production-quality task completion — quality check, git, safety, pride bar
+alwaysApply: true
+---
+
+# GemGrade Development Workflow
+
+Maintain production-quality software. Every completed task follows this workflow.
+
+## Quality check (before done)
+
+- Application builds successfully
+- No new linting errors
+- No obvious runtime errors
+- Mobile and desktop layouts verified
+- Modified files reviewed; no unrelated files changed
+- UI stays consistent with GemGrade design language
+- Clear, low-risk improvements: implement them
+
+## Git workflow (after work)
+
+1. Review all changed files
+2. Create a descriptive git commit
+3. Push to the current development branch
+4. Summarize: what changed, files modified, commit hash, recommendations
+
+Commit messages must be descriptive (`feat:`, `fix:`, `refactor:`, `style:`). Never: `update`, `fix`, `changes`, `misc`.
+
+This workflow authorizes commit + push after each completed task. Follow commit safety (no force push, no secrets, no config tampering).
+
+## Production safety
+
+- Never merge into the production branch
+- Never deploy to production
+- Never overwrite production configuration
+- Never remove existing functionality unless explicitly instructed
+- Production deployments require explicit approval from the project owner
+
+## Engineering mindset
+
+Before every commit: *Would I be proud if this shipped to thousands of collectors?* If no, keep improving. Leave the project better than you found it. Build software collectors will trust.
