@@ -69,3 +69,22 @@ Files on this theme:
 - Destination remains `https://app.gemcardshow.com`
 - Selector is scoped to primary buttons whose `href` contains `app.gemcardshow.com`
 - Other slideshow “Start Scanning” buttons that link to collections are untouched
+
+## Live homepage gotcha (4 “Start Scanning” CTAs)
+
+The slideshow has **four** buttons labeled “Start Scanning”:
+
+| Slide | Classes | `href` | Styled by GemGrade CSS? |
+|-------|---------|--------|-------------------------|
+| 1 | `button button--primary` | `https://app.gemcardshow.com` | Yes — gold |
+| 2 | `button button--secondary` | `/collections/all` | No (light gray) |
+| 3 | `button button--primary` | `/collections/all` | No (olive scheme) |
+| 4 | `button button--primary` | `/collections/all` | No (**white** scheme) |
+
+If the live page looks “still white,” check that you are on **slide 1** (app link), not a later slide. On desktop, slide 1’s gold CTA sits **below** the adapt-to-image hero, so scroll past the banner image to see it.
+
+## Selector (unchanged — matches real live DOM)
+
+```css
+.banner__buttons a.button.button--primary[href*="app.gemcardshow.com"]
+```

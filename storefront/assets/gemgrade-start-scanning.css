@@ -2,12 +2,17 @@
   GemGrade — Start Scanning CTA (Shopify Dawn slideshow)
   Targets only the homepage hero primary button that links to the GemGrade app.
   Uses px for critical sizing because Dawn scales rem via --font-body-scale.
+
+  Dawn paints primary-button fill on ::before and a 1px ring on ::after.
+  Those pseudos are reset here so the gold fill lives on the <a> itself and
+  ::before is reserved for the GemGrade mark only.
 */
 
 .banner__buttons a.button.button--primary[href*="app.gemcardshow.com"] {
   --gg-cta-gold: linear-gradient(135deg, #f1c75b 0%, #d4af37 55%, #b8860b 100%);
   --gg-cta-gold-hover: linear-gradient(135deg, #f6d67a 0%, #e0bf4a 55%, #c99614 100%);
 
+  position: relative !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -43,6 +48,11 @@
   line-height: 1.2 !important;
   cursor: pointer !important;
 
+  /* Defeat Dawn color-scheme button tokens that paint white primaries */
+  --color-button: #d4af37 !important;
+  --color-button-text: #111111 !important;
+  --alpha-button-background: 1 !important;
+
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -51,12 +61,23 @@
     filter 0.2s ease !important;
 }
 
+/* Kill Dawn’s full-bleed ::before fill; use it only for the logo mark */
 .banner__buttons a.button.button--primary[href*="app.gemcardshow.com"]::before {
   content: "" !important;
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: auto !important;
   display: inline-block !important;
   flex: 0 0 auto !important;
   width: 26px !important;
   height: 26px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35) !important;
   background-color: #111111 !important;
   /* Official GemGrade diamond “G” mark already on the shop CDN (icon-only). */
   background-image: url("https://gemcardshow.com/cdn/shop/files/logo1.jpg?v=1783081633") !important;
@@ -64,7 +85,15 @@
   background-position: center !important;
   background-size: 118% !important;
   border-radius: 50% !important;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35) !important;
+  transform: none !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+}
+
+/* Remove Dawn’s ::after white ring / hover overlay on this CTA only */
+.banner__buttons a.button.button--primary[href*="app.gemcardshow.com"]::after {
+  content: none !important;
+  display: none !important;
 }
 
 .banner__buttons a.button.button--primary[href*="app.gemcardshow.com"]:hover {
