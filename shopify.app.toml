@@ -1,6 +1,6 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "75ed4c634fbbd0d6b42bb78212e2e3cb"
+client_id = "5d873659d0a23f0e2d0b9931e2ae744e"
 name = "GemGrade Auth Handoff"
 application_url = "https://app.gemcardshow.com"
 embedded = false
@@ -23,6 +23,6 @@ redirect_urls = [
 ]
 
 [app_proxy]
-url = "https://app.gemcardshow.com/api/auth/shopify/handoff"
-subpath = "gemgrade"
+url = "/api/auth/shopify/handoff"
+subpath = "gghandoff"
 prefix = "apps"

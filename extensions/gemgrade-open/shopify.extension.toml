@@ -1,0 +1,16 @@
+api_version = "2025-10"
+
+[[extensions]]
+name = "Open GemGrade"
+handle = "gemgrade-open"
+uid = "3c2fb797-b14c-3c90-aefa-212f19fd218352eeda6a"
+type = "ui_extension"
+description = "Continue to GemGrade signed in with your Gem Card Show account."
+
+[[extensions.targeting]]
+module = "./src/OpenGemGrade.jsx"
+target = "customer-account.profile.block.render"
+
+# Navigation uses absolute href on sso.gemcardshow.com (NOT the Shopify
+# application_url host app.gemcardshow.com). Links to the App URL host are
+# collapsed by Customer Account UI to the app root, dropping path + token.

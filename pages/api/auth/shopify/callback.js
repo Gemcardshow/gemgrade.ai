@@ -1,3 +1,6 @@
+import { exchangeAndStoreShopifyAdminToken } from "../../../../lib/shopifyHandoffAuth.js";
+import { getServiceRoleClient } from "../../../../lib/supabase/server.js";
+
 /**
  * Shopify OAuth redirect URI for Dev Dashboard app install / offline token grant.
  * Redirect URL: https://app.gemcardshow.com/api/auth/shopify/callback
@@ -26,20 +29,41 @@ export default async function handler(req, res) {
     );
   }
 
-  if (!code) {
+  if (!code || !shop) {
     return res.status(400).json({
-      error: "Missing OAuth code",
-      hint: "This URL is the Shopify app install redirect. Customer login uses /apps/gemgrade/handoff.",
+      error: "Missing OAuth code or shop",
+      hint: "Open the Shopify authorize URL once as the store owner to store an offline Admin API token.",
+      authorizeUrl:
+        "https://hidden-gem-sportcards.myshopify.com/admin/oauth/authorize?client_id=5d873659d0a23f0e2d0b9931e2ae744e&scope=read_customers%2Cwrite_app_proxy&redirect_uri=https%3A%2F%2Fapp.gemcardshow.com%2Fapi%2Fauth%2Fshopify%2Fcallback",
     });
   }
 
-  // One-time install acknowledgement. Offline Admin tokens should be stored in
-  // Vercel as SHOPIFY_ADMIN_ACCESS_TOKEN after exchanging this code offline.
-  return res.status(200).json({
-    ok: true,
-    shop: shop || null,
-    message:
-      "Shopify OAuth code received. Exchange it for an offline Admin API token and set SHOPIFY_ADMIN_ACCESS_TOKEN in Vercel if not already configured.",
-    codeReceived: true,
-  });
+  const supabase = getServiceRoleClient();
+  if (!supabase) {
+    return res.status(500).json({
+      error: "Supabase service role is not configured",
+    });
+  }
+
+  try {
+    const stored = await exchangeAndStoreShopifyAdminToken({
+      code,
+      shopDomain: shop,
+      supabase,
+    });
+
+    return res.status(200).json({
+      ok: true,
+      shop,
+      scope: stored.scope || null,
+      message:
+        "Offline Shopify Admin API token stored. Shopify → GemGrade handoff can now look up customer emails.",
+    });
+  } catch (err) {
+    console.error("shopify_oauth_token_exchange_failed", err);
+    return res.status(500).json({
+      error: "Failed to exchange Shopify OAuth code",
+      detail: err instanceof Error ? err.message : String(err),
+    });
+  }
 }
