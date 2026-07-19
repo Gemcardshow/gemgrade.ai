@@ -87,6 +87,11 @@ export async function GET(request) {
     const cookiesSet = [];
 
     const sessionSupabase = createServerClient(url, anonKey, {
+      cookieOptions: {
+        secure: true,
+        sameSite: "lax",
+        path: "/",
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll();

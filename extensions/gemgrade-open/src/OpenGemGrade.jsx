@@ -8,7 +8,6 @@ import { useState } from "preact/hooks";
 const HANDOFF_ORIGIN = "https://sso.gemcardshow.com";
 const HANDOFF_PATH = "/api/auth/shopify/customer-account-handoff";
 const HANDOFF_BASE = `${HANDOFF_ORIGIN}${HANDOFF_PATH}`;
-const FALLBACK_URL = "https://gemcardshow.com/apps/gghandoff/handoff?next=/";
 
 /**
  * Build the exact GET handoff URL the button must open.
@@ -114,17 +113,20 @@ export default async () => {
 function OpenGemGrade() {
   const [status, setStatus] = useState("ready");
   const [message, setMessage] = useState("");
-  async function onOpenClick() {
-    if (status === "opening") return;
-    setStatus("opening");
+  const [handoffHref, setHandoffHref] = useState("");
+
+  async function onRequestToken() {
+    if (status === "token_request_started") return;
+    setStatus("token_request_started");
     setMessage("");
+    logClient("token_request_started");
 
     try {
       // Shopify requires a session token request for every backend request.
       // Fetching here also prevents a token prepared at render time from expiring.
       const sessionToken = await shopify.sessionToken.get();
       const meta = peekJwtMeta(sessionToken || "");
-      logClient("session_token_at_click", {
+      logClient("token_ready", {
         token_present: Boolean(sessionToken),
         token_length: sessionToken ? sessionToken.length : 0,
         ...meta,
@@ -133,25 +135,29 @@ function OpenGemGrade() {
 
       const href = buildHandoffHref(sessionToken);
       const described = describeHref(href);
-      logClient("click_open", {
+      logClient("navigation_ready", {
         ...described,
-        navigate_via: "open_external_new_tab",
+        navigate_via: "s_button_href",
       });
       if (!described.href_is_full_handoff) {
         throw new Error("handoff_href_incomplete");
       }
 
-      open(href, "_blank");
-      setStatus("ready");
+      setHandoffHref(href);
+      setStatus("navigation_ready");
+      setMessage(
+        "Your secure sign-in link is ready. Select Continue to GemGrade.",
+      );
     } catch (error) {
-      setStatus("error");
-      setMessage("Could not prepare GemGrade sign-in. Try the fallback link.");
-      logClient("click_failed", {
+      setHandoffHref("");
+      setStatus("token_failed");
+      setMessage("Could not prepare GemGrade sign-in. Please try again.");
+      logClient("token_failed", {
         error_name: error instanceof Error ? error.name : "unknown",
         error_message:
           error instanceof Error ? error.message.slice(0, 80) : "unknown",
       });
-      console.error("gemgrade_open_click_failed", error);
+      console.error("gemgrade_open_token_failed", error);
     }
   }
 
@@ -161,20 +167,27 @@ function OpenGemGrade() {
         <s-text>
           Continue to GemGrade signed in with your Gem Card Show account.
         </s-text>
-        <s-button
-          variant="primary"
-          loading={status === "opening"}
-          disabled={status === "opening"}
-          onClick={onOpenClick}
-        >
-          Open GemGrade
-        </s-button>
-        {status === "error" ? (
+        {status === "navigation_ready" && handoffHref ? (
+          <s-button variant="primary" href={handoffHref} target="_blank">
+            Continue to GemGrade
+          </s-button>
+        ) : (
+          <s-button
+            variant="primary"
+            loading={status === "token_request_started"}
+            disabled={status === "token_request_started"}
+            onClick={onRequestToken}
+          >
+            Open GemGrade
+          </s-button>
+        )}
+        {message ? <s-text tone="neutral">{message}</s-text> : null}
+        {status === "token_failed" ? (
           <s-banner tone="critical">
-            <s-text>{message}</s-text>
-            <s-link href={FALLBACK_URL} target="_blank">
-              Open GemGrade fallback
-            </s-link>
+            <s-text>
+              GemGrade sign-in could not be prepared. Select Open GemGrade to
+              request a new secure link.
+            </s-text>
           </s-banner>
         ) : null}
       </s-stack>
