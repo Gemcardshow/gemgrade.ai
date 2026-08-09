@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import PurchasePackCard from "./PurchasePackCard.jsx";
 import { fetchAuthed } from "../lib/fetchAuthed.js";
+import { shouldHideExternalCreditPurchases } from "../lib/platform.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 
@@ -40,6 +41,11 @@ export default function CreditsPurchase() {
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState("");
   const [configured] = useState(() => hasUsableSupabasePublicConfig());
+  const [hidePurchases, setHidePurchases] = useState(false);
+
+  useEffect(() => {
+    setHidePurchases(shouldHideExternalCreditPurchases());
+  }, []);
 
   const loadBalance = useCallback(async () => {
     const response = await fetchAuthed("/api/credits/balance");
@@ -120,7 +126,11 @@ export default function CreditsPurchase() {
   if (!signedIn) {
     return (
       <div className="credits-page__sign-in">
-        <p>Sign in to view your balance and purchase scan credits.</p>
+        <p>
+          {hidePurchases
+            ? "Sign in to view your available scan credits."
+            : "Sign in to view your balance and purchase scan credits."}
+        </p>
         <Link href="/login">Sign in</Link>
       </div>
     );
@@ -133,21 +143,30 @@ export default function CreditsPurchase() {
         <strong>{balance === null ? "..." : balance} credits</strong>
       </p>
 
-      <p className="credits-page__note">
-        Use the same email at checkout that you use for your GemGrade account.
-        Credits are added automatically after payment.
-      </p>
+      {hidePurchases ? (
+        <p className="credits-page__note">
+          Your existing scan credits are available in the iOS app. Credit
+          purchases are not offered in this App Store build.
+        </p>
+      ) : (
+        <>
+          <p className="credits-page__note">
+            Use the same email at checkout that you use for your GemGrade
+            account. Credits are added automatically after payment.
+          </p>
 
-      <div className="credits-page__packs">
-        {PACK_CATALOG.map((pack) => (
-          <PurchasePackCard
-            key={pack.key}
-            label={pack.label}
-            credits={pack.credits}
-            checkoutUrl={pack.checkoutUrl}
-          />
-        ))}
-      </div>
+          <div className="credits-page__packs">
+            {PACK_CATALOG.map((pack) => (
+              <PurchasePackCard
+                key={pack.key}
+                label={pack.label}
+                credits={pack.credits}
+                checkoutUrl={pack.checkoutUrl}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
       {error ? <p className="credits-page__error">{error}</p> : null}
     </div>

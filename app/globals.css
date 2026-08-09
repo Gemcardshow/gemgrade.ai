@@ -184,6 +184,20 @@ code {
   box-shadow: var(--shadow-gold-hover);
 }
 
+.credit-balance--readonly {
+  cursor: default;
+}
+
+.credit-balance--readonly:hover {
+  border-color: var(--border-gold-strong);
+  background: linear-gradient(
+    180deg,
+    var(--gold-muted-strong) 0%,
+    var(--gold-muted) 100%
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
 /* -------------------------------------------------------------------------- */
 /* Buttons                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -243,6 +257,35 @@ code {
   font-size: 1.05rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+/* Homepage hero scan CTA only — do not affect other .btn / .btn--scan usages */
+.page--home .grade-scanner__form > .btn.btn--scan {
+  background: #d4af37;
+  color: #111111;
+  border: 2px solid #111111;
+  border-radius: 14px;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.page--home .grade-scanner__form > .btn.btn--scan:hover:not(:disabled) {
+  background: #d4af37;
+  color: #111111;
+  border-color: #111111;
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.45);
+  transform: translateY(-2px);
+}
+
+.page--home .grade-scanner__form > .btn.btn--scan:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.28);
+}
+
+.page--home .grade-scanner__form > .btn.btn--scan:disabled {
+  opacity: 0.55;
+  box-shadow: none;
+  transform: none;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1279,6 +1322,58 @@ code {
 
 .login-form__different-email:hover {
   color: var(--text-secondary);
+}
+
+.login-form__review {
+  display: grid;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.login-form__review-toggle {
+  justify-self: start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.login-form__review-toggle:hover {
+  color: var(--text-secondary);
+}
+
+.login-form__review-form {
+  display: grid;
+  gap: 16px;
+}
+
+.login-form__review-hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.login-form__review-submit {
+  border-color: var(--border-gold);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.login-form__review-submit:hover:not(:disabled) {
+  border-color: var(--border-gold-strong);
+  color: var(--text-primary);
+  background: rgba(226, 200, 122, 0.06);
+}
+
+.login-form__review-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 /* -------------------------------------------------------------------------- */

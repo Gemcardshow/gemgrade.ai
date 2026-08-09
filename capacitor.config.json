@@ -1,0 +1,27 @@
+{
+  "appId": "com.gemcardshow.gemgrade",
+  "appName": "GemGrade",
+  "webDir": "capacitor-web",
+  "server": {
+    "url": "https://app.gemcardshow.com",
+    "cleartext": false,
+    "allowNavigation": [
+      "app.gemcardshow.com",
+      "sso.gemcardshow.com",
+      "shopify.com",
+      "*.shopify.com"
+    ]
+  },
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "ios": {
+    "scheme": "GemGrade",
+    "contentInset": "automatic",
+    "allowsLinkPreview": false,
+    "scrollEnabled": true,
+    "limitsNavigationsToAppBoundDomains": true
+  }
+}
