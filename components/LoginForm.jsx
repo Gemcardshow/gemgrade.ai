@@ -35,6 +35,21 @@ function getOtpSendErrorMessage(error, fallback) {
 }
 
 /**
+ * @param {{ message?: string }} error
+ */
+function getPasswordSignInErrorMessage(error) {
+  const message = error?.message?.toLowerCase() ?? "";
+  if (
+    message.includes("invalid login") ||
+    message.includes("invalid credentials") ||
+    message.includes("email not confirmed")
+  ) {
+    return "Those review credentials are invalid. Check the App Store review notes and try again.";
+  }
+  return error?.message ?? "Unable to sign in with review credentials.";
+}
+
+/**
  * @param {{ callbackError?: string }} props
  */
 export default function LoginForm({ callbackError }) {
@@ -54,6 +69,10 @@ export default function LoginForm({ callbackError }) {
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const [showReviewLogin, setShowReviewLogin] = useState(false);
+  const [reviewEmail, setReviewEmail] = useState("");
+  const [reviewPassword, setReviewPassword] = useState("");
+  const [reviewLoading, setReviewLoading] = useState(false);
 
   const sendCooldownActive = cooldownSeconds > 0;
 
@@ -207,6 +226,43 @@ export default function LoginForm({ callbackError }) {
     }
   }
 
+  async function handleReviewPasswordSignIn(event) {
+    event.preventDefault();
+    if (reviewLoading) {
+      return;
+    }
+
+    const trimmedEmail = reviewEmail.trim();
+    if (!trimmedEmail || !reviewPassword) {
+      setError("Enter the App Review email and password.");
+      return;
+    }
+
+    setReviewLoading(true);
+    setMessage("");
+    setError("");
+
+    try {
+      const supabase = getSupabase();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: trimmedEmail,
+        password: reviewPassword,
+      });
+
+      if (signInError) {
+        throw signInError;
+      }
+
+      setReviewPassword("");
+      router.push("/");
+      router.refresh();
+    } catch (signInErr) {
+      setError(getPasswordSignInErrorMessage(signInErr));
+    } finally {
+      setReviewLoading(false);
+    }
+  }
+
   return (
     <div className="login-form">
       <p className="login-form__hint">
@@ -300,6 +356,67 @@ export default function LoginForm({ callbackError }) {
             ? getSendAgainLabel()
             : "Send magic link instead"}
       </button>
+
+      <div className="login-form__review">
+        <button
+          type="button"
+          className="login-form__review-toggle"
+          aria-expanded={showReviewLogin}
+          onClick={() => setShowReviewLogin((open) => !open)}
+        >
+          {showReviewLogin
+            ? "Hide review credentials"
+            : "Sign in with review credentials"}
+        </button>
+
+        {showReviewLogin ? (
+          <form
+            className="login-form__review-form"
+            onSubmit={handleReviewPasswordSignIn}
+          >
+            <p className="login-form__review-hint">
+              For Apple App Review only. Use the email and password provided in
+              the App Store Connect review notes.
+            </p>
+
+            <label htmlFor="review-email">
+              Review email
+              <input
+                id="review-email"
+                name="review-email"
+                type="email"
+                autoComplete="username"
+                value={reviewEmail}
+                onChange={(event) => setReviewEmail(event.target.value)}
+                placeholder="review@example.com"
+              />
+            </label>
+
+            <label htmlFor="review-password">
+              Review password
+              <input
+                id="review-password"
+                name="review-password"
+                type="password"
+                autoComplete="current-password"
+                value={reviewPassword}
+                onChange={(event) => setReviewPassword(event.target.value)}
+                placeholder="Password from review notes"
+              />
+            </label>
+
+            <button
+              type="submit"
+              className="btn login-form__review-submit"
+              disabled={
+                reviewLoading || !reviewEmail.trim() || !reviewPassword
+              }
+            >
+              {reviewLoading ? "Signing in..." : "Sign in for review"}
+            </button>
+          </form>
+        ) : null}
+      </div>
     </div>
   );
 }

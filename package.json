@@ -7,8 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "npm run test:api && node --test lib/gradeHandler.test.js lib/credits.test.js lib/shopifyCredits.test.js lib/shopifyHandoffAuth.test.js lib/shopifyCustomerAccountSession.test.js lib/shopifyCustomerAccountExtension.test.js lib/gradeScanGate.test.js lib/scoutPresentation.test.js lib/scanInputAdapter.test.js lib/scanHistory.test.js lib/scanImageStorage.test.js lib/adminAuth.test.js lib/adminCredits.test.js lib/adminDashboard.test.js lib/supabase/env.test.js lib/authRedirect.test.js lib/gradeScannerForm.test.js lib/gradePresentation.test.js",
+    "test": "npm run test:api && node --test lib/gradeHandler.test.js lib/credits.test.js lib/shopifyCredits.test.js lib/shopifyHandoffAuth.test.js lib/shopifyCustomerAccountSession.test.js lib/shopifyCustomerAccountExtension.test.js lib/gradeScanGate.test.js lib/scoutPresentation.test.js lib/scanInputAdapter.test.js lib/scanHistory.test.js lib/scanImageStorage.test.js lib/adminAuth.test.js lib/adminCredits.test.js lib/adminDashboard.test.js lib/supabase/env.test.js lib/authRedirect.test.js lib/gradeScannerForm.test.js lib/gradePresentation.test.js lib/platform.test.js lib/appleReviewerAccount.test.js",
     "test:api": "node --test lib/grading/engine.test.js",
+    "apple:reviewer:create": "node scripts/create-apple-reviewer-account.mjs",
     "benchmark:scan": "node benchmarks/scan-manifest.js",
     "benchmark:run": "node benchmarks/run-benchmark.js",
     "benchmark": "npm run benchmark:scan && npm run benchmark:run",
@@ -24,14 +25,27 @@
     "benchmark:psa8910-compare": "node benchmarks/compare-psa8910-benchmark.mjs",
     "benchmark:psa8910-psa10-forensic": "node benchmarks/analyze-psa10-binding-caps.mjs",
     "benchmark:psa8910-category-floor-sim": "node benchmarks/simulate-priority1-category-floor-mint-stack.mjs",
-    "benchmark:psa8910-nm-corner-sim": "node benchmarks/simulate-priority1-nm-corner-stack.mjs"
+    "benchmark:psa8910-nm-corner-sim": "node benchmarks/simulate-priority1-nm-corner-stack.mjs",
+    "android:sync": "cap sync android",
+    "android:assets": "capacitor-assets generate --android",
+    "android:bundle": "cd android && gradlew.bat bundleRelease",
+    "ios:sync": "cap sync ios",
+    "ios:assets": "capacitor-assets generate --ios",
+    "ios:open": "cap open ios"
   },
   "dependencies": {
+    "@capacitor/android": "8.4.2",
+    "@capacitor/core": "8.4.2",
+    "@capacitor/ios": "8.4.2",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.1",
     "next": "^14.2.24",
     "openai": "^4.86.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "8.4.2"
   }
 }
