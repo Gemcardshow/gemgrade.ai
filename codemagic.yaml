@@ -21,7 +21,7 @@ workflows:
         BUNDLE_ID: com.gemcardshow.gemgrade
         MARKETING_VERSION: "1.0.0"
         BUILD_NUMBER: "1"
-      node: 20
+      node: 22
       xcode: latest
     scripts:
       - name: Install npm dependencies
