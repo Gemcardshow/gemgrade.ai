@@ -36,7 +36,7 @@ workflows:
       - name: Fetch or create App Store signing files
         script: |
           set -e
-          echo "$CERTIFICATE_PRIVATE_KEY" | base64 --decode > /tmp/ios_distribution_private_key
+          printf '%s\n' "$CERTIFICATE_PRIVATE_KEY" > /tmp/ios_distribution_private_key
           chmod 600 /tmp/ios_distribution_private_key
           app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create --certificate-key=@file:/tmp/ios_distribution_private_key
           rm -f /tmp/ios_distribution_private_key
