@@ -1,0 +1,57 @@
+# GemGrade iOS App Store production workflow (Capacitor)
+# Uses Codemagic Developer Portal / App Store Connect integration for signing + upload.
+# Do not commit Apple secrets; configure the named integration in Codemagic Team settings.
+
+workflows:
+  gemgrade-ios-app-store:
+    name: GemGrade iOS App Store
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    integrations:
+      # Must match the App Store Connect API key name in Codemagic → Team integrations → Developer Portal
+      app_store_connect: GemGrade Codemagic
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.gemcardshow.gemgrade
+      vars:
+        XCODE_PROJECT: ios/App/App.xcodeproj
+        XCODE_SCHEME: App
+        BUNDLE_ID: com.gemcardshow.gemgrade
+        MARKETING_VERSION: "1.0.0"
+        BUILD_NUMBER: "1"
+      node: 20
+      xcode: latest
+    scripts:
+      - name: Install npm dependencies
+        script: |
+          npm ci
+      - name: Sync Capacitor iOS project
+        script: |
+          npx cap sync ios
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles
+      - name: Set marketing version and build number
+        script: |
+          cd "$CM_BUILD_DIR/ios/App"
+          agvtool new-marketing-version "$MARKETING_VERSION"
+          agvtool new-version -all "$BUILD_NUMBER"
+      - name: Build App Store IPA
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - ios/App/build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+    publishing:
+      app_store_connect:
+        # Authenticate with the Team integration named above (no secrets in git)
+        auth: integration
+        # Upload the IPA to App Store Connect and make it available to TestFlight
+        submit_to_testflight: true
+        # Do not auto-submit for App Store review
+        submit_to_app_store: false
