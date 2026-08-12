@@ -38,7 +38,7 @@ workflows:
           set -e
           printf '%s' "$CERTIFICATE_PRIVATE_KEY" | base64 --decode > /tmp/ios_distribution_private_key
           chmod 600 /tmp/ios_distribution_private_key
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create --certificate-key=@file:/tmp/ios_distribution_private_key
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create --certificate-key="$(cat /tmp/ios_distribution_private_key)"
           rm -f /tmp/ios_distribution_private_key
       - name: Add certificates to keychain
         script: |
