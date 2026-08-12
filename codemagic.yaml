@@ -1,6 +1,6 @@
 # GemGrade iOS App Store production workflow (Capacitor)
-# Uses Codemagic Developer Portal / App Store Connect integration for signing + upload.
-# Do not commit Apple secrets; configure the named integration in Codemagic Team settings.
+# Signing: App Store Connect integration "GemGrade Codemagic" + fetch-signing-files --create
+# Do not commit Apple secrets.
 
 workflows:
   gemgrade-ios-app-store:
@@ -8,12 +8,13 @@ workflows:
     max_build_duration: 120
     instance_type: mac_mini_m2
     integrations:
-      # Must match the App Store Connect API key name in Codemagic → Team integrations → Developer Portal
+      # Must match Codemagic → Team integrations → Developer Portal key name
       app_store_connect: GemGrade Codemagic
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.gemcardshow.gemgrade
+      groups:
+        # Must contain secret CERTIFICATE_PRIVATE_KEY (RSA PEM used to create/fetch distribution certs)
+        # Codemagic → App settings → Environment variables → group name must match exactly
+        - ios_code_signing
       vars:
         XCODE_PROJECT: ios/App/App.xcodeproj
         XCODE_SCHEME: App
@@ -29,7 +30,18 @@ workflows:
       - name: Sync Capacitor iOS project
         script: |
           npx cap sync ios
-      - name: Set up code signing settings on Xcode project
+      - name: Initialize keychain for code signing
+        script: |
+          keychain initialize
+      - name: Fetch or create App Store signing files
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+      - name: Add certificates to keychain
+        script: |
+          keychain add-certificates
+      - name: Apply provisioning profiles to Xcode project
         script: |
           xcode-project use-profiles
       - name: Set marketing version and build number
@@ -49,9 +61,6 @@ workflows:
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
     publishing:
       app_store_connect:
-        # Authenticate with the Team integration named above (no secrets in git)
         auth: integration
-        # Upload the IPA to App Store Connect and make it available to TestFlight
         submit_to_testflight: true
-        # Do not auto-submit for App Store review
         submit_to_app_store: false
