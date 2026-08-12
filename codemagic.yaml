@@ -11,10 +11,6 @@ workflows:
       # Must match Codemagic → Team integrations → Developer Portal key name
       app_store_connect: GemGrade Codemagic
     environment:
-      groups:
-        # Must contain secret CERTIFICATE_PRIVATE_KEY (RSA PEM used to create/fetch distribution certs)
-        # Codemagic → App settings → Environment variables → group name must match exactly
-        - ios_code_signing
       vars:
         XCODE_PROJECT: ios/App/App.xcodeproj
         XCODE_SCHEME: App
@@ -36,10 +32,10 @@ workflows:
       - name: Fetch or create App Store signing files
         script: |
           set -e
-          printf '%s' "$CERTIFICATE_PRIVATE_KEY" | base64 --decode > /tmp/ios_distribution_private_key
-          chmod 600 /tmp/ios_distribution_private_key
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create --certificate-key="$(cat /tmp/ios_distribution_private_key)"
-          rm -f /tmp/ios_distribution_private_key
+          openssl genrsa -out /tmp/ios_distribution_private_key.pem 2048
+          chmod 600 /tmp/ios_distribution_private_key.pem
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create --certificate-key="$(cat /tmp/ios_distribution_private_key.pem)"
+          rm -f /tmp/ios_distribution_private_key.pem
       - name: Add certificates to keychain
         script: |
           keychain add-certificates
