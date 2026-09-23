@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { fetchAuthed } from "../lib/fetchAuthed.js";
-import { shouldHideExternalCreditPurchases } from "../lib/platform.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 
@@ -12,11 +11,6 @@ export default function CreditBalance() {
   const [signedIn, setSignedIn] = useState(false);
   const [ready, setReady] = useState(false);
   const [configured] = useState(() => hasUsableSupabasePublicConfig());
-  const [hidePurchases, setHidePurchases] = useState(false);
-
-  useEffect(() => {
-    setHidePurchases(shouldHideExternalCreditPurchases());
-  }, []);
 
   const loadBalance = useCallback(async () => {
     const response = await fetchAuthed("/api/credits/balance");
@@ -105,14 +99,6 @@ export default function CreditBalance() {
   }
 
   const label = balance === null ? "Credits" : `${balance} credits`;
-
-  if (hidePurchases) {
-    return (
-      <span className="credit-balance credit-balance--readonly" aria-label={label}>
-        {label}
-      </span>
-    );
-  }
 
   return (
     <Link href="/credits" className="credit-balance">

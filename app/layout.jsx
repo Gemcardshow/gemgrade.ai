@@ -1,6 +1,7 @@
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import AuthStatus from "../components/AuthStatus.jsx";
+import AppleIapTransactionSync from "../components/AppleIapTransactionSync.jsx";
 import {
   GEMGRADE_DISCLAIMER,
   GEMGRADE_FOOTER_TAGLINE,
@@ -32,6 +33,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body className={body.className}>
         <AuthStatus />
+        <AppleIapTransactionSync />
         {children}
         <footer className="site-footer">
           <p>{GEMGRADE_DISCLAIMER}</p>

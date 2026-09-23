@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { fetchAuthed } from "../lib/fetchAuthed.js";
-import { shouldHideExternalCreditPurchases } from "../lib/platform.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 
@@ -30,11 +29,6 @@ export default function ScanCreditBalanceCard({
   const [signedIn, setSignedIn] = useState(false);
   const [ready, setReady] = useState(false);
   const [configured] = useState(() => hasUsableSupabasePublicConfig());
-  const [hidePurchases, setHidePurchases] = useState(false);
-
-  useEffect(() => {
-    setHidePurchases(shouldHideExternalCreditPurchases());
-  }, []);
 
   const loadBalance = useCallback(async () => {
     setLoadingBalance(true);
@@ -174,11 +168,9 @@ export default function ScanCreditBalanceCard({
         </div>
       )}
 
-      {hidePurchases ? null : (
-        <Link href="/credits" className="scan-credit-balance__buy">
-          Buy Credits
-        </Link>
-      )}
+      <Link href="/credits" className="scan-credit-balance__buy">
+        Buy Credits
+      </Link>
     </section>
   );
 }

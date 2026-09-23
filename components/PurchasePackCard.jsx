@@ -12,7 +12,7 @@ export default function PurchasePackCard({ label, credits, checkoutUrl }) {
       <p className="purchase-pack__credits">{credits} credits</p>
       <a
         href={checkoutUrl}
-        className="btn btn--primary"
+        className="purchase-pack__buy"
         target="_blank"
         rel="noopener noreferrer"
       >

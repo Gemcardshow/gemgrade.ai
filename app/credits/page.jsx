@@ -6,7 +6,7 @@ export default function CreditsPage() {
     <main className="page">
       <header className="page__header">
         <h1>Credits</h1>
-        <p>Buy GemGrade scan credits on Gem Card Show.</p>
+        <p>Purchase GemGrade scan credits.</p>
       </header>
 
       <CreditsPurchase />

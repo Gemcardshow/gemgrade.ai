@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "npm run test:api && node --test lib/gradeHandler.test.js lib/credits.test.js lib/shopifyCredits.test.js lib/shopifyHandoffAuth.test.js lib/shopifyCustomerAccountSession.test.js lib/shopifyCustomerAccountExtension.test.js lib/gradeScanGate.test.js lib/scoutPresentation.test.js lib/scanInputAdapter.test.js lib/scanHistory.test.js lib/scanImageStorage.test.js lib/adminAuth.test.js lib/adminCredits.test.js lib/adminDashboard.test.js lib/supabase/env.test.js lib/authRedirect.test.js lib/gradeScannerForm.test.js lib/gradePresentation.test.js lib/platform.test.js lib/appleReviewerAccount.test.js",
+    "test": "npm run test:api && node --test lib/gradeHandler.test.js lib/credits.test.js lib/appleIap.test.js lib/shopifyCredits.test.js lib/shopifyHandoffAuth.test.js lib/shopifyCustomerAccountSession.test.js lib/shopifyCustomerAccountExtension.test.js lib/gradeScanGate.test.js lib/scoutPresentation.test.js lib/scanInputAdapter.test.js lib/scanHistory.test.js lib/scanImageStorage.test.js lib/adminAuth.test.js lib/adminCredits.test.js lib/adminDashboard.test.js lib/supabase/env.test.js lib/authRedirect.test.js lib/gradeScannerForm.test.js lib/gradePresentation.test.js lib/platform.test.js lib/appleReviewerAccount.test.js",
     "test:api": "node --test lib/grading/engine.test.js",
     "apple:reviewer:create": "node scripts/create-apple-reviewer-account.mjs",
     "benchmark:scan": "node benchmarks/scan-manifest.js",
@@ -34,6 +34,7 @@
     "ios:open": "cap open ios"
   },
   "dependencies": {
+    "@apple/app-store-server-library": "^3.1.0",
     "@capacitor/android": "8.4.2",
     "@capacitor/core": "8.4.2",
     "@capacitor/ios": "8.4.2",

@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import AppleCreditsPurchase from "./AppleCreditsPurchase.jsx";
 import PurchasePackCard from "./PurchasePackCard.jsx";
 import { fetchAuthed } from "../lib/fetchAuthed.js";
-import { shouldHideExternalCreditPurchases } from "../lib/platform.js";
+import { getAppPlatform } from "../lib/platform.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 
@@ -41,11 +42,7 @@ export default function CreditsPurchase() {
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState("");
   const [configured] = useState(() => hasUsableSupabasePublicConfig());
-  const [hidePurchases, setHidePurchases] = useState(false);
-
-  useEffect(() => {
-    setHidePurchases(shouldHideExternalCreditPurchases());
-  }, []);
+  const [platform, setPlatform] = useState("pending");
 
   const loadBalance = useCallback(async () => {
     const response = await fetchAuthed("/api/credits/balance");
@@ -57,6 +54,10 @@ export default function CreditsPurchase() {
     const data = await response.json();
     setBalance(typeof data.balance === "number" ? data.balance : 0);
     return data;
+  }, []);
+
+  useEffect(() => {
+    setPlatform(getAppPlatform());
   }, []);
 
   useEffect(() => {
@@ -119,18 +120,16 @@ export default function CreditsPurchase() {
     );
   }
 
-  if (!ready) {
+  if (!ready || platform === "pending") {
     return <p className="credits-page__note">Loading credits...</p>;
   }
+
+  const iosPurchases = platform === "ios";
 
   if (!signedIn) {
     return (
       <div className="credits-page__sign-in">
-        <p>
-          {hidePurchases
-            ? "Sign in to view your available scan credits."
-            : "Sign in to view your balance and purchase scan credits."}
-        </p>
+        <p>Sign in to view your balance and purchase scan credits.</p>
         <Link href="/login">Sign in</Link>
       </div>
     );
@@ -143,11 +142,13 @@ export default function CreditsPurchase() {
         <strong>{balance === null ? "..." : balance} credits</strong>
       </p>
 
-      {hidePurchases ? (
-        <p className="credits-page__note">
-          Your existing scan credits are available in the iOS app. Credit
-          purchases are not offered in this App Store build.
-        </p>
+      {iosPurchases ? (
+        <AppleCreditsPurchase
+          onBalance={(nextBalance) => {
+            setBalance(nextBalance);
+            setError("");
+          }}
+        />
       ) : (
         <>
           <p className="credits-page__note">
