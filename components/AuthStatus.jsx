@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { GEM_CARD_SHOW_URL } from "../lib/gradePresentation.js";
+import { getAppPlatform } from "../lib/platform.js";
 import { createSupabaseBrowserClient } from "../lib/supabase/browser.js";
 import { hasUsableSupabasePublicConfig } from "../lib/supabase/env.js";
 import CreditBalance from "./CreditBalance.jsx";
@@ -10,7 +11,12 @@ import CreditBalance from "./CreditBalance.jsx";
 export default function AuthStatus() {
   const [email, setEmail] = useState(null);
   const [ready, setReady] = useState(false);
+  const [platform, setPlatform] = useState("pending");
   const [configured] = useState(() => hasUsableSupabasePublicConfig());
+
+  useEffect(() => {
+    setPlatform(getAppPlatform());
+  }, []);
 
   useEffect(() => {
     if (!configured) {
@@ -67,17 +73,23 @@ export default function AuthStatus() {
     return null;
   }
 
+  const showExternalStoreLink = platform === "web" || platform === "android";
+
   return (
     <header className="site-header auth-status">
       <div className="site-brand-group">
-        <a
-          href={GEM_CARD_SHOW_URL}
-          className="site-brand site-brand__store"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Gem Card Show
-        </a>
+        {showExternalStoreLink ? (
+          <a
+            href={GEM_CARD_SHOW_URL}
+            className="site-brand site-brand__store"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Gem Card Show
+          </a>
+        ) : (
+          <span className="site-brand site-brand__store">Gem Card Show</span>
+        )}
         <span className="site-brand__sep" aria-hidden="true">
           ·
         </span>
